@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # ddandrda
 
 <!-- badges: start -->
+[![Codecov test coverage](https://codecov.io/gh/hannahblo/ddandrda/branch/main/graph/badge.svg)](https://app.codecov.io/gh/hannahblo/ddandrda?branch=main)
 <!-- badges: end -->
 
 The goal of ddandrda is to ...
