@@ -1,4 +1,4 @@
-comment: false
+comment: true
 
 coverage:
   status:
@@ -12,3 +12,6 @@ coverage:
         target: 100%
         threshold: 100%
         informational: false
+
+
+if_ci_failed: error
