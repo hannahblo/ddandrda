@@ -14,8 +14,8 @@ has to be a squared matrix.}
 The transitive hull of the relation matrix relation_mat
 }
 \description{
-'compute_transitive_hull' returns a 0-1-matrix which represents the order-pairs
-given by the transitivity property of a partial order
+'compute_transitive_hull' returns a 0-1-matrix which represents the
+order-pairs given by the transitivity property of a partial order
 }
 \examples{
 relation_mat_input <- matrix(0, nrow = 5, ncol = 5)
