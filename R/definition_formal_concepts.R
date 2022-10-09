@@ -1,20 +1,17 @@
 #' Computes the formal context for nominal data by the use of nominal scaling
 #'
-#' @description 'calculate_nominal_scaling_vec' computes for a set of nominal
+#' @description 'compute_nominal_scaling_vec' computes for a set of nominal
 #' data points the formal concept based on nominal scaling, without considering
 #' groups
 #' see page 42 of Ganter, B., Will, R. (2008): Formale Begriffsanalyse,
 #' Mathematische Grundlagen, Springer
 #'
 #' @param data_values (vector): for each observation one factor value
-#' @param add_column_name (Null, char): a further definition for the column names
+#' @param add_column_name (Null, char): a further definition for the column
+#' names
 #'
 #' @return dataframe representing the crosstable/formal context
-#'
-# @examples
-# attr_nominal <- as.factor(c("factor_1", "factor_2", "factor_2", "factor_1"))
-# calculate_nominal_scaling_vec(attr_nominal, "nominal")
-calculate_nominal_scaling_vec <- function(data_values, add_column_name = NULL) {
+compute_nominal_scaling_vec <- function(data_values, add_column_name = NULL) {
   attr <- sort(unique(data_values))
   length_attr <- length(attr)
   number_elements_data <- length(data_values)
@@ -43,20 +40,17 @@ calculate_nominal_scaling_vec <- function(data_values, add_column_name = NULL) {
 
 #' Computes the formal context for ordinal data by the use of ordinal scaling
 #'
-#' @description 'calculate_ordinal_scaling_vec' computes for a set of ordinal
+#' @description 'compute_ordinal_scaling_vec' computes for a set of ordinal
 #' data points the formal concept based on ordinal scaling
 #' see page 42 of Ganter, B., Will, R. (2008): Formale Begriffsanalyse,
 #' Mathematische Grundlagen, Springer
 #'
 #' @param data_values (vector): for each observation one factor value
-#' @param add_column_name (Null, char): a further definition for the column names
+#' @param add_column_name (Null, char): a further definition for the column
+#' names
 #'
 #' @return dataframe representing the crosstable/formal context
-#'
-# @examples
-# attr_numeric <- as.factor(c(1.2, 1, 1.6, 2))
-# calculate_ordinal_scaling_vec(attr_numeric, "numeric")
-calculate_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
+compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
   attr <- sort(unique(data_values))
@@ -68,7 +62,6 @@ calculate_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
   colnames_context <- rep("", length_attr)
 
   # Loop throw all attributes
-  t <- 1
   for (k in (1:length_attr)) {
     # Defining the column name
     colnames_context[k] <- paste(c(add_column_name, ": x<=", attr[k]),
@@ -91,21 +84,18 @@ calculate_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #' Computes the formal context for ordinal data by the use of dual ordinal
 #' scaling
 #'
-#' @description 'calculate_dual_ordinal_scaling_vec' computes for a set of dual
+#' @description 'compute_dual_ordinal_scaling_vec' computes for a set of dual
 #' ordinal data points the formal concept based on ordinal scaling. Here,
 #' the scaling method used is (n,n, >=) of page 42 of
 #' Ganter, B., Will, R. (2008): Formale Begriffsanalyse,
 #' Mathematische Grundlagen, Springer
 #'
 #' @param data_values (vector): for each observation one factor value
-#' @param add_column_name (Null, char): a further definition for the column names
+#' @param add_column_name (Null, char): a further definition for the column
+#' names
 #'
 #' @return dataframe representing the crosstable/formal context
-#'
-# @examples
-# attr_numeric <- as.factor(c(1.2, 1, 1.6, 2))
-# calculate_dual_ordinal_scaling_vec(attr_numeric, "numeric")
-calculate_dual_ordinal_scaling_vec <- function(data_values,
+compute_dual_ordinal_scaling_vec <- function(data_values,
                                                add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
@@ -118,7 +108,6 @@ calculate_dual_ordinal_scaling_vec <- function(data_values,
   colnames_context <- rep("", lenght_attr)
 
   # Loop throw all attributes
-  t <- 1
   for (k in (1:lenght_attr)) {
     # Defining the column name
     colnames_context[k] <- paste(c(add_column_name, ": x>=", attr[k]),
@@ -149,7 +138,7 @@ calculate_dual_ordinal_scaling_vec <- function(data_values,
 #'
 #' @return (list): number of attributes needed (all and per attribute),
 #'  the column names and the class of the elements
-calculate_number_columns_attr <- function(data_matrix) {
+compute_number_columns_attr <- function(data_matrix) {
   number_attr <- dim(data_matrix)[2]
   colnames_data <- colnames(data_matrix)
 
@@ -166,8 +155,8 @@ calculate_number_columns_attr <- function(data_matrix) {
     # if the mode is "ordered", "numeric" or "integer" the values are ordinal
     # anddual-ordinal saved and hence we have 2*(number of different values in
     # column k)
-    if (class(data_matrix[, k])[1] == "ordered" |
-      class(data_matrix[, k])[1] == "numeric" |
+    if (class(data_matrix[, k])[1] == "ordered" ||
+      class(data_matrix[, k])[1] == "numeric" ||
       class(data_matrix[, k])[1] == "integer") {
       number_column_per_attr[k] <- 2 * length(unique(data_matrix[, k]))
     }
@@ -211,15 +200,15 @@ calculate_number_columns_attr <- function(data_matrix) {
 #' @examples
 #' attr_nominal <- as.factor(c("factor_1", "factor_2", "factor_2", "factor_1"))
 #' attr_numeric <- as.factor(c(1.2, 1, 1.6, 2))
-#' calculate_conceptual_scaling(data.frame(nominal = attr_nominal,
+#' compute_conceptual_scaling(data.frame(nominal = attr_nominal,
 #'                       numeric = as.numeric(as.character(attr_numeric))))
 #' @export
-calculate_conceptual_scaling <- function(data_matrix) {
+compute_conceptual_scaling <- function(data_matrix) {
   number_obj <- dim(data_matrix)[1]
   number_attr <- dim(data_matrix)[2]
   colnames_data <- colnames(data_matrix)
 
-  number_columns_needed <- calculate_number_columns_attr(data_matrix)
+  number_columns_needed <- compute_number_columns_attr(data_matrix)
 
   # Memory spaces
   context_converted <- array(0, c(
@@ -230,17 +219,16 @@ calculate_conceptual_scaling <- function(data_matrix) {
 
   t <- 1
   for (k in (1:number_attr)) {
-    # print(c(k,": ",class(data_attr_obj[,k])),quote=FALSE)
 
-    if (class(data_matrix[, k])[1] == "ordered" |
-      class(data_matrix[, k])[1] == "numeric" |
+    if (class(data_matrix[, k])[1] == "ordered" ||
+      class(data_matrix[, k])[1] == "numeric" ||
       class(data_matrix[, k])[1] == "integer") {
       # Calculating the context for the attribute k
       inner_context <- cbind(
-        calculate_ordinal_scaling_vec(
+        compute_ordinal_scaling_vec(
           as.numeric(data_matrix[, k]), colnames_data[k]
         ),
-        calculate_dual_ordinal_scaling_vec(
+        compute_dual_ordinal_scaling_vec(
           as.numeric(data_matrix[, k]), colnames_data[k]
         )
       )
@@ -255,7 +243,7 @@ calculate_conceptual_scaling <- function(data_matrix) {
     }
     if (class(data_matrix[, k])[1] == "factor") {
       # Calculating the context for the attribute k
-      inner_context <- calculate_nominal_scaling_vec(
+      inner_context <- compute_nominal_scaling_vec(
         data_matrix[, k],
         colnames_data[k]
       )

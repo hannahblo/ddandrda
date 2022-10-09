@@ -5,7 +5,7 @@ testthat::test_that("calculate_nominal_scaling_vec works", {
   nominal_context[, 2] <- c(0, 1, 1, 0)
   colnames(nominal_context) <- c("nominal: factor_1", "nominal: factor_2")
   testthat::expect_equal(
-    calculate_nominal_scaling_vec(
+    compute_nominal_scaling_vec(
       attr_nominal_4,
       "nominal"
     ),
@@ -25,7 +25,7 @@ testthat::test_that("calculate_ordinal_scaling_vec works", {
     "numeric: x<=1.6", "numeric: x<=2"
   )
   testthat::expect_equal(
-    calculate_ordinal_scaling_vec(
+    compute_ordinal_scaling_vec(
       attr_numeric_4,
       "numeric"
     ),
@@ -45,7 +45,7 @@ testthat::test_that("calculate_dual_ordinal_scaling_vec works", {
     "numeric: x>=1.6", "numeric: x>=2"
   )
   testthat::expect_equal(
-    calculate_dual_ordinal_scaling_vec(
+    compute_dual_ordinal_scaling_vec(
       attr_numeric_4,
       "numeric"
     ),
@@ -77,7 +77,7 @@ testthat::test_that("calculate_conceptual_scaling works", {
     "numeric: x>=1.6", "numeric: x>=2"
   )
   testthat::expect_equal(
-    calculate_conceptual_scaling(
+    compute_conceptual_scaling(
       data.frame(
         nominal = attr_nominal_4,
         numeric = as.numeric(as.character(attr_numeric_4))

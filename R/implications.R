@@ -197,7 +197,6 @@ compute_generator_nominal <- function(subset, list_info) {
 #' FALSE is returened
 test_interordinal_in_conclusion_newobj <- function(subset, obj_numeric_obs,
                                                    info_list) {
-  # info_list = basic_formal_context
 
   index_subset <- which(subset == 1)
 
