@@ -132,7 +132,8 @@ operator_closure_obj_input <- function(subset_object, context) {
   # Defines the closure operator for computing all extends (objects)
 
   # Input: subset_object (array): set of objects
-  #         context (matrix): formal context which is used to calculate the extent
+  #         context (matrix): formal context which is used to calculate
+  # the extent
 
   # Output: subset (array): to smallest closure in the FCA based on
   #                         subset_object and context
