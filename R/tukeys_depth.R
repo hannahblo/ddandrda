@@ -1,14 +1,8 @@
-compute_outlyingness <- function(context, weights = rep(1, nrow(context))) {
-  n <- nrow(context)
-  m <- ncol(context)
-  a <- rep(0, m)
-  for (k in (1:m)) {
-    a[k] <- mean(context[, k] * weights)
+compute_outlyingness <- function(intent, context, row_weights = rep(1, nrow(context)), col_weights = rep(1, ncol(context))) {
+  normed_row_weights <- row_weights / sum(row_weights)
+  weighted_context <- ((normed_row_weights) %*% t(col_weights)) * context
+  weighted_column_means <- t(weighted_context) %*% (rep(1, nrow(context)))
+  if (is.vector(intent)) {
+    return(max(weighted_column_means[which(intent == 0)]))
   }
-  l <- rep(0, n)
-  for (k in (1:n)) {
-    temp <- context[k, ]
-    l[k] <- max(a[which(temp == 0)])
-  }
-  return(l)
 }
