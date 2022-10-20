@@ -132,8 +132,6 @@ strictly_quasiconcave_phull <- function(depths, context) {
 compute_all_partial_orders <- function(q, names = (1:q), complemented) {
   perms <- permutations(q, q)
   colnames(perms) <- names
-  # m <- nrow(perms)
-
   context <- ranking_scaling(perms,
     remove.full.columns = FALSE,
     complemented = complemented
@@ -141,6 +139,49 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented) {
   ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
   ans <- ans$intents[-nrow(ans$intents), ]
   colnames(ans) <- colnames(context)
+  return(ans)
+}
+
+
+## zu ueberarbeiten:
+
+ranking_scaling <- function(x, remove.full.columns = FALSE, complemented = FALSE) {
+  m <- dim(x)[1]
+  n <- dim(x)[2]
+  names <- rep("", n^2)
+  ans <- array(0, c(m, n^2))
+  temp <- array(0, c(n, n))
+  for (k in (1:m)) {
+    for (l1 in (1:n)) {
+      for (l2 in (1:n)) {
+        temp[l1, l2] <- ((x[k, l1] <= x[k, l2])) * 1
+      }
+    }
+    ans[k, ] <- as.vector(temp)
+  }
+  t <- 1
+  for (l1 in (1:n)) {
+    for (l2 in (1:n)) {
+      NAMES[t] <- paste(c(colnames(x)[l1], " <= ", colnames(x)[l2]), collapse = "")
+      t <- t + 1
+    }
+  }
+  colnames(ans) <- names
+
+  if (complemented) {
+    NAMES <- rep("", ncol(ans))
+    for (k in (1:ncol(ans))) {
+      names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
+        collapse = ""
+      )
+    }
+    ans <- cbind(ans, 1 - ans)
+    colnames(ans)[-(1:n^2)] <- names
+  }
+  if (remove.full.columns) {
+    i <- which(colSums(ans) == m)
+    ans <- ans[, -i]
+  }
   return(ans)
 }
 
@@ -385,9 +426,11 @@ compute_all_closure <- function(closure_operator, context,
 
 adds_element <- function(old_subset, element) {
   # Adds a further element to old_subset and deletes all larger elements
-  # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen, Springer Spektur, p.85
+  # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen,
+  # Springer Spektur, p.85
 
-  # input: old_subset (array with 0,1 elements): subset to which the element should be added
+  # input: old_subset (array with 0,1 elements): subset to which the element
+  # should be added
   #                                             (1 represents element in subset)
   #         element (integer): element (position) which is added
 
