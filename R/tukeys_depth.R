@@ -145,7 +145,7 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented) {
 
 ## zu ueberarbeiten:
 
-ranking_scaling <- function(x, remove.full.columns = FALSE, complemented = FALSE) {
+ranking_scaling <- function(x, remove_full_columns = FALSE, complemented = FALSE) {
   m <- dim(x)[1]
   n <- dim(x)[2]
   names <- rep("", n^2)
@@ -162,14 +162,14 @@ ranking_scaling <- function(x, remove.full.columns = FALSE, complemented = FALSE
   t <- 1
   for (l1 in (1:n)) {
     for (l2 in (1:n)) {
-      NAMES[t] <- paste(c(colnames(x)[l1], " <= ", colnames(x)[l2]), collapse = "")
+      names[t] <- paste(c(colnames(x)[l1], " <= ", colnames(x)[l2]), collapse = "")
       t <- t + 1
     }
   }
   colnames(ans) <- names
 
   if (complemented) {
-    NAMES <- rep("", ncol(ans))
+    names <- rep("", ncol(ans))
     for (k in (1:ncol(ans))) {
       names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
         collapse = ""
@@ -178,7 +178,7 @@ ranking_scaling <- function(x, remove.full.columns = FALSE, complemented = FALSE
     ans <- cbind(ans, 1 - ans)
     colnames(ans)[-(1:n^2)] <- names
   }
-  if (remove.full.columns) {
+  if (remove_full_columns) {
     i <- which(colSums(ans) == m)
     ans <- ans[, -i]
   }
