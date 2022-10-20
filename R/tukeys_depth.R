@@ -75,7 +75,6 @@ is_extendable_to_partial_order <- function(complemented_order) {
   return(TRUE)
 }
 
-test <- function(x){
-
+test <- function(x) {
   return(relations::as.relation(x))
 }
