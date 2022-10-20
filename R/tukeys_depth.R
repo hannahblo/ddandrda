@@ -17,7 +17,7 @@ compute_tukeys_depth <- function(intent,
   return(1 - compute_tukeys_outlyingness(
     intent,
     context,
-    row_eights,
+    row_weights,
     col_weights
   ))
 }
