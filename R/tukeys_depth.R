@@ -28,7 +28,8 @@ compute_tukeys_depth <- function(intent,
   ))
 }
 
-compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
+compute_tukeys_median_order <- function(corders,
+                                        startorder = corders[[1]] * 0) {
   # name eigtl. compute_tukeys_true_median_order
   # computes that partial order in the space of ALL partial orders that has the
   # maximal tukeys depth w.r.t. the given data cloud representet by th given
@@ -36,8 +37,8 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
   # list is an incidence relation apposited with its negation
   # (In terms of conceptual scaling we use here the complemented scaling)
 
-  q <- nrow(orders[[1]])
-  w <- Reduce("+", orders)
+  q <- nrow(corders[[1]])
+  w <- Reduce("+", corders)
   ans_old <- ans_new <- startorder
 
   while (TRUE) {
@@ -46,7 +47,7 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
     i <- sample(rep(i, 2), size = 1)
     ans_new <- ans_old
     ans_new[i] <- 1
-    if (!is_extendable_to_partial_order(ans_new)) {
+    if (!is_extendable_to_porder(ans_new)) {
       return(cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)]))
     }
     m1 <- ans_new[, (1:q)]
@@ -59,13 +60,13 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
   }
 }
 
-is_extendable_to_partial_order <- function(complemented_order) {
-  q <- dim(complemented_order)[1]
+is_extendable_to_porder <- function(corder) {
+  q <- dim(corder)[1]
   m1 <- relations::relation_incidence(relations::transitive_closure(
-    relations::as.relation(complemented_order[, (1:q)])
+    relations::as.relation(corder[, (1:q)])
   ))
   diag(m1) <- 1
-  m2 <- complemented_order[, -(1:q)]
+  m2 <- corder[, -(1:q)]
   if (any(m1 == 1 & m2 == 1)) {
     return(FALSE)
   }
