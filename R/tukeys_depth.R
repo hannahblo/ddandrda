@@ -159,6 +159,20 @@ operator_closure_obj_input <- function(subset_object, context) {
 }
 
 
+
+operator_closure_attr_input <- function(subset_attribute, context){
+  # Defines the closure operator for computing all intents (attribute)
+
+  # Input: subset_attribute (array): set of attributes
+  #         context (matrix): formal context which is used to
+  # calculate the intent
+
+  # Output: subset (array): to smallest closure in the FCA based on
+  #                         subset_attribute and context
+
+  calculate_psi(calculate_phi(subset_attribute, context), context)
+}
+
 calculate_phi <- function(subset_attributes, context) {
   # Calculates for a subset of attributes the minimal extent based on the
   # given context
@@ -258,9 +272,11 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
       # Calculate the extends based on the intents
       result$extents[k, ] <- calculate_phi(result$intents[k, ], context)
       result$concepts[k] <- paste("{",
-        paste((rownames(context))[which(result$extents[k, ] == 1)], collapse = ","),
+        paste((rownames(context))[which(result$extents[k, ] == 1)],
+              collapse = ","),
         "}   {",
-        paste((colnames(context))[which(result$intents[k, ] == 1)], collapse = ","),
+        paste((colnames(context))[which(result$intents[k, ] == 1)],
+              collapse = ","),
         "}",
         collapse = ""
       )
@@ -268,7 +284,8 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
   } else {
     for (k in (1:number_closure)) {
       result$concepts[k] <- paste("{",
-        paste((colnames(context))[which(result$intents[k, ] == 1)], collapse = ","),
+        paste((colnames(context))[which(result$intents[k, ] == 1)],
+              collapse = ","),
         "}",
         collapse = ""
       )
@@ -323,8 +340,7 @@ compute_all_closure <- function(closure_operator, context,
     # selected yet
     if (length(attributs_selected) == 0) {
       index <- (1:number_attributes)
-    }
-    else {
+    } else {
       index <- (1:number_attributes)[-attributs_selected]
     }
 
