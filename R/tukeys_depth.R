@@ -7,7 +7,6 @@ compute_tukeys_outlyingness <- function(context,
     a[k] <- mean(context[, k] * weights)
   }
   l <- rep(0, n)
-
   for (k in (1:n)) {
     temp <- context[k, ]
     l[k] <- max(a[which(temp == 0)])
