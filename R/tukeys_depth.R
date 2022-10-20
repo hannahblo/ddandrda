@@ -132,7 +132,7 @@ strictly_quasiconcave_phull <- function(depths, context) {
 compute_all_partial_orders <- function(q, names = (1:q), complemented) {
   perms <- permutations(q, q)
   colnames(perms) <- names
-  m <- nrow(perms)
+  #m <- nrow(perms)
 
   context <- ranking_scaling(perms,
     remove.full.columns = FALSE,
@@ -276,4 +276,87 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
   }
 
   return(result)
+}
+
+
+
+compute_all_closure <- function(closure_operator, context,
+         number_attributes = NA,
+         already_computed_closures = 1000) {
+  # Calculation of all sets of the complete lattice.
+  # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen,
+  # Springer Spekturm, p.68
+
+  # Input: closure_operator (func): set-operator which calculates the
+  # smallest closure
+  #               based on a subset
+  #         context (matrix): formal context which precises the closure_operator
+  #         number_attributes (NA or integer): determines the number of
+  # attributes
+  #         already_computed_closures (int): states the frequency how often the
+  #               information 'how many closures are already computed'#
+  # is printed
+
+  # Output: (array, elements in 0,1): each row states one computed closure
+  #                                   (1 = element in closure)
+
+
+
+  if (is.na(number_attributes)) {
+    number_attributes <- dim(context)[2]
+  }
+
+  # Calculating the first lattice set based on the empty set and the used
+  # context
+  # Ganter, p68 Algorithm: First Closure
+  old_closure <- closure_operator(rep(0, number_attributes), context)
+  all_closure <- list()
+  all_closure[[1]] <- old_closure
+
+  # In this part all further lattice sets are computed
+  t <- 2
+  not_all_closures_computed <- TRUE
+  while (not_all_closures_computed) {
+    attributs_selected <- which(old_closure == 1)
+
+    # Determining all the attributes which could be added, hence which are not
+    # selected yet
+    if (length(attributs_selected) == 0) {
+      index <- (1:number_attributes)
+    }
+    else {
+      index <- (1:number_attributes)[-attributs_selected]
+    }
+
+    # Ganter, p.86 Algorithm: Next Closure
+    # Going from the larges to the lowest not yet added attribute until the new
+    # calculated closure is larger (in sense of the 'lektisch' order, see Ganter
+    # p. 26)
+    for (element in sort(index, decreasing = TRUE)) {
+      # Adding the new element with 'adds_element()' and computing the closure
+      new_closure <- closure_operator(adds_element(old_closure, element),
+                                      context)
+      # Test if the new closer is larger then the older closure. If yes, go on.
+      if (compare_closures_lower_i(old_closure, new_closure, element)) {
+        break # break of the for-loop (not while)
+      }
+    }
+
+    # Saving the new closure and now it takes the place of the old closure.
+    old_closure <- all_closure[[t]] <- new_closure
+
+    # Testing if all closures are computed, the last one has all attributes
+    # selected
+    if (all(new_closure == 1)) {
+      not_all_closures_computed <- FALSE
+    }
+    # Test if print-information on how many closures are already computed
+    if (t %% already_computed_closures == 0) {
+      cat(t, "many closures were computed.\n")
+    }
+    # assignment to the new saving space
+    t <- t + 1
+  }
+  # Convert from list to array and return the object
+  return(t(array(unlist(all_closure), dim = c(number_attributes, t - 1))))
 }
