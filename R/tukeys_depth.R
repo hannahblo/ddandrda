@@ -13,10 +13,7 @@ compute_tukeys_outlyingness <- function(intent,
                   compute_tukeys_outlyingness,
                   context = context, simplify = TRUE))
   }
-  if (is.list(intent)) {
-    return(sapply(intent, compute_tukeys_outlyingness,
-                  context = context, simplify = TRUE))
-  }
+
 }
 
 compute_tukeys_depth <- function(intent,
