@@ -52,7 +52,7 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
     m1 <- ans_new[, (1:q)]
     diag(m1) <- 1
     m1 <- relations::relation_incidence(
-      relations::transitive_closure(relations::as.relation(m1))
+      relations:::transitive_closure(relations:::as.relation(m1))
     )
     m2 <- ans_new[, -(1:q)]
     ans_old <- cbind(m1, m2)
@@ -61,15 +61,15 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
 
 is_extendable_to_partial_order <- function(complemented_order) {
   q <- dim(complemented_order)[1]
-  m1 <- relations::relation_incidence(relations::transitive_closure(
-    relations::as.relation(complemented_order[, (1:q)])
+  m1 <- relations:::relation_incidence(relations:::transitive_closure(
+    relations:::as.relation(complemented_order[, (1:q)])
   ))
   diag(m1) <- 1
   m2 <- complemented_order[, -(1:q)]
   if (any(m1 == 1 & m2 == 1)) {
     return(FALSE)
   }
-  if (!relations::relation_is_acyclic(relations::as.relation(m1))) {
+  if (!relations:::relation_is_acyclic(relations:::as.relation(m1))) {
     return(FALSE)
   }
   return(TRUE)
