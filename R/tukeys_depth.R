@@ -42,7 +42,7 @@ compute_tukeys_median_order <- function(corders,
   ans_old <- ans_new <- startorder
 
   while (TRUE) {
-    max_worder <- max(sum_corder[which(ans_old == 0)])
+    max_corder <- max(sum_corder[which(ans_old == 0)])
     i <- which(ans_old == 0 & sum_corder == max_corder)
     i <- sample(rep(i, 2), size = 1)
     ans_new <- ans_old
@@ -111,7 +111,8 @@ is_strictly_quasiconcave <- function(depths, context) {
   return(TRUE)
 }
 
-strictly_quasiconcave_pseudohull <- function(depths, context) {
+strictly_quasiconcave_phull <- function(depths, context) {
+  # eigtl. name strictly_quasiconcave_pseudohull
   m <- nrow(context)
   ans <- depths
   for (k in (1:m)) {
