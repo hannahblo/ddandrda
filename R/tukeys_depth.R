@@ -128,6 +128,24 @@ strictly_quasiconcave_phull <- function(depths, context) {
 }
 
 
+
+compute_all_partial_orders <- function(q, names = (1:q), complemented) {
+  perms <- permutations(q, q)
+  colnames(perms) <- names
+  m <- nrow(perms)
+
+  context <- ranking_scaling(perms,
+    remove.full.columns = FALSE,
+    complemented = complemented
+  )
+  ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
+  ans <- ans$intents[-nrow(ans$intents), ]
+  colnames(ans) <- colnames(context)
+  return(ans)
+}
+
+## evtl noch mit package fcaR zu harmnisieren...:
+
 operator_closure_obj_input <- function(subset_object, context) {
   # Defines the closure operator for computing all extends (objects)
 
@@ -192,11 +210,70 @@ calculate_psi <- function(subset_objects, context) {
   # the ones where all objects are related
   count_atts_object_related <- colSums(selected_objects)
   index_attribute <- which(count_atts_object_related ==
-                             length(index_object))
+    length(index_object))
 
   # returning an array which represents the attributes which correspond to the
   # considered object set
   intent <- rep(0, dim(context)[2])
   intent[index_attribute] <- 1
   return(intent)
+}
+
+
+
+calculate_concept_lattice <- function(context, compute_extents = TRUE) {
+  # Calculates the formal concept lattice.
+  # Therefore, all formal concept which are defined by the formal context are
+  # calculated.
+
+  # Input: context (matrix): represents the formal context (rows: objects,
+  # columns: attributes)
+  #         compute.extends (logical): If it is sufficient to only calculate
+  # the intent
+
+  # Output: (list) intents(array (0,1 values)): each row represents one intent,
+  # (1 = attribute is contained)
+  #                 extent(array with 0,1 values): each row represents one
+  # extent, (1 = attribute is contained)
+  #                 concepts(list): corresponding intent and extend are saved
+  # together
+  #                        saving not by index, but directly by their names
+
+
+  result <- list()
+
+  # Calculating all intents using the closure operator property
+  result$intents <- compute_all_closure(operator_closure_attr_input, context)
+
+  number_closure <- dim(result$intents)[1]
+  number_objects <- dim(context)[1]
+  result$concepts <- rep("", number_closure)
+
+  if (compute_extents) {
+    result$extents <- matrix(FALSE,
+      ncol = number_objects,
+      nrow = number_closure
+    )
+    for (k in (1:number_closure)) {
+      # Calculate the extends based on the intents
+      result$extents[k, ] <- calculate_phi(result$intents[k, ], context)
+      result$concepts[k] <- paste("{",
+        paste((rownames(context))[which(result$extents[k, ] == 1)], collapse = ","),
+        "}   {",
+        paste((colnames(context))[which(result$intents[k, ] == 1)], collapse = ","),
+        "}",
+        collapse = ""
+      )
+    }
+  } else {
+    for (k in (1:number_closure)) {
+      result$concepts[k] <- paste("{",
+        paste((colnames(context))[which(result$intents[k, ] == 1)], collapse = ","),
+        "}",
+        collapse = ""
+      )
+    }
+  }
+
+  return(result)
 }
