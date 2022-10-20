@@ -28,49 +28,54 @@ compute_tukeys_depth <- function(intent,
   ))
 }
 
-compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
-  # name eigtl. compute_tukeys_true_median_order
-  # computes that partial order in the space of ALL partial orders that has the
-  # maximal tukeys depth w.r.t. the given data cloud representet by th given
-  # context (given in the form of a list of posets, where every entry of the
-  # list is an incidence relation apposited with its negation
-  # (In terms of conceptual scaling we use here the complemented scaling)
+# compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
+#   # name eigtl. compute_tukeys_true_median_order
+#   # computes that partial order in the space of ALL partial orders that has the
+#   # maximal tukeys depth w.r.t. the given data cloud representet by th given
+#   # context (given in the form of a list of posets, where every entry of the
+#   # list is an incidence relation apposited with its negation
+#   # (In terms of conceptual scaling we use here the complemented scaling)
+#
+#   q <- nrow(orders[[1]])
+#   w <- Reduce("+", orders)
+#   ans_old <- ans_new <- startorder
+#
+#   while (TRUE) {
+#     ww <- max(w[which(ans_old == 0)])
+#     i <- which(ans_old == 0 & w == ww)
+#     i <- sample(rep(i, 2), size = 1)
+#     ans_new <- ans_old
+#     ans_new[i] <- 1
+#     if (!is_extendable_to_partial_order(ans_new)) {
+#       return(cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)]))
+#     }
+#     m1 <- ans_new[, (1:q)]
+#     diag(m1) <- 1
+#     m1 <- relations::relation_incidence(
+#       relations:::transitive_closure(relations:::as.relation(m1))
+#     )
+#     m2 <- ans_new[, -(1:q)]
+#     ans_old <- cbind(m1, m2)
+#   }
+# }
 
-  q <- nrow(orders[[1]])
-  w <- Reduce("+", orders)
-  ans_old <- ans_new <- startorder
+# is_extendable_to_partial_order <- function(complemented_order) {
+#   q <- dim(complemented_order)[1]
+#   m1 <- relations:::relation_incidence(relations:::transitive_closure(
+#     relations:::as.relation(complemented_order[, (1:q)])
+#   ))
+#   diag(m1) <- 1
+#   m2 <- complemented_order[, -(1:q)]
+#   if (any(m1 == 1 & m2 == 1)) {
+#     return(FALSE)
+#   }
+#   if (!relations:::relation_is_acyclic(relations:::as.relation(m1))) {
+#     return(FALSE)
+#   }
+#   return(TRUE)
+# }
 
-  while (TRUE) {
-    ww <- max(w[which(ans_old == 0)])
-    i <- which(ans_old == 0 & w == ww)
-    i <- sample(rep(i, 2), size = 1)
-    ans_new <- ans_old
-    ans_new[i] <- 1
-    if (!is_extendable_to_partial_order(ans_new)) {
-      return(cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)]))
-    }
-    m1 <- ans_new[, (1:q)]
-    diag(m1) <- 1
-    m1 <- relations::relation_incidence(
-      relations:::transitive_closure(relations:::as.relation(m1))
-    )
-    m2 <- ans_new[, -(1:q)]
-    ans_old <- cbind(m1, m2)
-  }
-}
+test <- function(x){
 
-is_extendable_to_partial_order <- function(complemented_order) {
-  q <- dim(complemented_order)[1]
-  m1 <- relations:::relation_incidence(relations:::transitive_closure(
-    relations:::as.relation(complemented_order[, (1:q)])
-  ))
-  diag(m1) <- 1
-  m2 <- complemented_order[, -(1:q)]
-  if (any(m1 == 1 & m2 == 1)) {
-    return(FALSE)
-  }
-  if (!relations:::relation_is_acyclic(relations:::as.relation(m1))) {
-    return(FALSE)
-  }
-  return(TRUE)
+  return(relations::as.relation(x))
 }
