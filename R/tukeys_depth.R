@@ -27,3 +27,26 @@ compute_tukeys_depth <- function(intent,
     col_weights
   ))
 }
+
+compute_tukeys_true_median_order <- function(orders,startorder=orders[[1]]*0){
+  # coputes that partial order in the space of ALL partial orders that has the maximal tukeys depth wr.t. the given data cloud representet by th given contetxt (given in the form of a list of posets, where every etry of the list is an incidence relation apposited with its negation (In terms of conceptual scaling we use here the complemented scaling
+  m <- length(orders)
+  q <- nrow(orders[[1]])
+  w <-Reduce('+',orders)
+  ans_old <- ans_new <- startorder
+
+  while(TRUE){
+    ww <- max(w[which(ans_old==0)])
+    i <- which(ans_old==0 & W==w)
+    i <- sample(rep(i,2),size=1)
+    ans_new <- ans_old
+    ans_new[i] <- 1
+    if(! is_extendable_to_partial_order(ans_new)){
+        return(cbind(ans_old[,(1:q)],1-ans_old[,(1:q)]))}
+    m1 <- ans_new[,(1:q)]
+    diag(m1) <- 1
+    m1 <- relation_incidence(transitive_closure(as.relation(m1)))
+    m2 <- ans_new[,-(1:q)]
+    ans_old <- cbind(m1,m2)
+  }
+}
