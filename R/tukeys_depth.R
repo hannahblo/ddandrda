@@ -61,7 +61,7 @@ compute_tukeys_median_order <- function(orders, startorder = orders[[1]] * 0) {
 
 is_extendable_to_partial_order <- function(complemented_order) {
   q <- dim(complemented_order)[1]
-  m1 <- relation_incidence(relations::transitive_closure(
+  m1 <- relations::relation_incidence(relations::transitive_closure(
     relations::as.relation(complemented_order[, (1:q)])
   ))
   diag(m1) <- 1
