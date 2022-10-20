@@ -8,6 +8,12 @@ compute_tukeys_outlyingness <- function(intent,
   if (is.vector(intent)) {
     return(max(weighted_column_means[which(intent == 0)]))
   }
+  if (is.matrix(intent)) {
+    return(sapply(as.list(as.data.frame(t(intent))), compute_tukeys_outlyingness, context = context, simplify = TRUE))
+  }
+  if (is.list(intent)) {
+    return(sapply(intent, compute_tukeys_outlyingness, context = context, simplify = TRUE))
+  }
 }
 
 compute_tukeys_depth <- function(intent,
