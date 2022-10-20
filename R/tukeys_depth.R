@@ -38,44 +38,40 @@ compute_tukeys_median_order <- function(corders,
   # (In terms of conceptual scaling we use here the complemented scaling)
 
   q <- nrow(corders[[1]])
-  w <- Reduce("+", corders)
+  sum_corder <- Reduce("+", corders)
   ans_old <- ans_new <- startorder
 
   while (TRUE) {
-    ww <- max(w[which(ans_old == 0)])
-    i <- which(ans_old == 0 & w == ww)
+    max_worder <- max(sum_corder[which(ans_old == 0)])
+    i <- which(ans_old == 0 & sum_corder == max_corder)
     i <- sample(rep(i, 2), size = 1)
     ans_new <- ans_old
     ans_new[i] <- 1
     if (!is_extendable_to_porder(ans_new)) {
       return(cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)]))
     }
-    m1 <- ans_new[, (1:q)]
-    diag(m1) <- 1
-    m1 <- relations::relation_incidence(
-      relations::transitive_closure(relations::as.relation(m1))
+    m_leq <- ans_new[, (1:q)]
+    diag(m_leq) <- 1
+    m_leq <- relations::relation_incidence(
+      relations::transitive_closure(relations::as.relation(m_leq))
     )
-    m2 <- ans_new[, -(1:q)]
-    ans_old <- cbind(m1, m2)
+    m_nleq <- ans_new[, -(1:q)]
+    ans_old <- cbind(m_leq, m_nleq)
   }
 }
 
 is_extendable_to_porder <- function(corder) {
   q <- dim(corder)[1]
-  m1 <- relations::relation_incidence(relations::transitive_closure(
+  m_leq <- relations::relation_incidence(relations::transitive_closure(
     relations::as.relation(corder[, (1:q)])
   ))
-  diag(m1) <- 1
-  m2 <- corder[, -(1:q)]
-  if (any(m1 == 1 & m2 == 1)) {
+  diag(m_leq) <- 1
+  m_nleq <- corder[, -(1:q)]
+  if (any(m_leq == 1 & m_nleq == 1)) {
     return(FALSE)
   }
-  if (!relations::relation_is_acyclic(relations::as.relation(m1))) {
+  if (!relations::relation_is_acyclic(relations::as.relation(m_leq))) {
     return(FALSE)
   }
   return(TRUE)
-}
-
-test <- function(x) {
-  return(relations::as.relation(x))
 }
