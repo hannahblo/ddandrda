@@ -1,5 +1,4 @@
-compute_tukeys_outlyingness <- function(context, 
-                                        weights = rep(1, nrow(context))) {
+compute_outlyingness <- function(context, weights = rep(1, nrow(context))) {
   n <- nrow(context)
   m <- ncol(context)
   a <- rep(0, m)
