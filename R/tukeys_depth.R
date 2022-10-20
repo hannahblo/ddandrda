@@ -132,7 +132,7 @@ strictly_quasiconcave_phull <- function(depths, context) {
 compute_all_partial_orders <- function(q, names = (1:q), complemented) {
   perms <- permutations(q, q)
   colnames(perms) <- names
-  #m <- nrow(perms)
+  # m <- nrow(perms)
 
   context <- ranking_scaling(perms,
     remove.full.columns = FALSE,
@@ -160,7 +160,7 @@ operator_closure_obj_input <- function(subset_object, context) {
 
 
 
-operator_closure_attr_input <- function(subset_attribute, context){
+operator_closure_attr_input <- function(subset_attribute, context) {
   # Defines the closure operator for computing all intents (attribute)
 
   # Input: subset_attribute (array): set of attributes
@@ -273,10 +273,12 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
       result$extents[k, ] <- calculate_phi(result$intents[k, ], context)
       result$concepts[k] <- paste("{",
         paste((rownames(context))[which(result$extents[k, ] == 1)],
-              collapse = ","),
+          collapse = ","
+        ),
         "}   {",
         paste((colnames(context))[which(result$intents[k, ] == 1)],
-              collapse = ","),
+          collapse = ","
+        ),
         "}",
         collapse = ""
       )
@@ -285,7 +287,8 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
     for (k in (1:number_closure)) {
       result$concepts[k] <- paste("{",
         paste((colnames(context))[which(result$intents[k, ] == 1)],
-              collapse = ","),
+          collapse = ","
+        ),
         "}",
         collapse = ""
       )
@@ -298,8 +301,8 @@ calculate_concept_lattice <- function(context, compute_extents = TRUE) {
 
 
 compute_all_closure <- function(closure_operator, context,
-         number_attributes = NA,
-         already_computed_closures = 1000) {
+                                number_attributes = NA,
+                                already_computed_closures = 1000) {
   # Calculation of all sets of the complete lattice.
   # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen,
   # Springer Spekturm, p.68
@@ -350,8 +353,10 @@ compute_all_closure <- function(closure_operator, context,
     # p. 26)
     for (element in sort(index, decreasing = TRUE)) {
       # Adding the new element with 'adds_element()' and computing the closure
-      new_closure <- closure_operator(adds_element(old_closure, element),
-                                      context)
+      new_closure <- closure_operator(
+        adds_element(old_closure, element),
+        context
+      )
       # Test if the new closer is larger then the older closure. If yes, go on.
       if (compare_closures_lower_i(old_closure, new_closure, element)) {
         break # break of the for-loop (not while)
@@ -375,4 +380,56 @@ compute_all_closure <- function(closure_operator, context,
   }
   # Convert from list to array and return the object
   return(t(array(unlist(all_closure), dim = c(number_attributes, t - 1))))
+}
+
+
+adds_element <- function(old_subset, element) {
+  # Adds a further element to old_subset and deletes all larger elements
+  # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen, Springer Spektur, p.85
+
+  # input: old_subset (array with 0,1 elements): subset to which the element should be added
+  #                                             (1 represents element in subset)
+  #         element (integer): element (position) which is added
+
+  # output: subset (array with 0,1 elements): subset with added element
+  #                                          (1 represents element in subset)
+
+  # if the element is the first, the subset only consists of this element
+  if (element == 1) {
+    subset <- rep(0, length(old_subset))
+    subset[element] <- 1
+  } else {
+    index_lower_element_index <- rep(0, length(old_subset))
+    index_lower_element_index[(1:(element - 1))] <- 1
+    # pmin: A and temp are compared by element by element and the minimum is selected
+    subset <- pmin(old_subset, index_lower_element_index)
+    subset[element] <- 1
+  }
+  return(subset)
+}
+
+
+
+compare_closures_lower_i <- function(old_closure, new_closure, element) {
+  # Tests if the old_closure is smaller than  the new_closure within
+  # the meaning of
+  # 'lektisch' order
+  # based on: Granter (2013), Diskrete Mathematik: Geordnete Mengen,
+  # Springer Spekturm, p.26 + 84
+
+  # Input: old_closure (array with 0,1 elements): closure
+  # (subset, 1= element within closure)
+  #         new_closure (array with 0,1 elements): closure
+  # (subset, 1= element within closure)
+  #         element (integer): element which is used for comparing
+
+  # Output (logical): returns true if old_closure < new_closure
+  if (element == 1) {
+    return(new_closure[element] == 1 & old_closure[element] == 0)
+  } else {
+    temp <- rep(0, length(old_closure))
+    temp[(1:(element - 1))] <- 1
+    return(new_closure[element] == 1 & old_closure[element] == 0 &
+      all(pmin(old_closure, temp) == pmin(new_closure, temp)))
+  }
 }
