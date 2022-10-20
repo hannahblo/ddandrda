@@ -141,10 +141,12 @@ operator_closure_obj_input <- function(subset_object, context) {
 
 
 calculate_phi <- function(subset_attributes, context) {
-  # Calculates for a subset of attributes the minimal extent based on the given context
+  # Calculates for a subset of attributes the minimal extent based on the
+  # given context
 
   # Input: subset_attributes (array): set of attributes
-  #         context (matrix): formal context which is used to calculate the extent
+  #         context (matrix): formal context which is used to calculate the
+  # extent
 
   # Output: subset (array): the smallest extent (set of objects) in the FCA
   #                         based on subset_attributes and the formalc context
@@ -170,10 +172,12 @@ calculate_phi <- function(subset_attributes, context) {
 
 
 calculate_psi <- function(subset_objects, context) {
-  # Calculates for a subset of objects the minimal intent based on the given context
+  # Calculates for a subset of objects the minimal intent based on the given
+  # context
 
   # Input: subset_objects (array): set of objects
-  #         context (matrix): formal context which is used to calculate the intent
+  #         context (matrix): formal context which is used to calculate the
+  # intent
 
   # Output: subset (array): to smallest intent (set of attributes) in the FCA
   #                         based on subset_objects and context
@@ -185,8 +189,9 @@ calculate_psi <- function(subset_objects, context) {
 
   # Counting for each attribute how many selected objects are related and chose
   # the ones where all objects are related
-  count_attributes_object_related <- colSums(selected_objects)
-  index_attribute <- which(count_attributes_object_related == length(index_object))
+  count_atts_object_related <- colSums(selected_objects)
+  index_attribute <- which(count_atts_object_related ==
+                             length(index_object))
 
   # returning an array which represents the attributes which correspond to the
   # considered object set
