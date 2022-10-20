@@ -125,3 +125,71 @@ strictly_quasiconcave_pseudohull <- function(depths, context) {
   }
   return(ans)
 }
+
+
+operator_closure_obj_input <- function(subset_object, context) {
+  # Defines the closure operator for computing all extends (objects)
+
+  # Input: subset_object (array): set of objects
+  #         context (matrix): formal context which is used to calculate the extent
+
+  # Output: subset (array): to smallest closure in the FCA based on
+  #                         subset_object and context
+  calculate_phi(calculate_psi(subset_object, context), context)
+}
+
+
+calculate_phi <- function(subset_attributes, context) {
+  # Calculates for a subset of attributes the minimal extent based on the given context
+
+  # Input: subset_attributes (array): set of attributes
+  #         context (matrix): formal context which is used to calculate the extent
+
+  # Output: subset (array): the smallest extent (set of objects) in the FCA
+  #                         based on subset_attributes and the formalc context
+
+  # Determines and subsets the attributes which are selected
+  index_attribute <- which(subset_attributes == 1)
+  selected_attributes <- as.matrix(context[, index_attribute])
+  dim(selected_attributes) <- c(dim(context)[1], length(index_attribute))
+
+  # Counting for each object how many selected attributes hold and choosing the
+  # one where all attributes are true
+  count_objects_attribute_hold <- rowSums(selected_attributes)
+  index_obejct <- which(count_objects_attribute_hold == length(index_attribute))
+
+  # returning a list which represents which objects correspond to the considered
+  # attribute set
+  extend <- rep(0, dim(context)[1])
+  extend[index_obejct] <- 1
+
+  return(extend)
+}
+
+
+
+calculate_psi <- function(subset_objects, context) {
+  # Calculates for a subset of objects the minimal intent based on the given context
+
+  # Input: subset_objects (array): set of objects
+  #         context (matrix): formal context which is used to calculate the intent
+
+  # Output: subset (array): to smallest intent (set of attributes) in the FCA
+  #                         based on subset_objects and context
+
+  # Determines and sub-setting the objects which are selected
+  index_object <- which(subset_objects == 1)
+  selected_objects <- as.matrix(context[index_object, ])
+  dim(selected_objects) <- c(length(index_object), dim(context)[2])
+
+  # Counting for each attribute how many selected objects are related and chose
+  # the ones where all objects are related
+  count_attributes_object_related <- colSums(selected_objects)
+  index_attribute <- which(count_attributes_object_related == length(index_object))
+
+  # returning an array which represents the attributes which correspond to the
+  # considered object set
+  intent <- rep(0, dim(context)[2])
+  intent[index_attribute] <- 1
+  return(intent)
+}
