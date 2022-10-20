@@ -9,3 +9,15 @@ compute_tukeys_outlyingness <- function(intent,
     return(max(weighted_column_means[which(intent == 0)]))
   }
 }
+
+compute_tukeys_depth <- function(intent,
+                                 context,
+                                 row_weights = rep(1, nrow(context)),
+                                 col_weights = rep(1, ncol(context))) {
+  return(1 - compute_tukeys_outlyingness(
+    intent,
+    context,
+    row_eights,
+    col_weights
+  ))
+}
