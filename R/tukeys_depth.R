@@ -146,7 +146,7 @@ compute_geodetic_median <- function(corders,
   if (auto) {
     tukeys_median <- as.vector(compute_tukeys_median_order(corders))
     ordered_depths <- sort(td, decreasing = TRUE)
-    for (k in (1:length(corders))) {
+    for (k in seq_along(corders)) {
       extent <- rep(0, ncol(context))
       extent[which(td >= ordered_depths[k])] <- 1
       intent <- calculate_psi(extent, context)
