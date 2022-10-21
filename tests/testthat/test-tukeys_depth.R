@@ -26,7 +26,7 @@ test_that("compute_tukeys_depth works", {
 })
 
 
-test_thate("compute_tukeys_median_order works", {
+test_that("compute_tukeys_median_order works", {
   q <- sample((3:5),size=1)
   a <- compute_all_partial_orders(q,complemented=FALSE)
   orders <- list()
