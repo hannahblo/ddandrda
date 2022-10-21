@@ -151,6 +151,7 @@ ranking_scaling <- function(x,
   m <- dim(x)[1]
   n <- dim(x)[2]
   names <- rep("", n^2)
+  neg_names <- rep("", n^2)
   ans <- array(0, c(m, n^2))
   for (k in (1:m)) {
     temp <- array(0, c(n, n))
@@ -168,10 +169,20 @@ ranking_scaling <- function(x,
         colnames(x)[l1], " <= ",
         colnames(x)[l2]
       ), collapse = "")
+
+      neg_names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
+        collapse = ""
+      )
+
       t <- t + 1
     }
   }
   colnames(ans) <- names
+
+  if (complemented) {
+    ans <- cbind(ans, 1 - ans)
+    colnames(ans)[-(1:n^2)] <- neg_names
+  }
 
   # if (complemented) {
   #   neg_names <- rep("", ncol(ans))
