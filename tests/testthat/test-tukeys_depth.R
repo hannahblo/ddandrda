@@ -53,3 +53,12 @@ test_that("compute_tukeys_median_order works", {
 
   expect_equal(output, TRUE)
 })
+
+
+test_that("is_quasiconcave works", {
+  context <- random_context(40, 6)
+  depths <- compute_tukeys_depth(context, context)
+  ans <- is_quasiconcave(depths, context)
+
+  expect_equal(ans, TRUE)
+})

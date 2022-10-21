@@ -251,6 +251,12 @@ calculate_phi <- function(subset_attributes, context) {
 
 
 
+random_context <- function(nrow = 20,
+                           ncol = 10,
+                           prob = 0.5) {
+  matrix(runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+}
+
 calculate_psi <- function(subset_objects, context) {
   # Calculates for a subset of objects the minimal intent based on the given
   # context
