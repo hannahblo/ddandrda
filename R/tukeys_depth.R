@@ -164,7 +164,7 @@ compute_geodetic_median <- function(corders,
   dim(intent) <- dim(corders[[1]])
   colnames(intent) <- colnames(corders[[1]])
   rownames(intent) <- rownames(corders[[1]])
-  return(compute_tukeys_median_order(orders = corders, startorder = intent))
+  return(compute_tukeys_median_order(corders = corders, startorder = intent))
 }
 
 
