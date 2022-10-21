@@ -170,7 +170,8 @@ compute_geodetic_median <- function(corders,
 
 
 list_to_context <- function(list) {
-  # converts a list of orders given by incidence relations as 0-1 matrices into a context of crosses
+  # converts a list of orders given by incidence
+  # relations as 0-1 matrices into a context of crosses
   m <- length(list)
   mat <- array(0, c(m, length(list[[1]])))
 
