@@ -152,8 +152,8 @@ ranking_scaling <- function(x,
   n <- dim(x)[2]
   names <- rep("", n^2)
   ans <- array(0, c(m, n^2))
-  temp <- array(0, c(n, n))
   for (k in (1:m)) {
+    temp <- array(0, c(n, n))
     for (l1 in (1:n)) {
       for (l2 in (l1::n)) {
         temp[l1, l2] <- ((x[k, l1] <= x[k, l2])) * 1
