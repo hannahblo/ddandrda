@@ -173,7 +173,7 @@ ranking_scaling <- function(x,
 
   if (complemented) {
     names <- rep("", ncol(ans))
-    for (k in seq_len(ncol(ans))) {
+    for (k in (1:(n^2))) {
       names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
         collapse = ""
       )
