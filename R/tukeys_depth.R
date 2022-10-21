@@ -157,7 +157,7 @@ compute_geodetic_median <- function(corders,
     }
   }
 
-  i <- which(td >= quantile(td, 1 - proportion))
+  i <- which(td >= stats::quantile(td, 1 - proportion))
   extent <- rep(0, length(corders))
   extent[i] <- 1
   intent <- calculate_psi(extent, context)
@@ -355,7 +355,7 @@ calculate_phi <- function(subset_attributes, context) {
 random_context <- function(nrow = 20,
                            ncol = 10,
                            prob = 0.5) {
-  matrix(runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+  matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
 }
 
 calculate_psi <- function(subset_objects, context) {
