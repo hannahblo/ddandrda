@@ -130,7 +130,7 @@ strictly_quasiconcave_phull <- function(depths, context) {
 
 
 compute_all_partial_orders <- function(q, names = (1:q), complemented) {
-  perms <- permutations(q, q)
+  perms <- gtools::permutations(q, q)
   colnames(perms) <- names
   context <- ranking_scaling(perms,
     remove.full.columns = FALSE,
@@ -145,7 +145,9 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented) {
 
 ## zu ueberarbeiten:
 
-ranking_scaling <- function(x, remove_full_columns = FALSE, complemented = FALSE) {
+ranking_scaling <- function(x,
+                            remove_full_columns = FALSE,
+                            complemented = FALSE) {
   m <- dim(x)[1]
   n <- dim(x)[2]
   names <- rep("", n^2)
