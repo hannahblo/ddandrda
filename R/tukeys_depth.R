@@ -139,9 +139,9 @@ compute_tukeys_separation <- function(orders1, orders2) {
   }
 }
 
-compute_tukeys_geodetic_median_order <- function(corders,
-                                                 proportion,
-                                                 auto = FALSE, fraction) {
+compute_geodetic_median <- function(corders,
+                                    proportion,
+                                    auto = FALSE, fraction) {
   context <- list_to_context(corders)
   td <- compute_tukeys_depth(context, context)
   if (auto) {
