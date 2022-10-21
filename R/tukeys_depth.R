@@ -97,8 +97,9 @@ is_extendable_to_porder <- function(corder) {
 }
 
 
-compute_tukeys_median_difference <- function(orders1, orders2) {
-  ## coputes that partial order in the space of ALL partial orders
+compute_tukeys_separation <- function(orders1, orders2) {
+  # name urspr. tukeys_true:median_difference
+  # coputes that partial order in the space of ALL partial orders
   # that has the maximal tukeys depth w.r.t. the given data cloud representet
   # by th given contetxt (given in the form of a list of posets, where every
   # etry of the list is an incidence relation apposited with its negation
