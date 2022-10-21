@@ -105,12 +105,11 @@ compute_tukeys_separation <- function(orders1, orders2) {
   # etry of the list is an incidence relation apposited with its negation
   # (In terms of conceptual scaling we use here the complemented scaling
 
-  m <- length(orders1)
   q <- nrow(orders1[[1]])
   sum_1 <- Reduce("+", orders1)
   sum_2 <- Reduce("+", orders2)
   sum_1_2 <- pmax(sum_1, sum_2)
-  # W_min <- pmin(W1,W2)
+
 
 
 
@@ -121,21 +120,21 @@ compute_tukeys_separation <- function(orders1, orders2) {
   i <- sample(rep(i, 2), size = 1)
   while (TRUE) {
     max_sum_old <- max_sum
-    i_old <- i
     max_sum <- max(sum_1_2[which(ans_old == 0)])
     i <- which(ans_old == 0 & sum_1_2 == max_sum)
     i <- sample(rep(i, 2), size = 1)
     ans_new <- ans_old
     ans_new[i] <- 1
-    if (!is_extendable_to_partial_order(ans_new)) {
+    if (!is_extendable_to_porder(ans_new)) {
       return(max_sum_old + 0.0001 * max_sum)
     }
     m1 <- ans_new[, (1:q)]
     diag(m1) <- 1
-    m1 <- relation_incidence(transitive_closure(as.relation(m1)))
+    m1 <- relations::relation_incidence(relations::transitive_closure(
+      relations::as.relation(m1)
+    ))
     m2 <- ans_new[, -(1:q)]
     ans_old <- cbind(m1, m2)
-    # w_new <- w
   }
 }
 
@@ -149,7 +148,7 @@ compute_geodetic_median <- function(corders,
     ordered_depths <- sort(td, decreasing = TRUE)
     for (k in (1:length(corders))) {
       extent <- rep(0, ncol(context))
-      extent[which(td >= Ordered_depths[k])] <- 1
+      extent[which(td >= ordered_depths[k])] <- 1
       intent <- calculate_psi(extent, context)
       if (all(intent <= tukeys_median)) {
         proportion <- k / length(corders) * fraction
@@ -170,8 +169,16 @@ compute_geodetic_median <- function(corders,
 
 
 
+list_to_context <- function(list) {
+  # converts a list of orders given by incidence relations as 0-1 matrices into a context of crosses
+  m <- length(list)
+  mat <- array(0, c(m, length(list[[1]])))
 
-
+  for (k in (1:m)) {
+    mat[k, ] <- as.vector(list[[k]])
+  }
+  return(mat)
+}
 
 
 # properties of depth functions
