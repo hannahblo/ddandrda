@@ -16,6 +16,26 @@ compute_tukeys_outlyingness <- function(intent,
   }
 }
 
+#' Compute Tukeys depth of an intent w.r.t. a given formal context
+#'
+#' @description
+#' 'compute_tukeys_depth' returns the depth value of an object represented by
+#'  its intent (given as a 0-1 vector) w.r.t. a data cloud represented by a
+#'   formal context
+#'   @param intent represents the envisaged object given by all its attributes
+#'   given as a 0-1 vector. It is also possible to compute depth values for
+#'   more objects. In this case the objects should be given as a matrix where
+#'   each row corresponds to one
+#'   object.
+#'
+#'   @param context is a formal context whose objects represent the data cloud
+#'   w.r.t. which Tukeys depth is computed
+#'
+#'   @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
+#' @examples
+#' tba
+#'
+#'   @export
 compute_tukeys_depth <- function(intent,
                                  context,
                                  row_weights = rep(1, nrow(context)),
