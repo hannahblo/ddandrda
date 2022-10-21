@@ -171,20 +171,20 @@ ranking_scaling <- function(x,
   }
   colnames(ans) <- names
 
-  if (complemented) {
-    names <- rep("", ncol(ans))
-    for (k in (1:(n^2))) {
-      names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
-        collapse = ""
-      )
-    }
-    ans <- cbind(ans, 1 - ans)
-    colnames(ans)[-(1:n^2)] <- names
-  }
-  if (remove_full_columns) {
-    i <- which(colSums(ans) == m)
-    ans <- ans[, -i]
-  }
+  #if (complemented) {
+  #  names <- rep("", ncol(ans))
+  #  for (k in (1:(n^2))) {
+  #    names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
+  #      collapse = ""
+  #    )
+  #  }
+  #  ans <- cbind(ans, 1 - ans)
+  #  colnames(ans)[-(1:n^2)] <- names
+  #}
+  #if (remove_full_columns) {
+  #  i <- which(colSums(ans) == m)
+  #  ans <- ans[, -i]
+  #}
   return(ans)
 }
 
