@@ -97,6 +97,77 @@ is_extendable_to_porder <- function(corder) {
 }
 
 
+compute_tukeys_true_median_difference <- function(orders1,orders2){
+  ## coputes that partial order in the space of ALL partial orders
+  # that has the maximal tukeys depth w.r.t. the given data cloud representet
+  # by th given contetxt (given in the form of a list of posets, where every
+  # etry of the list is an incidence relation apposited with its negation
+  # (In terms of conceptual scaling we use here the complemented scaling
+
+  m <- length(orders1)
+  q <- nrow(orders1[[1]])
+  sum_1 <- Reduce('+',orders1)
+  sum_2 <-  Reduce('+',orders2)
+  sum_1_2 <- pmax(sum_1,sum_2)
+  #W_min <- pmin(W1,W2)
+
+
+
+  ans_old <- ans_new <- orders1[[1]]*0
+
+  max_sum<- max(sum_1_2[which(ans_old==0)])
+  i <- which(ans_old==0 & sum_1_2==max_sum)
+  i <- sample(rep(i,2),size=1)
+  while(TRUE){
+
+    max_sum_old <- max_sum
+    i_old <- i
+    max_sum <- max(sum_1_2[which(ans_old==0)])
+    i <- which(ans_old==0 & sum_1_2==max_sum)
+    i <- sample(rep(i,2),size=1)
+    ans_new <- ans_old
+    ans_new[i] <- 1
+    if(! is_extendable_to_partial_order(ans_new)){
+        return(max_sum_old +0.0001*max_sum)}
+    m1 <- ans_new[,(1:q)]
+    diag(m1) <- 1
+    m1 <- relation_incidence(transitive_closure(as.relation(m1)))
+    m2 <- ans_new[,-(1:q)]
+    ans_old <- cbind(m1,m2)
+    #w_new <- w
+  }
+}
+
+compute_tukeys_geodetic_median_order <- function(corders,
+                                                 proportion,
+                                                 auto=FALSE,fraction){
+  context <- list_to_context(corders)
+  td <- compute_tukeys_depth(context,context)
+  if(auto){
+    tukeys_median <- as.vector(compute_tukeys_median_order(corders))
+    ordered_depths <- sort(td,decreasing=TRUE)
+    for(k in (1:length(corders))){
+      extent <- rep(0,ncol(context))
+      extent[which(td>=Ordered_depths[k])]=1
+      intent <- calculate_psi(extent,context)
+      if(all(intent<=tukeys_median)){proportion=k/length(corders)*fraction;break}
+    }
+  }
+
+  i <- which(td>=quantile(td,1-proportion))
+  extent <- rep(0, length(corders))
+  extent[i] <- 1
+  intent <- calculate_psi(extent, context)
+  dim(intent) <- dim(corders[[1]])
+  colnames(intent) <- colnames(corders[[1]])
+  rownames(intent) <- rownames(corders[[1]])
+  return(compute_tukeys_median_order(orders=corders,startorder = intent))
+
+
+
+}
+
+
 
 
 
