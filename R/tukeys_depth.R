@@ -155,7 +155,7 @@ ranking_scaling <- function(x,
   for (k in (1:m)) {
     temp <- array(0, c(n, n))
     for (l1 in (1:n)) {
-      for (l2 in (l1::n)) {
+      for (l2 in (l1:n)) {
         temp[l1, l2] <- ((x[k, l1] <= x[k, l2])) * 1
       }
     }
