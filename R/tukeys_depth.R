@@ -164,7 +164,8 @@ ranking_scaling <- function(x,
   t <- 1
   for (l1 in (1:n)) {
     for (l2 in (1:n)) {
-      names[t] <- paste(c(colnames(x)[l1], " <= ", colnames(x)[l2]), collapse = "")
+      names[t] <- paste(c(colnames(x)[l1], " <= ",
+                          colnames(x)[l2]), collapse = "")
       t <- t + 1
     }
   }
@@ -172,7 +173,7 @@ ranking_scaling <- function(x,
 
   if (complemented) {
     names <- rep("", ncol(ans))
-    for (k in (1:ncol(ans))) {
+    for (k in seq_len(ncol(ans))) {
       names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
         collapse = ""
       )
@@ -446,7 +447,8 @@ adds_element <- function(old_subset, element) {
   } else {
     index_lower_element_index <- rep(0, length(old_subset))
     index_lower_element_index[(1:(element - 1))] <- 1
-    # pmin: A and temp are compared by element by element and the minimum is selected
+    # pmin: A and temp are compared by element by element and
+    # the minimum is selected
     subset <- pmin(old_subset, index_lower_element_index)
     subset[element] <- 1
   }
