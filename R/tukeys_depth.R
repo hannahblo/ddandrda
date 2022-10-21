@@ -89,7 +89,7 @@ is_quasiconcave <- function(depths, context) {
     i <- which(depths > depths[k])
     extent <- rep(0, m)
     extent[i] <- 1
-    if ( (length(i)) >0 & (operator_closure_obj_input(extent, context)[k] == 1)) {
+    if ((length(i) > 0) & (operator_closure_obj_input(extent, context)[k] == 1)) {
       return(FALSE)
     }
   }
