@@ -133,7 +133,7 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented) {
   perms <- gtools::permutations(q, q)
   colnames(perms) <- names
   context <- ranking_scaling(perms,
-    remove.full.columns = FALSE,
+    remove_full_columns = FALSE,
     complemented = complemented
   )
   ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
