@@ -184,10 +184,10 @@ ranking_scaling <- function(x,
   #   ans <- cbind(ans, 1 - ans)
   #   colnames(ans)[-(1:n^2)] <- neg_names
   # }
-  # if (remove_full_columns) {
-  #  i <- which(colSums(ans) == m)
-  #  ans <- ans[, -i]
-  # }
+  if (remove_full_columns) {
+    i <- which(colSums(ans) == m)
+    ans <- ans[, -i]
+  }
   return(ans)
 }
 
