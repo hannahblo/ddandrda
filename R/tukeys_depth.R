@@ -174,16 +174,16 @@ ranking_scaling <- function(x,
   colnames(ans) <- names
 
   if (complemented) {
+    neg_names <- rep("", ncol(ans))
     for (k in (1:(n^2))) {
-      names <- rep("", ncol(ans))
-      names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
+      neg_names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
         collapse = ""
       )
     }
+
+    ans <- cbind(ans, 1 - ans)
+    colnames(ans)[-(1:n^2)] <- neg_names
   }
-  #  ans <- cbind(ans, 1 - ans)
-  #  colnames(ans)[-(1:n^2)] <- names
-  # }
   # if (remove_full_columns) {
   #  i <- which(colSums(ans) == m)
   #  ans <- ans[, -i]
