@@ -47,6 +47,7 @@ test_that("compute_tukeys_median_order works", {
         if(all(ans1==ans2)){output=TRUE}
   }
 
+
   expect_equal(output,TRUE)
 
 
