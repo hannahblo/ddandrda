@@ -43,7 +43,7 @@ test_that("compute_tukeys_median_order works", {
 
   output=FALSE
   for(jj in j){
-    ans2 <- a[i[jj], ];dim(ans2) <- c(q,2*q)
+    ans2 <- a[jj, ];dim(ans2) <- c(q,2*q)
         if(all(ans1==ans2)){output=TRUE}
   }
 
