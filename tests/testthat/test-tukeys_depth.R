@@ -27,30 +27,29 @@ test_that("compute_tukeys_depth works", {
 
 
 test_that("compute_tukeys_median_order works", {
-  q <- sample((3:5),size=1)
-  a <- compute_all_partial_orders(q,complemented=FALSE)
+  q <- sample((3:5), size = 1)
+  a <- compute_all_partial_orders(q, complemented = FALSE)
   orders <- list()
   m <- nrow(a)
-  for(k in (1:m)){temp <- a[k,];dim(temp) <- c(q,q);orders[[k]] <- cbind(temp,1-temp)}
-  i <- sample((1:m),size=ceiling(nrow(a)/3))
-  a <- cbind(a,1-a)
+  for (k in (1:m)) {
+    temp <- a[k, ]
+    dim(temp) <- c(q, q)
+    orders[[k]] <- cbind(temp, 1 - temp)
+  }
+  i <- sample((1:m), size = ceiling(nrow(a) / 3))
+  a <- cbind(a, 1 - a)
   ans1 <- compute_tukeys_median_order(orders[i])
-
-  td <- compute_tukeys_depth(intent=a,context=a[i,])
-
-    #rbind(a[i,],a),row_weights=c(rep(1,length(i)),rep(0,m)))
-  j <- which(td==max(td))
-
-  output=FALSE
-  for(jj in j){
-    ans2 <- a[jj, ];dim(ans2) <- c(q,2*q)
-        if(all(ans1==ans2)){output=TRUE}
+  td <- compute_tukeys_depth(intent = a, context = a[i, ])
+  j <- which(td == max(td))
+  output <- FALSE
+  for (jj in j) {
+    ans2 <- a[jj, ]
+    dim(ans2) <- c(q, 2 * q)
+    if (all(ans1 == ans2)) {
+      output <- TRUE
+    }
   }
 
 
-  expect_equal(output,TRUE)
-
-
-
-
+  expect_equal(output, TRUE)
 })
