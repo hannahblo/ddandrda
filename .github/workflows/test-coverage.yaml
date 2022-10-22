@@ -28,5 +28,5 @@ jobs:
         shell: Rscript {0}
 
       - name: Test coverage pipline
-        run: (covr::percent_coverage(covr::package_coverage(quiet = TRUE)) > 95)
+        run: if((covr::percent_coverage(covr::package_coverage(quiet = TRUE)) < 95)) {stop()}
         shell: Rscript {0}
