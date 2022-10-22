@@ -83,7 +83,8 @@ compute_tukeys_median_order <- function(corders,
   sum_corder <- Reduce("+", corders)
   # In the end ans_old will be the deepest partial order that will be return,
   # whereas
-  # ans_new is the first relation that has larger depth but is not extendable to a
+  # ans_new is the first relation that has larger depth but is not extendable
+  # to a
   # partial order anymore
   ans_old <- ans_new <- startorder
   # set recursively attributes in ans_new to 1 to decrease Tukeys depth
