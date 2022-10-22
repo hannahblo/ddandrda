@@ -32,10 +32,11 @@ compute_tukeys_outlyingness <- function(intent,
 #'   w.r.t. which Tukeys depth is computed
 #'
 #'   @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
-#' @examples
-#' tba
 #'
-#'   @export
+#'
+#'
+#'
+#' @export
 compute_tukeys_depth <- function(intent,
                                  context,
                                  row_weights = rep(1, nrow(context)),
