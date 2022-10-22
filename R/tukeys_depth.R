@@ -73,7 +73,7 @@ compute_tukeys_median_order <- function(corders,
   # name eigtl. compute_tukeys_true_median_order
   #
   # input checks
-  if (!is_extendable_to_partial_order(startorder)) {
+  if (!is_extendable_to_porder(startorder)) {
     print("warning: invalid relation startorder (startorder is not extendable
            to a partial order, therefore the searchspce is empty.")
   }
