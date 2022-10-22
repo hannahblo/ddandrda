@@ -26,3 +26,7 @@ jobs:
       - name: Test coverage
         run: covr::codecov(quiet = FALSE)
         shell: Rscript {0}
+
+      - name: Test coverage pipline
+        run: ((covr::percent_coverage(covr::package_coverage()) < 90)
+        shell: Rscript {0}
