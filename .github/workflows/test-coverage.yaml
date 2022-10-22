@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -23,10 +22,6 @@ jobs:
           extra-packages: any::covr
           needs: coverage
 
-      - name: Test coverage
-        run: covr::codecov(quiet = FALSE)
-        shell: Rscript {0}
-
       - name: Test coverage pipline
-        run: if((covr::percent_coverage(covr::package_coverage(quiet = TRUE)) < 95)) {stop()}
+        run: if((covr::percent_coverage(covr::package_coverage(quiet = TRUE)) < 90)) {stop()}
         shell: Rscript {0}
