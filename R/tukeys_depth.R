@@ -48,19 +48,46 @@ compute_tukeys_depth <- function(intent,
   ))
 }
 
+#' Tukeys true median order
+#'
+#' @description 'compute_tukeys_median_order' computes that partial order
+#' in the space of ALL partial orders (that are supersets of startorder)
+#' that has the maximal Tukeys depth w.r.t. the given
+#' data cloud represented by th given context (given in the form of a list of
+#' posets, where every entry of the list is an incidence relation apposited
+#' with its negation. (In terms of conceptual scaling we use here the
+#' complemented scaling)
+#'
+#' @param corders data set of partial orders (given in the form of a list of
+#' posets, where every entry of the list is an incidence relation apposited
+#' with its negation. (In terms of conceptual scaling we use here the
+#' complemented scaling)
+#'
+#' @param startder is a binary relation that can be used to restrict the space
+#' of partial orders in which one searches the partial order(s9 with the highest
+#' Tukey depth. Cencretely the search space is the space of all partial orders
+#' in complemented conceptual scaling that are supersets of the relation
+#'  startorder. (startorder needs not to be a partial order))
 compute_tukeys_median_order <- function(corders,
                                         startorder = corders[[1]] * 0) {
   # name eigtl. compute_tukeys_true_median_order
-  # computes that partial order in the space of ALL partial orders that has the
-  # maximal tukeys depth w.r.t. the given data cloud representet by th given
-  # context (given in the form of a list of posets, where every entry of the
-  # list is an incidence relation apposited with its negation
-  # (In terms of conceptual scaling we use here the complemented scaling)
-
+  #
+  # input checks
+  if (!is_extendable_to_partial_order(startorder)) {
+    print("warning: invalid relation startorder (startorder is not extendable
+           to a partial order, therefore the searchspce is empty.")
+  }
   q <- nrow(corders[[1]])
+  # columnsums represent the corresponding outlyingness values w.r.t. Tukeys
+  # depth
   sum_corder <- Reduce("+", corders)
+  # In the end ans_old will be the deepest partial order that will be return,
+  # whereas
+  # ans_new is the first relation that has larger depth but is not extendable to a
+  # partial order anymore
   ans_old <- ans_new <- startorder
-
+  # set recursively attributes in ans_new to 1 to decrease Tukeys depth
+  # start attributes that correspond to the largest Tukeys outlyingness values
   while (TRUE) {
     max_corder <- max(sum_corder[which(ans_old == 0)])
     i <- which(ans_old == 0 & sum_corder == max_corder)
@@ -97,7 +124,8 @@ is_extendable_to_porder <- function(corder) {
 }
 
 
-compute_tukeys_separation <- function(orders1, orders2) {
+compute_tukeys_separation <- function(orders1, orders2,
+                                      startorder = orders1[[1]] * 0) {
   # name urspr. tukeys_true:median_difference
   # coputes that partial order in the space of ALL partial orders
   # that has the maximal tukeys depth w.r.t. the given data cloud representet
@@ -113,7 +141,7 @@ compute_tukeys_separation <- function(orders1, orders2) {
 
 
 
-  ans_old <- ans_new <- orders1[[1]] * 0
+  ans_old <- ans_new <- startorder
 
   max_sum <- max(sum_1_2[which(ans_old == 0)])
   i <- which(ans_old == 0 & sum_1_2 == max_sum)
