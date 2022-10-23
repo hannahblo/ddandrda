@@ -12,7 +12,7 @@ posets, where every entry of the list is an incidence relation apposited
 with its negation. (In terms of conceptual scaling we use here the
 complemented scaling)}
 
-\item{startder}{is a binary relation that can be used to restrict the space
+\item{startorder}{is a binary relation that can be used to restrict the space
 of partial orders in which one searches the partial order(s9 with the highest
 Tukey depth. Cencretely the search space is the space of all partial orders
 in complemented conceptual scaling that are supersets of the relation
