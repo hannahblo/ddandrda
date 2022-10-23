@@ -336,7 +336,7 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
     return(ans_list)
   }
   if (!list) {
-    if (complmented) {
+    if (complemented) {
       return(cbind(ans, 1 - ans))
     } else {
       return(ans)
