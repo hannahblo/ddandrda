@@ -23,12 +23,23 @@ w.r.t. which Tukeys depth is computed}
 
 \item{row_weights}{is mmm bb}
 
-\item{col_weights}{is a kk
-
-@return returns the depth value(s) of the object(s) w.r.t. the data cloud.}
+\item{col_weights}{is a kk}
+}
+\value{
+returns the depth value(s) of the object(s) w.r.t. the data cloud.
 }
 \description{
 'compute_tukeys_depth' returns the depth value of an object
 represented by its intent (given as a 0-1 vector) w.r.t. a data cloud
-represented by a formal context
+represented by a formal context.
+}
+\examples{
+
+context <- fcaR::planets
+depth_values <- compute_tukeys_depth(context,context)
+table(depth_values)
+which(depth_values==max(depth_values))
+which(depth_values==min(depth_values))
+
+
 }
