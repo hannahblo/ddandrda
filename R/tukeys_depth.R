@@ -1,3 +1,36 @@
+plot_order <- function(incidence){
+  fc <- fcaR::FormalContext$new(incidence[,(1:nrow(incidence))])
+  fc$find_concepts()
+  fc$concepts$plot()
+}
+  context_to_list <- function(context,complemented=FALSE,colnames=NULL,rownames=NULL){
+  m <- nrow(context)
+  if(complemented) {q <- sqrt(ncol(context)/2)}
+  else{ q <- sqrt(ncol(context))}
+  q2=q
+  if(complemented){q2 <- 2*q}
+  #for(k in (1:q)){NAMES[k] <- colnames(context[1,k])}
+  list <- list()
+  for(k in (1:m)){
+    temp <- context[k,];dim(temp) <- c(q,q2)
+    colnames(temp) <- colnames
+    rownames(temp) <- rownames
+    list[[k]] <- temp
+  }
+
+  return(list)}
+
+
+
+fca_demo <- function(){
+  context <- fcaR::planets
+  print(context)
+  fc <- fcaR::FormalContext$new(context)
+  ans1 <- fc$find_concepts()
+  ans2 <- fc$concepts$plot()
+  }
+
+
 compute_tukeys_outlyingness <- function(intent,
                                         context,
                                         row_weights = rep(1, nrow(context)),
@@ -35,9 +68,15 @@ compute_tukeys_outlyingness <- function(intent,
 #'
 #' @param col_weights is a kk
 #'
-#'   @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
+#' @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
 #'
+#' @examples
 #'
+#' context <- fcaR::planets
+#' depth_values <- compute_tukeys_depth(context,context)
+#' table(depth_values)
+#' which(depth_values==max(depth_values))
+#' which(depth_values==min(depth_values))
 #'
 #'
 #' @export
@@ -69,10 +108,17 @@ compute_tukeys_depth <- function(intent,
 #' complemented scaling)
 #'
 #' @param startorder is a binary relation that can be used to restrict the space
-#' of partial orders in which one searches the partial order(s9 with the highest
+#' of partial orders in which one searches the partial order(s) with the highest
 #' Tukey depth. Cencretely the search space is the space of all partial orders
 #' in complemented conceptual scaling that are supersets of the relation
-#'  startorder. (startorder needs not to be a partial order))
+#' startorder. (startorder needs not to be a partial order))
+#' @examples
+#' all_4_orders <- compute_all_partial_orders(q=5,complemented=TRUE,list=TRUE)
+#' sampled_corders <- all_4_orders[c(rep(10,20),(1:8),(21:30))]
+#' tukeys_median <- compute_tukeys_median_order(sampled_corders)
+#' plot_order(tukeys_median)
+#' plot_order(sampled_corders[1])
+
 compute_tukeys_median_order <- function(corders,
                                         startorder = corders[[1]] * 0) {
   # name eigtl. compute_tukeys_true_median_order
@@ -264,19 +310,29 @@ strictly_quasiconcave_phull <- function(depths, context) {
 
 
 
-compute_all_partial_orders <- function(q, names = (1:q), complemented) {
+compute_all_partial_orders <- function(q, names = (1:q), complemented, list=TRUE) {
   perms <- gtools::permutations(q, q)
   colnames(perms) <- names
   context <- ranking_scaling(perms,
     remove_full_columns = FALSE,
-    complemented = complemented
+    complemented = FALSE
   )
   ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
   ans <- ans$intents[-nrow(ans$intents), ]
   colnames(ans) <- colnames(context)
-  return(ans)
+  ans_list=context_to_list(ans,complemented=FALSE)
+  if(list){
+    if(complemented){
+      for(k in (1:nrow(ans))) {
+       ans_list[[k]] <- cbind(ans_list[[k]],1-ans_list[[k]])
+      }
+    }
+    return(ans_list)}
+  if(!list){
+    if(complmented){return(cbind(ans,1-ans))}
+    else{return(ans)}
+  }
 }
-
 
 ## zu ueberarbeiten:
 
@@ -291,7 +347,7 @@ ranking_scaling <- function(x,
   for (k in (1:m)) {
     temp <- array(0, c(n, n))
     for (l1 in (1:n)) {
-      for (l2 in (l1:n)) {
+      for (l2 in (1:n)) {
         temp[l1, l2] <- ((x[k, l1] <= x[k, l2])) * 1
       }
     }
@@ -305,7 +361,7 @@ ranking_scaling <- function(x,
         colnames(x)[l2]
       ), collapse = "")
 
-      neg_names[k] <- paste(c(" NOT(", colnames(ans)[k], ") "),
+      neg_names[t] <- paste(c(" NOT(", colnames(ans)[t], ") "),
         collapse = ""
       )
 
