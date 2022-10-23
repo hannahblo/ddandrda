@@ -36,7 +36,7 @@ test_that("compute_tukeys_depth works", {
 
 test_that("compute_tukeys_median_order works", {
   q <- sample((3:5), size = 1)
-  a <- compute_all_partial_orders(q, complemented = FALSE)
+  a <- compute_all_partial_orders(q, complemented = FALSE,list=FALSE)
   orders <- list()
   m <- nrow(a)
   for (k in (1:m)) {
