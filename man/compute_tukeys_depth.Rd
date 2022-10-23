@@ -11,18 +11,24 @@ compute_tukeys_depth(
   col_weights = rep(1, ncol(context))
 )
 }
-\description{
-'compute_tukeys_depth' returns the depth value of an object represented by
-its intent (given as a 0-1 vector) w.r.t. a data cloud represented by a
-formal context
-@param intent represents the envisaged object given by all its attributes
+\arguments{
+\item{intent}{represents the envisaged object given by all its attributes
 given as a 0-1 vector. It is also possible to compute depth values for
 more objects. In this case the objects should be given as a matrix where
 each row corresponds to one
-object.
+object.}
 
-@param context is a formal context whose objects represent the data cloud
-w.r.t. which Tukeys depth is computed
+\item{context}{is a formal context whose objects represent the data cloud
+w.r.t. which Tukeys depth is computed}
 
-@return returns the depth value(s) of the object(s) w.r.t. the data cloud.
+\item{row_weights}{is mmm bb}
+
+\item{col_weights}{is a kk
+
+@return returns the depth value(s) of the object(s) w.r.t. the data cloud.}
+}
+\description{
+'compute_tukeys_depth' returns the depth value of an object
+represented by its intent (given as a 0-1 vector) w.r.t. a data cloud
+represented by a formal context
 }
