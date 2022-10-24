@@ -2,7 +2,7 @@
 % Please edit documentation in R/tukeys_depth.R
 \name{compute_tukeys_depth}
 \alias{compute_tukeys_depth}
-\title{Compute Tukeys depth of an intent w.r.t. a given formal context}
+\title{Computes Tukeys depth of an intent w.r.t. a given formal context}
 \usage{
 compute_tukeys_depth(
   intent,
@@ -36,10 +36,9 @@ represented by a formal context.
 \examples{
 
 context <- fcaR::planets
-depth_values <- compute_tukeys_depth(context,context)
+depth_values <- compute_tukeys_depth(context, context)
 table(depth_values)
-which(depth_values==max(depth_values))
-which(depth_values==min(depth_values))
-
+which(depth_values == max(depth_values))
+which(depth_values == min(depth_values))
 
 }

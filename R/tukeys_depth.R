@@ -3,6 +3,7 @@ plot_order <- function(incidence) {
   fc$find_concepts()
   fc$concepts$plot()
 }
+
 context_to_list <- function(context, complemented = FALSE, colnames = NULL, rownames = NULL) {
   m <- nrow(context)
   if (complemented) {
@@ -14,7 +15,6 @@ context_to_list <- function(context, complemented = FALSE, colnames = NULL, rown
   if (complemented) {
     q2 <- 2 * q
   }
-  # for(k in (1:q)){NAMES[k] <- colnames(context[1,k])}
   list <- list()
   for (k in (1:m)) {
     temp <- context[k, ]
@@ -56,7 +56,7 @@ compute_tukeys_outlyingness <- function(intent,
   }
 }
 
-#' Compute Tukeys depth of an intent w.r.t. a given formal context
+#' Computes Tukeys depth of an intent w.r.t. a given formal context
 #'
 #' @description 'compute_tukeys_depth' returns the depth value of an object
 #' represented by its intent (given as a 0-1 vector) w.r.t. a data cloud
@@ -125,6 +125,7 @@ compute_tukeys_depth <- function(intent,
 #' plot_order(tukeys_median)
 #' plot_order(sampled_corders[1])
 #'
+#' @export
 compute_tukeys_median_order <- function(corders,
                                         startorder = corders[[1]] * 0) {
   # name eigtl. compute_tukeys_true_median_order
@@ -180,6 +181,39 @@ is_extendable_to_porder <- function(corder) {
   }
   return(TRUE)
 }
+
+compute_loc_sep_statistic <- function(corders1, corders2, lambda) {
+  n1 <- length(corders1)
+  n2 <- length(corders2)
+  startorder1 <- Reduce("+", corders1) <= lambda * n1
+  startorder2 <- Reduce("+", corders2) <= lambda * n2
+  depth1 <- compute_tukeys_median_order(corders1, startorder2)
+  depth2 <- compute_tukeys_median_order(corders2, startorder1)
+  return(min(depth1, depth2))
+}
+
+compute_loc_sep_statistic <- function(corders1, corders2, lambda, nrep) {
+  observed_statistic <- compute_loc_sep_statistic(corders1, corders2, lambda)
+  h0_statistics <- rep(0, nrep)
+  corders <- c(corders1, corders2)
+  n <- length(corders)
+  n1 <- length(corders1)
+  for (k in (1:nrep)) {
+    index <- sample((1:n), size = n1)
+    h0_statistics[k] <- compute_loc_sep_statistic(
+      corders[index], corders[-index], lambda
+    )
+  }
+
+  return(list(
+    observed_statistic = observed_statistic,
+    h0_statistics = h0_statistics,
+    p_value = mean(h0_statistics <= observed_statistic)
+  ))
+}
+
+
+
 
 
 compute_tukeys_separation <- function(orders1, orders2,
@@ -314,8 +348,19 @@ strictly_quasiconcave_phull <- function(depths, context) {
   return(ans)
 }
 
-
-
+#' All partial orders on a set of q elements
+#'
+#' @description 'compute_all_partial_orders' returns the set of all partial orders on a set of $q$ elements
+#'
+#'
+#' @param q is the number of elements of the basic space
+#' @param names are the names of the q elements
+#' @param complemented if TRUE, the orders are return in a complemented conceptual scaling
+#' @param list if TRUE the orders are returned as a list. Otherwise a formal context is returned
+#'
+#' @return returns the set of all partial orders on a space of q elements
+#'
+#' @export
 compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
   perms <- gtools::permutations(q, q)
   colnames(perms) <- names
