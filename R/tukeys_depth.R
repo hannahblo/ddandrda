@@ -80,9 +80,14 @@ compute_tukeys_outlyingness <- function(intent,
 #' @param context is a formal context whose objects represent the data cloud
 #' w.r.t. which Tukeys depth is computed
 #'
-#' @param row_weights is mmm bb
+#' @param row_weights it is possible to give every object a weight (with the
+#' interpretation that object with e.g. weight $2$ appear twice as often in the
+#'  data set as objects with weight 1)
 #'
-#' @param col_weights is a kk
+#' @param col_weights it is possible to give every attribute a weight (with the
+#'  interpretation that a weighted maximum (minimum) is calculated for
+#'   Tukeys outlyingness (depth) such that attributes with higher weights get
+#'    more important)
 #'
 #' @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
 #'
@@ -112,7 +117,7 @@ compute_tukeys_depth <- function(intent,
 #' @description 'compute_tukeys_median_order' computes that partial order
 #' in the space of ALL partial orders (that are supersets of startorder)
 #' that has the maximal Tukeys depth w.r.t. the given
-#' data cloud represented by th given context (given in the form of a list of
+#' data cloud represented by the given context (given in the form of a list of
 #' posets, where every entry of the list is an incidence relation apposited
 #' with its negation. (In terms of conceptual scaling we use here the
 #' complemented scaling)
@@ -124,13 +129,13 @@ compute_tukeys_depth <- function(intent,
 #'
 #' @param startorder is a binary relation that can be used to restrict the space
 #' of partial orders in which one searches the partial order(s) with the highest
-#' Tukey depth. Cencretely the search space is the space of all partial orders
+#' Tukey depth. Concretely the search space is the space of all partial orders
 #' in complemented conceptual scaling that are supersets of the relation
 #' startorder. (startorder needs not to be a partial order))
 #' @examples
 #' all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
 #' sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
-#' tukeys_median <- compute_tukeys_median_order(sampled_corders)
+#' tukeys_median <- compute_tukeys_median_order(sampled_corders)$median
 #' plot_order(tukeys_median)
 #' plot_order(sampled_corders[[1]])
 #'
@@ -163,7 +168,11 @@ compute_tukeys_median_order <- function(corders,
     ans_new <- ans_old
     ans_new[i] <- 1
     if (!is_extendable_to_porder(ans_new)) {
-      return(cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)]))
+      median <- cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)])
+      context <- list_to_context(corders, complemented = TRUE)
+      depth <- compute_tukeys_depth(as.vector(median), context)
+
+      return(list(median = median, depth = depth))
     }
     m_leq <- ans_new[, (1:q)]
     diag(m_leq) <- 1
@@ -177,10 +186,11 @@ compute_tukeys_median_order <- function(corders,
 
 is_extendable_to_porder <- function(corder) {
   q <- dim(corder)[1]
-  m_leq <- relations::relation_incidence(relations::transitive_closure(
-    relations::as.relation(corder[, (1:q)])
-  ))
+
+
+  m_leq <- corder[, (1:q)]
   diag(m_leq) <- 1
+  m_leq <- compute_transitive_hull(m_leq)
   m_nleq <- corder[, -(1:q)]
   if (any(m_leq == 1 & m_nleq == 1)) {
     return(FALSE)
@@ -191,17 +201,78 @@ is_extendable_to_porder <- function(corder) {
   return(TRUE)
 }
 
+#' Location-Separation type test statistic based on Tukeys depth
+#' @description 'compute_loc_sep_statistic' computes a test statistic for
+#' differences in location or separation of two distributions of order data
+#' based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
+#' distribution 1 under the constraint that the depth w.r.t. distribution 2
+#' is not below a certain threshold c defined by the smallest depth of the
+#' lambda * 100 percent of the observed depth values. For a very small value of
+#' lambda, the test statistic is more or less similar to a generalization of
+#' the M-based#' test, wheres for very high values of lambda one gets
+#' essentially a test that is similar to a generalization of the T-based test
+#'  defined in
+#'
+#' Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
+#' and Scales Using Data Depth.
+#' Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
+#'
+#' @param corders1 complemented orders of distribution 1
+#' @param corders2 complemented orders of distribution 2
+#' @param lambda parameter for setting the threhold c, see above
+#'
+#'
+#'  @return  the value of the test statistic
+#'
+#'
+#' @export
 compute_loc_sep_statistic <- function(corders1, corders2, lambda) {
   n1 <- length(corders1)
   n2 <- length(corders2)
-  startorder1 <- Reduce("+", corders1) <= lambda * n1
-  startorder2 <- Reduce("+", corders2) <= lambda * n2
-  depth1 <- compute_tukeys_median_order(corders1, startorder2)
-  depth2 <- compute_tukeys_median_order(corders2, startorder1)
+  context1 <- list_to_context(corders1, complemented = TRUE)
+  context2 <- list_to_context(corders2, complemented = TRUE)
+  depth1 <- compute_tukeys_depth(context1, context1)
+  depth2 <- compute_tukeys_depth(context2, context2)
+
+
+  startorder1 <- Reduce("pmin", corders1[which(depth1 >= stats::quantile(depth1, lambda))])
+
+  startorder2 <- Reduce("pmin", corders2[which(depth2 >= stats::quantile(depth2, lambda))])
+  depth1 <- compute_tukeys_median_order(corders1, startorder2)$depth
+  depth2 <- compute_tukeys_median_order(corders2, startorder1)$depth
   return(min(depth1, depth2))
 }
 
-compute_loc_sep_statistic <- function(corders1, corders2, lambda, nrep) {
+#' Location-Separation type test based on Tukeys depth
+#' @description 'compute_loc_sep_statistic' computes a test that is based on
+#' the function 'compute_loc_sep_statistic' that is senstivive for
+#' differences in location or separation of two distributions of order data
+#' based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
+#' distribution 1 under the constraint that the depth w.r.t. distribution 2
+#' is not below a certain threshold c defined by the smallest depth of the
+#' lambda * 100 percent of the observed depth values. For a very small value of
+#' lambda, the test statistic is more or less similar to a generalization of
+#' the M-based#' test, wheres for very high values of lambda one gets
+#' essentially a test that is similar to a generalization of the T-based test
+#'  defined in
+#'
+#' Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
+#' and Scales Using Data Depth.
+#' Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
+#'
+#'  The test is performed as a simple observation-randomization test
+#'
+#' @param corders1 complemented orders of distribution 1
+#' @param corders2 complemented orders of distribution 2
+#' @param lambda parameter for setting the threhold c, see above
+#' @param nrep Number of repetions in the permutation sceme
+#'
+#' @return a list with the value of the test statistic, the value of the test
+#'  under a permutation sceme that corresponds to the null hypothesis of
+#'  identical distributions
+#'
+#' @export
+compute_loc_sep_test <- function(corders1, corders2, lambda, nrep) {
   observed_statistic <- compute_loc_sep_statistic(corders1, corders2, lambda)
   h0_statistics <- rep(0, nrep)
   corders <- c(corders1, corders2)
@@ -298,7 +369,7 @@ compute_geodetic_median <- function(corders,
 
 
 
-list_to_context <- function(list) {
+list_to_context <- function(list, complemented) {
   # converts a list of orders given by incidence
   # relations as 0-1 matrices into a context of crosses
   m <- length(list)
@@ -307,7 +378,11 @@ list_to_context <- function(list) {
   for (k in (1:m)) {
     mat[k, ] <- as.vector(list[[k]])
   }
-  return(mat)
+  if (complemented) {
+    return(cbind(mat, 1 - mat))
+  } else {
+    return(mat)
+  }
 }
 
 
@@ -397,6 +472,43 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
     }
   }
 }
+
+
+# other depth functions
+compute_betweenness_depth <- function(context, index_modus) {
+  ## computes a simple depth function by counting how many points are between
+  # a given point and a center (index_modus)
+  # This depth function is not quasiconcave but star-shaped
+  m <- nrow(context)
+  ans <- rep(0, m)
+  for (k in (1:m)) {
+    extent <- rep(0, m)
+    extent[index_modus] <- 1
+    extent[k] <- 1
+    extent <- operator_closure_obj_input(extent, context)
+    ans[k] <- sum(extent)
+  }
+  return(m - ans)
+}
+
+compute_one_simplicial_depth <- function(context, index_modus) {
+
+  ## computes a another simple depth function adding for every point to all
+  # other points between this point and a center a one. This depth function is
+  # not quasiconcave but star-shaped
+
+  m <- nrow(context)
+  ans <- rep(0, m)
+  for (k in (1:m)) {
+    extent <- rep(0, m)
+    extent[index_modus] <- 1
+    extent[k] <- 1
+    extent <- operator_closure_obj_input(extent, context)
+    ans[which(extent == 1)] <- ans[which(extent == 1)] + 1
+  }
+  return(ans)
+}
+
 
 ## zu ueberarbeiten:
 
