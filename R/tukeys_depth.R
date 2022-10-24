@@ -128,11 +128,11 @@ compute_tukeys_depth <- function(intent,
 #' in complemented conceptual scaling that are supersets of the relation
 #' startorder. (startorder needs not to be a partial order))
 #' @examples
-#' all_4_orders <- compute_all_partial_orders(q = 5, complemented = TRUE, list = TRUE)
+#' all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
 #' sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
 #' tukeys_median <- compute_tukeys_median_order(sampled_corders)
 #' plot_order(tukeys_median)
-#' plot_order(sampled_corders[1])
+#' plot_order(sampled_corders[[1]])
 #'
 #' @export
 compute_tukeys_median_order <- function(corders,
