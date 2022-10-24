@@ -46,7 +46,7 @@ test_that("compute_tukeys_median_order works", {
   }
   i <- sample((1:m), size = ceiling(nrow(a) / 3))
   a <- cbind(a, 1 - a)
-  ans1 <- compute_tukeys_median_order(orders[i])
+  ans1 <- compute_tukeys_median_order(orders[i])$median
   td <- compute_tukeys_depth(intent = a, context = a[i, ])
   j <- which(td == max(td))
   output <- FALSE
