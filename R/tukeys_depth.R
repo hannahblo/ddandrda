@@ -1,3 +1,12 @@
+#' Plot a partial order
+#' @description 'plot_order' plots a partial order by drawing the
+#' Hasse diagramm of its Dedekind–MacNeille completion
+#'
+#' @param incidence The incidence relation of the partial order
+#'
+#' @return The drawing of the partial order in the form of the Hasse diagramm of
+#' the Dedekind-MacNeille completion of the given partial order
+#' @export
 plot_order <- function(incidence) {
   fc <- fcaR::FormalContext$new(incidence[, (1:nrow(incidence))])
   fc$find_concepts()
