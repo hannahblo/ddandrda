@@ -28,10 +28,10 @@ with its negation. (In terms of conceptual scaling we use here the
 complemented scaling)
 }
 \examples{
-all_4_orders <- compute_all_partial_orders(q = 5, complemented = TRUE, list = TRUE)
+all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
 sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
 tukeys_median <- compute_tukeys_median_order(sampled_corders)
 plot_order(tukeys_median)
-plot_order(sampled_corders[1])
+plot_order(sampled_corders[[1]])
 
 }
