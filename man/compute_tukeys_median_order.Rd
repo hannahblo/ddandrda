@@ -14,7 +14,7 @@ complemented scaling)}
 
 \item{startorder}{is a binary relation that can be used to restrict the space
 of partial orders in which one searches the partial order(s) with the highest
-Tukey depth. Cencretely the search space is the space of all partial orders
+Tukey depth. Concretely the search space is the space of all partial orders
 in complemented conceptual scaling that are supersets of the relation
 startorder. (startorder needs not to be a partial order))}
 }
@@ -22,7 +22,7 @@ startorder. (startorder needs not to be a partial order))}
 'compute_tukeys_median_order' computes that partial order
 in the space of ALL partial orders (that are supersets of startorder)
 that has the maximal Tukeys depth w.r.t. the given
-data cloud represented by th given context (given in the form of a list of
+data cloud represented by the given context (given in the form of a list of
 posets, where every entry of the list is an incidence relation apposited
 with its negation. (In terms of conceptual scaling we use here the
 complemented scaling)
@@ -30,7 +30,7 @@ complemented scaling)
 \examples{
 all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
 sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
-tukeys_median <- compute_tukeys_median_order(sampled_corders)
+tukeys_median <- compute_tukeys_median_order(sampled_corders)$median
 plot_order(tukeys_median)
 plot_order(sampled_corders[[1]])
 
