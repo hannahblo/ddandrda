@@ -38,13 +38,7 @@ context_to_list <- function(context, complemented = FALSE, colnames = NULL, rown
 
 
 
-fca_demo <- function() {
-  context <- fcaR::planets
-  print(context)
-  fc <- fcaR::FormalContext$new(context)
-  ans1 <- fc$find_concepts()
-  ans2 <- fc$concepts$plot()
-}
+
 
 
 compute_tukeys_outlyingness <- function(intent,
@@ -341,10 +335,10 @@ compute_tukeys_separation <- function(orders1, orders2,
 compute_geodetic_median <- function(corders,
                                     proportion,
                                     auto = FALSE, fraction) {
-  context <- list_to_context(corders)
+  context <- list_to_context(corders,complemented=FALSE)
   td <- compute_tukeys_depth(context, context)
   if (auto) {
-    tukeys_median <- as.vector(compute_tukeys_median_order(corders))
+    tukeys_median <- as.vector(compute_tukeys_median_order(corders))$median
     ordered_depths <- sort(td, decreasing = TRUE)
     for (k in seq_along(corders)) {
       extent <- rep(0, ncol(context))
