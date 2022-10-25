@@ -469,42 +469,88 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
 
 
 # other depth functions
+
+#' Simple localized depth function based on betweenness w.r.t.a prespecified
+#'  mode
+#'
+#' @description 'compute_betweenness_depth' computes a simple depth function
+#' by counting how many points are between the envisaged point and a
+#' center (index_modus). This depth function is not quasiconcave but
+#' it is star-shaped.
+#' @param intent intent of the envisage object
+#'
+#' @param context the underlying context
+#'
+#' @param index_modus the index of the object within the context that represents
+#' the center
+#'
+#'
+#' @export
 compute_betweenness_depth <- function(intent, context, index_modus) {
-  ## computes a simple depth function by counting how many points are between
-  # a given point and a center (index_modus)
-  # This depth function is not quasiconcave but star-shaped
+
   if (is.vector(intent)) {
     m <- nrow(context)
     extent <- calculate_phi(pmin(context[index_modus,],intent),context)
-  #extent[index_modus] <- 1
-  #extent[k] <- 1
-  #extent <- operator_closure_obj_input(extent, context)
-  ans <- sum(extent)
+    ans <- sum(extent)
   return(m - ans)
   }
   if (is.matrix(intent)) {
-    return(sapply(as.list(as.data.frame(t(intent))),
-                  compute_betweenness_depth,
-                  context = context, simplify = TRUE
-    ))
-}
-}
-compute_one_simplicial_depth <- function(context, index_modus) {
+    ans <- rep(0,nrow(intent))
+    for(k in (1:nrow(intent))){
+      ans[k] <- compute_betweenness_depth(intent[k,],context,index_modus)
+    }
+    return(ans)
+  }
 
-  ## computes a another simple depth function adding for every point to all
-  # other points between this point and a center a one. This depth function is
-  # not quasiconcave but star-shaped
+}
 
+
+# other depth functions
+
+#' Simple simplicial-type localized depth function based on betweenness w.r.t.
+#' a prespecified mode
+#'
+#' @description 'compute_one_simplicial_depth' # computes another simple depth
+#' function that adds for every point of the data clous to allenvisaged points
+#' between this point and the center a one. This depth function is
+# not quasiconcave but star-shaped
+#'
+#' @param intent intent of the envisage object
+#'
+#' @param context the underlying context
+#'
+#' @param index_modus the index of the object within the context that represents
+#' the center
+#'
+#'
+#' @export
+compute_one_simplicial_depth <- function(intent, context, index_modus) {
+
+  #
+  if (is.matrix(intent)) {
   m <- nrow(context)
-  ans <- rep(0, m)
+  ans <- 0
   for (k in (1:m)) {
     extent <- rep(0, m)
     extent[index_modus] <- 1
     extent[k] <- 1
-    extent <- operator_closure_obj_input(extent, context)
-    ans[which(extent == 1)] <- ans[which(extent == 1)] + 1
+    if(all(calculate_psi(extent,context) <= intent)) {
+      ans <- ans + 1
+
+    }
+
   }
   return(ans)
+  }
+  if (is.matrix(intent)) {
+    ans <- rep(0,nrow(intent))
+    for(k in (1:nrow(intent))){
+      ans[k] <- compute_one_simplicial_depth (intent[k,],context,index_modus)
+    }
+    return(ans)
+  }
+
+
 }
 
 

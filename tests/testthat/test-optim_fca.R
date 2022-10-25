@@ -9,7 +9,7 @@ test_that("sample_concept works", {
   g <- function(intent,context){compute_tukeys_depth(c(intent,1-intent),
                                                      reference_context)}
 
-  ans1 <- sample_concept(CT,steps=1000,g)
+  ans1 <- sample_concept(CT,steps=10000,g)
   ans2 <- compute_tukeys_median_order(corders[i])
 
 

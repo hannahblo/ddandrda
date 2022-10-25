@@ -1,4 +1,4 @@
-test_that("list_to_context", {
+test_that("list_to_context works", {
 
   list <- list()
   for(k in (1:20)){
@@ -13,7 +13,13 @@ test_that("list_to_context", {
 
 })
 
+test_that("compute_betweenness_depth works", {
 
+  context <- random_context(1000,5)
+  bd <- compute_betweenness_depth(context,context,1)
+  expect_equal(which.max(bd),1)
+
+})
 
 
 
