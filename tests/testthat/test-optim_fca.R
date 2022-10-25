@@ -1,7 +1,7 @@
 test_that("sample_concept works", {
 
   q <- 4
-  CT <- compute_context_all_porders(q=q,complemented=FALSE)
+  CT <- compute_context_all_porders(q=q)
   corders <- compute_all_partial_orders(q=q,complemented=TRUE,list=TRUE)
   context <- compute_all_partial_orders(q=q,complemented=TRUE,list=FALSE)
   i <- sample((1:nrow(context)),size=50)

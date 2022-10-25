@@ -1,6 +1,6 @@
 #' Context with all partial orders as intents
 #'
-#' @decription 'compute_context_all_porders' computes a formal context whose
+#' @description 'compute_context_all_porders' computes a formal context whose
 #' intents are all partial orders on a set of q elements
 #' (PLUS the ALL-relation!): Since every partial order is an intersection
 #' of a set of linear orders (more concretely the set of all linear
