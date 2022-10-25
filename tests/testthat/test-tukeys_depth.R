@@ -93,6 +93,15 @@ test_that("is_quasiconcave works", {
   expect_equal(ans, TRUE)
 })
 
+
+test_that("is_strictly_quasiconcave works", {
+  context <- random_context(40, 6)
+  context <- cbind(context,0)
+  depths <- (-1)*compute_tukeys_depth(context, context)
+  ans <- is_strictly_quasiconcave(depths, context)
+  expect_equal(ans, FALSE)
+})
+
 test_that("compute_all_partial_orders works", {
   all_4_orders <- compute_all_partial_orders(4,complemented=FALSE,list=FALSE)
   expect_equal(nrow(all_4_orders),219)
@@ -108,5 +117,59 @@ test_that("compute_loc_sep_test works", {
   test <- compute_loc_sep_test(orders1,orders2,0.5,nrep=3)
   test_value <- compute_loc_sep_statistic(orders1,orders2,0.5)
   expect_equal(test$observed_statistic,test_value)
+
+})
+
+
+test_that("plot_order works", {
+
+  incidence <- diag(rep(1,10))
+  ans <- plot_order(incidence)
+  expect_equal(incidence[1,1],1)
+
+})
+
+test_that("compute_tukeys_separation works", {
+
+all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
+i <-sample((1:219),size=110)
+ans <- compute_tukeys_separation(all_4_orders[i],all_4_orders[-i]) >= 0
+
+expect_equal(ans,TRUE)
+
+})
+
+test_that("compute_geodetic_median works", {
+
+  all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
+  i <-sample((1:219),size=55)
+  orders <- all_4_orders[i]
+  ans <- compute_geodetic_median(orders,proportion=1)
+  ans2 <- compute_tukeys_median_order(orders)
+  ans3 <- compute_geodetic_median(orders,auto=TRUE,fraction=0.8)
+  expect_equal(ans,ans2)
+
+
+
+})
+
+
+test_that("calculate_concept_lattice works", {
+  context <- random_context(20,9)
+  ans <- calculate_concept_lattice(context)
+  ans2 <- calculate_concept_lattice(context,compute_extents=TRUE)
+  expect_equal(ans$intents,ans2$intents)
+
+
+})
+
+
+test_that("strictly_quasiconcave_phull works", {
+  context <- random_context(300,6)
+  context <- rbind(context,context)
+  depths <- runif(600)
+  ans <- all(strictly_quasiconcave_phull(depths,context) >=0)
+  expect_equal(ans,TRUE)
+
 
 })
