@@ -1,3 +1,24 @@
+test_that("list_to_context", {
+
+  list <- list()
+  for(k in (1:20)){
+    temp <- array(stats::rnorm(100),c(10,10))
+    list[[k]] <- temp
+  }
+
+  list2 <- context_to_list(list_to_context(list,complemented=FALSE),complemented=FALSE)
+  expect_equal(list,list2)
+
+
+
+})
+
+
+
+
+
+
+
 test_that("compute_tukeys_outlyingness works", {
   context <- diag(rep(1, 10))
   outlyingness <- compute_tukeys_outlyingness(context[1, ], context)
@@ -65,8 +86,27 @@ test_that("compute_tukeys_median_order works", {
 
 test_that("is_quasiconcave works", {
   context <- random_context(40, 6)
+  context <- cbind(context,0)
   depths <- compute_tukeys_depth(context, context)
   ans <- is_quasiconcave(depths, context)
 
   expect_equal(ans, TRUE)
+})
+
+test_that("compute_all_partial_orders works", {
+  all_4_orders <- compute_all_partial_orders(4,complemented=FALSE,list=FALSE)
+  expect_equal(nrow(all_4_orders),219)
+
+})
+
+
+test_that("compute_loc_sep_test works", {
+  all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
+  i <- sample((1:219),size=110)
+  orders1 <- all_4_orders[i]
+  orders2 <- all_4_orders[-i]
+  test <- compute_loc_sep_test(orders1,orders2,0.5,nrep=3)
+  test_value <- compute_loc_sep_statistic(orders1,orders2,0.5)
+  expect_equal(test$observed_statistic,test_value)
+
 })
