@@ -475,22 +475,26 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
 
 
 # other depth functions
-compute_betweenness_depth <- function(context, index_modus) {
+compute_betweenness_depth <- function(intent, context, index_modus) {
   ## computes a simple depth function by counting how many points are between
   # a given point and a center (index_modus)
   # This depth function is not quasiconcave but star-shaped
-  m <- nrow(context)
-  ans <- rep(0, m)
-  for (k in (1:m)) {
-    extent <- rep(0, m)
-    extent[index_modus] <- 1
-    extent[k] <- 1
-    extent <- operator_closure_obj_input(extent, context)
-    ans[k] <- sum(extent)
-  }
+  if (is.vector(intent)) {
+    m <- nrow(context)
+    extent <- calculate_phi(pmin(context[index_modus,],intent),context)
+  #extent[index_modus] <- 1
+  #extent[k] <- 1
+  #extent <- operator_closure_obj_input(extent, context)
+  ans <- sum(extent)
   return(m - ans)
+  }
+  if (is.matrix(intent)) {
+    return(sapply(as.list(as.data.frame(t(intent))),
+                  compute_betweenness_depth,
+                  context = context, simplify = TRUE
+    ))
 }
-
+}
 compute_one_simplicial_depth <- function(context, index_modus) {
 
   ## computes a another simple depth function adding for every point to all
