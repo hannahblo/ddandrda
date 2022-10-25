@@ -1,9 +1,25 @@
-compute_context_all_porders <- function(q, names=(1:q),complemented) {
+#' Context with all partial orders as intents
+#'
+#' @decription 'compute_context_all_porders' computes a formal context whose
+#' intents are all partial orders on a set of q elements
+#' (PLUS the ALL-relation!): Since every partial order is an intersection
+#' of a set of linear orders (more concretely the set of all linear
+#' extensions), one can can compute the set of all partial orders as the
+#' intents of a formal context where every object is a linear order L and
+#'  every attribute is a pair (a,b) and L I (a,b) iff (a,b) in L.
+#' Note that the empty intersection of objects gives the all relation,
+#' and the all relation is not a partial order
+#'
+#' #'
+#' @param q is the number of elements of the basic space
+#' @param names are the names of the q elements
+#' @export
+compute_context_all_porders <- function(q, names=(1:q)) {
   perms <- gtools::permutations(q, q)
  colnames(perms) <- names
  context <- ranking_scaling(perms,
                             remove_full_columns = FALSE,
-                            complemented = complemented
+                            complemented = FALSE
  )
 
 return(context)}
