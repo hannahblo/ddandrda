@@ -1,6 +1,12 @@
-# compute_context_all_porders
+compute_context_all_porders <- function(q, names=(1:q),complemented) {
+  perms <- gtools::permutations(q, q)
+ colnames(perms) <- names
+ context <- ranking_scaling(perms,
+                            remove_full_columns = FALSE,
+                            complemented = complemented
+ )
 
-
+return(context)}
 
 return_eins <- function(...) {
   1
@@ -12,19 +18,19 @@ sample_concept <- function(context, steps = 10000, f) {
   maximum <- -Inf
   m <- dim(context)[1]
   n <- dim(context)[2]
-  top_attr <- operator_closure_attr_input(rep(0, n), bg)
-  bottom_obj <- operator_closure_obj_input(rep(0, m), bg)
+  top_attr <- operator_closure_attr_input(rep(0, n), context)
+  bottom_obj <- operator_closure_obj_input(rep(0, m), context)
 
-  if (runif(1) > 0.5) {
+  if (stats::runif(1) > 0.5) {
     a <- rep(1, m)
-    b <- top.attr
+    b <- top_attr
   } else {
     b <- rep(1, n)
     a <- bottom_obj
   }
 
   for (i in (1:steps)) {
-    if (runif(1) > 0.5) {
+    if (stats::runif(1) > 0.5) {
       l <- sample((1:n), size = 1)
       bb <- b
       bb[l] <- 1
@@ -40,7 +46,7 @@ sample_concept <- function(context, steps = 10000, f) {
       aa[o] <- 1
       bb <- calculate_psi(aa, context)
       aa <- calculate_phi(bb, context)
-      alpha <- g_int(bb, b, context) * m / ge_ext(a, aa, context) / n
+      alpha <- g_int(bb, b, context) * m / g_ext(a, aa, context) / n
       if (is.na(alpha)) {
         alpha <- 0
       }
@@ -50,7 +56,8 @@ sample_concept <- function(context, steps = 10000, f) {
       b_maximum <- b
     }
     maximum <- max(maximum, f(b, context))
-    if (runif(1) < alpha * f(bb, context) / f(b, context)) {
+
+    if (stats::runif(1) < alpha * f(bb, context) / f(b, context)) {
       a <- aa
       b <- bb
     }
@@ -61,8 +68,8 @@ sample_concept <- function(context, steps = 10000, f) {
   }
 
 
-  print(c("alpha", alpha))
-  return(b)
+
+  return(b_maximum)
 }
 # T=concept.gen(bg,15000,f)
 
@@ -85,7 +92,7 @@ g_int <- function(b, bb, context) {
 
 
 g_ext <- function(a, aa, context) {
-  g_int(a, aa, t(bg$context))
+  g_int(a, aa, t(context))
 }
 
 
