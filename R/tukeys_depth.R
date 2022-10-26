@@ -335,7 +335,7 @@ compute_tukeys_separation <- function(orders1, orders2,
 compute_geodetic_median <- function(corders,
                                     proportion,
                                     auto = FALSE, fraction) {
-  context <- list_to_context(corders,complemented=FALSE)
+  context <- list_to_context(corders, complemented = FALSE)
   td <- compute_tukeys_depth(context, context)
   if (auto) {
     tukeys_median <- as.vector(compute_tukeys_median_order(corders))$median
@@ -362,7 +362,16 @@ compute_geodetic_median <- function(corders,
 }
 
 
-
+#' Converts list to context
+#'
+#' @description 'list_to_context' converts a list to a context
+#'
+#' @param list input list
+#'
+#' @param complemented should the context be returned with complemented
+#'  attributes
+#'
+#' @export
 list_to_context <- function(list, complemented) {
   # converts a list of orders given by incidence
   # relations as 0-1 matrices into a context of crosses
@@ -487,21 +496,19 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
 #'
 #' @export
 compute_betweenness_depth <- function(intent, context, index_modus) {
-
   if (is.vector(intent)) {
     m <- nrow(context)
-    extent <- calculate_phi(pmin(context[index_modus,],intent),context)
+    extent <- calculate_phi(pmin(context[index_modus, ], intent), context)
     ans <- sum(extent)
-  return(m - ans)
+    return(m - ans)
   }
   if (is.matrix(intent)) {
-    ans <- rep(0,nrow(intent))
-    for(k in (1:nrow(intent))){
-      ans[k] <- compute_betweenness_depth(intent[k,],context,index_modus)
+    ans <- rep(0, nrow(intent))
+    for (k in (1:nrow(intent))) {
+      ans[k] <- compute_betweenness_depth(intent[k, ], context, index_modus)
     }
     return(ans)
   }
-
 }
 
 
@@ -525,37 +532,32 @@ compute_betweenness_depth <- function(intent, context, index_modus) {
 #'
 #' @export
 compute_one_simplicial_depth <- function(intent, context, index_modus) {
-
   #
   if (is.matrix(intent)) {
-  m <- nrow(context)
-  ans <- 0
-  for (k in (1:m)) {
-    extent <- rep(0, m)
-    extent[index_modus] <- 1
-    extent[k] <- 1
-    if(all(calculate_psi(extent,context) <= intent)) {
-      ans <- ans + 1
-
-    }
-
-  }
-  return(ans)
-  }
-  if (is.matrix(intent)) {
-    ans <- rep(0,nrow(intent))
-    for(k in (1:nrow(intent))){
-      ans[k] <- compute_one_simplicial_depth (intent[k,],context,index_modus)
+    m <- nrow(context)
+    ans <- 0
+    for (k in (1:m)) {
+      extent <- rep(0, m)
+      extent[index_modus] <- 1
+      extent[k] <- 1
+      if (all(calculate_psi(extent, context) <= intent)) {
+        ans <- ans + 1
+      }
     }
     return(ans)
   }
-
-
+  if (is.matrix(intent)) {
+    ans <- rep(0, nrow(intent))
+    for (k in (1:nrow(intent))) {
+      ans[k] <- compute_one_simplicial_depth(intent[k, ], context, index_modus)
+    }
+    return(ans)
+  }
 }
 
 
 ## zu ueberarbeiten:
-
+## exportieren?
 ranking_scaling <- function(x,
                             remove_full_columns = FALSE,
                             complemented = FALSE) {
