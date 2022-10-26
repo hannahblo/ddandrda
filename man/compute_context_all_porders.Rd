@@ -24,3 +24,22 @@ and the all relation is not a partial order
 
 #'
 }
+\examples{
+q <- 5
+steps <- 10000
+context_for_q_porders <- compute_context_all_porders(q=q)
+corders <- compute_all_partial_orders(q=q,complemented=TRUE,list=TRUE)
+context <- list_to_context(corders,complemented=TRUE)
+index <- sample((1:nrow(context)),size=3)
+sampled_context <- context[index,]
+g <- function(intent,context){0.00001+compute_tukeys_depth(c(intent,1-intent)
+, sampled_context)}
+tukeys_true_median <- compute_tukeys_median_order(corders[index])
+tukeys_median_based_on_mc_heuristic <- sample_concept(
+context_for_q_porders,steps=steps,g)
+par(mfrow=c(2,1))
+plot_order(tukeys_true_median$median)
+dim(tukeys_median_based_on_mc_heuristic) <- c(q,q)
+plot_order(tukeys_median_based_on_mc_heuristic)
+
+}
