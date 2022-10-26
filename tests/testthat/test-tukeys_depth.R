@@ -6,7 +6,8 @@ test_that("list_to_context works", {
     list[[k]] <- temp
   }
 
-  list2 <- context_to_list(list_to_context(list,complemented=FALSE),complemented=FALSE)
+  list2 <- context_to_list(list_to_context(list,complemented=FALSE),
+                           complemented=FALSE)
   expect_equal(list,list2)
 
 
