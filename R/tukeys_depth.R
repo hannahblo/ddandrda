@@ -13,7 +13,8 @@ plot_order <- function(incidence) {
   fc$concepts$plot()
 }
 
-context_to_list <- function(context, complemented = FALSE, colnames = NULL, rownames = NULL) {
+context_to_list <- function(context, complemented = FALSE, colnames = NULL,
+                            rownames = NULL) {
   m <- nrow(context)
   if (complemented) {
     q <- sqrt(ncol(context) / 2)
@@ -127,7 +128,8 @@ compute_tukeys_depth <- function(intent,
 #' in complemented conceptual scaling that are supersets of the relation
 #' startorder. (startorder needs not to be a partial order))
 #' @examples
-#' all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
+#' all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE,
+#'  list = TRUE)
 #' sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
 #' tukeys_median <- compute_tukeys_median_order(sampled_corders)$median
 #' plot_order(tukeys_median)
@@ -229,9 +231,11 @@ compute_loc_sep_statistic <- function(corders1, corders2, lambda) {
   depth2 <- compute_tukeys_depth(context2, context2)
 
 
-  startorder1 <- Reduce("pmin", corders1[which(depth1 >= stats::quantile(depth1, lambda))])
+  startorder1 <- Reduce("pmin", corders1[which(depth1 >= stats::quantile(
+    depth1, lambda))])
 
-  startorder2 <- Reduce("pmin", corders2[which(depth2 >= stats::quantile(depth2, lambda))])
+  startorder2 <- Reduce("pmin", corders2[which(depth2 >= stats::quantile(
+    depth2, lambda))])
   depth1 <- compute_tukeys_median_order(corders1, startorder2)$depth
   depth2 <- compute_tukeys_median_order(corders2, startorder1)$depth
   return(min(depth1, depth2))
@@ -437,13 +441,16 @@ strictly_quasiconcave_phull <- function(depths, context) {
 
 #' All partial orders on a set of q elements
 #'
-#' @description 'compute_all_partial_orders' returns the set of all partial orders on a set of $q$ elements
+#' @description 'compute_all_partial_orders' returns the set of all partial
+#'  orders on a set of $q$ elements
 #'
 #'
 #' @param q is the number of elements of the basic space
 #' @param names are the names of the q elements
-#' @param complemented if TRUE, the orders are return in a complemented conceptual scaling
-#' @param list if TRUE the orders are returned as a list. Otherwise a formal context is returned
+#' @param complemented if TRUE, the orders are return in a complemented
+#'  conceptual scaling
+#' @param list if TRUE the orders are returned as a list. Otherwise a
+#'  formal context is returned
 #'
 #' @return returns the set of all partial orders on a space of q elements
 #'
