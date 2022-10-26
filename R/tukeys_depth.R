@@ -203,13 +203,17 @@ is_extendable_to_porder <- function(corder) {
 #' based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
 #' distribution 1 under the constraint that the depth w.r.t. distribution 2
 #' is not below a certain threshold c defined by the smallest depth of the
-#' lambda * 100 percent of the observed depth values. For a very small value of
-#' lambda, the test statistic is more or less similar to a generalization of
-#' the M-based#' test, wheres for very high values of lambda one gets
-#' essentially a test that is similar to a generalization of the T-based test
-#'  defined in
+#' lambda * 100 percent of the observed depth values. Then, by changing the
+#' roles of distribution 1 and distribution 2 and taking a minimum, the
+#' statistic is symmetrized For a small value of
+#' lambda the test statistic is more or less similar to a generalization of
+#' the T-based test. (This value lambda is that value for which both
+#' optimizations lead to the same maximal value. A value of lambda smaller
+#' than this value seems to be not a reasonable choice). For lambda=1 one gets
+#' essentially a test that is similar to a generalization of the M-based test
+#' defined in Li et al. (2004)
 #'
-#' Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
+#' @references Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
 #' and Scales Using Data Depth.
 #' Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 #'
@@ -218,7 +222,15 @@ is_extendable_to_porder <- function(corder) {
 #' @param lambda parameter for setting the threhold c, see above
 #'
 #'
-#'  @return  the value of the test statistic
+#' @return  the value of the test statistic
+#'
+#' @examples
+#' all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
+#' i <- sample((1:219),size=110)
+#' orders1 <- all_4_orders[i]
+#' orders2 <- all_4_orders[-i]
+#' compute_loc_sep_statistic(orders1,orders2,0.8)
+#'
 #'
 #'
 #' @export
