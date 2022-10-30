@@ -4,12 +4,12 @@
 \alias{compute_loc_sep_test}
 \title{Location-Separation type test based on Tukeys depth}
 \usage{
-compute_loc_sep_test(corders1, corders2, lambda, nrep)
+compute_loc_sep_test(c_orders1, c_orders2, lambda, nrep)
 }
 \arguments{
-\item{corders1}{complemented orders of distribution 1}
+\item{c_orders1}{complemented orders of distribution 1}
 
-\item{corders2}{complemented orders of distribution 2}
+\item{c_orders2}{complemented orders of distribution 2}
 
 \item{lambda}{parameter for setting the threhold c, see above}
 
@@ -22,7 +22,7 @@ identical distributions
 }
 \description{
 'compute_loc_sep_statistic' computes a test that is based on
-the function 'compute_loc_sep_statistic' that is senstivive for
+the function 'compute_loc_sep_statistic' that is sensitvive for
 differences in location or separation of two distributions of order data
 based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
 distribution 1 under the constraint that the depth w.r.t. distribution 2

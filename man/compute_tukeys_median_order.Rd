@@ -4,23 +4,23 @@
 \alias{compute_tukeys_median_order}
 \title{Tukeys true median order}
 \usage{
-compute_tukeys_median_order(corders, startorder = corders[[1]] * 0)
+compute_tukeys_median_order(c_orders, start_order = c_orders[[1]] * 0)
 }
 \arguments{
-\item{corders}{data set of partial orders (given in the form of a list of
+\item{c_orders}{data set of partial orders (given in the form of a list of
 posets, where every entry of the list is an incidence relation apposited
 with its negation. (In terms of conceptual scaling we use here the
 complemented scaling)}
 
-\item{startorder}{is a binary relation that can be used to restrict the space
-of partial orders in which one searches the partial order(s) with the highest
-Tukey depth. Concretely the search space is the space of all partial orders
-in complemented conceptual scaling that are supersets of the relation
-startorder. (startorder needs not to be a partial order))}
+\item{start_order}{is a binary relation that can be used to restrict the
+space of partial orders in which one searches the partial order(s) with the
+highest Tukey depth. Concretely the search space is the space of all partial
+orders in complemented conceptual scaling that are supersets of the relation
+start_order. (start_order needs not to be a partial order))}
 }
 \description{
 'compute_tukeys_median_order' computes that partial order
-in the space of ALL partial orders (that are supersets of startorder)
+in the space of ALL partial orders (that are supersets of start_order)
 that has the maximal Tukeys depth w.r.t. the given
 data cloud represented by the given context (given in the form of a list of
 posets, where every entry of the list is an incidence relation apposited
@@ -28,10 +28,11 @@ with its negation. (In terms of conceptual scaling we use here the
 complemented scaling)
 }
 \examples{
-all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE, list = TRUE)
-sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
-tukeys_median <- compute_tukeys_median_order(sampled_corders)$median
-plot_order(tukeys_median)
-plot_order(sampled_corders[[1]])
+all_4_c_orders <- compute_all_partial_orders(n_items = 4, complemented = TRUE,
+ list = TRUE)
+sampled_c_orders <- all_4_c_orders[c(rep(10, 20), (1:8), (21:30))]
+tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
+plot_relation(tukeys_median)
+plot_relation(sampled_c_orders[[1]])
 
 }
