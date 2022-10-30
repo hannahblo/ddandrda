@@ -1,4 +1,4 @@
-test_that("list_to_context works", {
+test_that("convert_list_to_context works", {
 
   list <- list()
   for(k in (1:20)){
@@ -6,7 +6,7 @@ test_that("list_to_context works", {
     list[[k]] <- temp
   }
 
-  list2 <- context_to_list(list_to_context(list,complemented=FALSE),
+  list2 <- convert_context_to_list(convert_list_to_context(list,complemented=FALSE),
                            complemented=FALSE)
   expect_equal(list,list2)
 
@@ -128,10 +128,10 @@ test_that("compute_loc_sep_test works", {
 })
 
 
-test_that("plot_order works", {
+test_that("plot_relation works", {
 
   incidence <- diag(rep(1,10))
-  ans <- plot_order(incidence)
+  ans <- plot_relation(incidence)
   expect_equal(incidence[1,1],1)
 
 })
@@ -148,12 +148,12 @@ expect_equal(ans,TRUE)
 
 test_that("compute_geodetic_median works", {
 
-  all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
+  all_4_c_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
   i <-sample((1:219),size=55)
-  orders <- all_4_orders[i]
-  ans <- compute_geodetic_median(orders,proportion=1)
-  ans2 <- compute_tukeys_median_order(orders)
-  ans3 <- compute_geodetic_median(orders,auto=TRUE,fraction=0.8)
+  c_orders <- all_4_c_orders[i]
+  ans <- compute_geodetic_median(c_orders,proportion=1)
+  ans2 <- compute_tukeys_median_order(c_orders)
+  ans3 <- compute_geodetic_median(c_orders,auto=TRUE,fraction=0.8)
   expect_equal(ans,ans2)
 
 
@@ -179,4 +179,30 @@ test_that("strictly_quasiconcave_phull works", {
   expect_equal(ans,TRUE)
 
 
+})
+
+
+test_that("compute_local_tukeys_depth works", {
+  context <- random_context(1000,6)
+  context <- cbind(context,1,1)
+  index <- sample((1:1000),size=1)
+  location <- context[index,]
+  indexs <- which(context[index,]==1)
+ # TODO  depths1 <- compute_tukeys_depth(context[,indexs],context[,indexs])
+  #TODO depths2 <- compute_local_tukeys_depth(context,context,location)
+  # TODO expect_equal(depths1,depths2)
+  expect_equal(TRUE,TRUE)
+
+
+})
+
+
+test_that("compute_kernel_tukeys_depth works", {
+
+  context <- random_context(30,5)
+  context <-cbind(context,0)
+  # TODO depths1 <- compute_tukeys_depth(context,context)
+  # TODOdepths2 <- compute_kernel_tukeys_depth(context,context,lambda=0)
+  # TODO expect_equal(depths1,depths2)
+  expect_equal(TRUE,TRUE)
 })
