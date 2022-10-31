@@ -121,7 +121,7 @@ test_that("compute_loc_sep_test works", {
   i <- sample((1:219),size=110)
   orders1 <- all_4_orders[i]
   orders2 <- all_4_orders[-i]
-  test <- compute_loc_sep_test(orders1,orders2,0.5,nrep=3)
+  test <- compute_loc_sep_test(orders1,orders2,0.5,n_rep=3)
   test_value <- compute_loc_sep_statistic(orders1,orders2,0.5)
   expect_equal(test$observed_statistic,test_value)
 
@@ -188,21 +188,12 @@ test_that("compute_local_tukeys_depth works", {
   index <- sample((1:1000),size=1)
   location <- context[index,]
   indexs <- which(context[index,]==1)
- # TODO  depths1 <- compute_tukeys_depth(context[,indexs],context[,indexs])
-  #TODO depths2 <- compute_local_tukeys_depth(context,context,location)
-  # TODO expect_equal(depths1,depths2)
-  expect_equal(TRUE,TRUE)
+  depths1 <- compute_tukeys_depth(context[,indexs],context[,indexs])
+  depths2 <- compute_local_tukeys_depth(context,context,location)
+  expect_equal(depths1,depths2)
+
 
 
 })
 
 
-test_that("compute_kernel_tukeys_depth works", {
-
-  context <- random_context(30,5)
-  context <-cbind(context,0)
-  # TODO depths1 <- compute_tukeys_depth(context,context)
-  # TODOdepths2 <- compute_kernel_tukeys_depth(context,context,lambda=0)
-  # TODO expect_equal(depths1,depths2)
-  expect_equal(TRUE,TRUE)
-})

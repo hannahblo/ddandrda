@@ -184,7 +184,7 @@ compute_local_tukeys_depth <- function(intent,context,location,
   indexs <- which(location==1)
   intent2 <-intent[,indexs]
   context2 <- context[,indexs]
-  if(length(indexs==1)) {
+  if(length(indexs)==1) {
     dim(intent2) <- c(length(intent2),1)
     dim(context2) <- c(length(context2),1)
 
@@ -203,29 +203,6 @@ compute_local_tukeys_depth <- function(intent,context,location,
 
 }
 
-# To DO
-compute_kernel_tukeys_depth <- function(intent,context,
-                                       row_weights = rep(1, nrow(context)),
-                                       col_weights = rep(1, ncol(context)),
-                                       lambda) {
-
-  if(is.matrix(intent)){
-    result <- rep(0,nrow(intent))
-    for(k in (1:nrow(context))) {
-      location <- context[k,]
-      depths <- compute_local_tukeys_depth(context,context,location)
-      print(depths)
-      indexs <- which(depths>=stats::quantile(depths,lambda))
-
-      result[k] <- compute_tukeys_depth(context[k,],context[indexs,])
-    }
-    return(result)
-  }
-  if(is.vector(intent)){
-    #TODO
-  }
-
-}
 
 #' Tukeys true median order
 #'
@@ -397,20 +374,20 @@ compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
 #' @param c_orders1 complemented orders of distribution 1
 #' @param c_orders2 complemented orders of distribution 2
 #' @param lambda parameter for setting the threhold c, see above
-#' @param nrep Number of repetions in the permutation sceme
+#' @param n_rep Number of repetions in the permutation sceme
 #'
 #' @return a list with the value of the test statistic, the value of the test
 #'  under a permutation sceme that corresponds to the null hypothesis of
 #'  identical distributions
 #'
 #' @export
-compute_loc_sep_test <- function(c_orders1, c_orders2, lambda, nrep) {
+compute_loc_sep_test <- function(c_orders1, c_orders2, lambda, n_rep) {
   observed_statistic <- compute_loc_sep_statistic(c_orders1, c_orders2, lambda)
-  h0_statistics <- rep(0, nrep)
+  h0_statistics <- rep(0, n_rep)
   c_orders <- c(c_orders1, c_orders2)
   n <- length(c_orders)
   n1 <- length(c_orders1)
-  for (k in (1:nrep)) {
+  for (k in (1:n_rep)) {
     index <- sample((1:n), size = n1)
     h0_statistics[k] <- compute_loc_sep_statistic(
       c_orders[index], c_orders[-index], lambda

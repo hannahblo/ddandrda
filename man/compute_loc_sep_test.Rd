@@ -4,7 +4,7 @@
 \alias{compute_loc_sep_test}
 \title{Location-Separation type test based on Tukeys depth}
 \usage{
-compute_loc_sep_test(c_orders1, c_orders2, lambda, nrep)
+compute_loc_sep_test(c_orders1, c_orders2, lambda, n_rep)
 }
 \arguments{
 \item{c_orders1}{complemented orders of distribution 1}
@@ -13,7 +13,7 @@ compute_loc_sep_test(c_orders1, c_orders2, lambda, nrep)
 
 \item{lambda}{parameter for setting the threhold c, see above}
 
-\item{nrep}{Number of repetions in the permutation sceme}
+\item{n_rep}{Number of repetions in the permutation sceme}
 }
 \value{
 a list with the value of the test statistic, the value of the test
