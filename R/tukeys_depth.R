@@ -576,8 +576,15 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
     remove_full_columns = FALSE,
     complemented = FALSE
   )
-  ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
-  ans <- ans$intents[-nrow(ans$intents), ]
+  fc <- fcaR::FormalContext$new(context)
+  fc$find_concepts()
+  ans <- t(as.matrix(fc$concepts$intents()))
+  ## delete all-relation
+  index <- which(rowSums(ans)==ncol(ans))
+  ans <- ans[-index,]
+
+  # old code: ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
+  # old code: ans <- ans$intents[-nrow(ans$intents), ]
   colnames(ans) <- colnames(context)
   ans_list <- convert_context_to_list(ans, complemented = FALSE)
   if (list) {
@@ -611,22 +618,21 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
 #'
 #' @param context the underlying context
 #'
-#' @param index_modus the index of the object within the context that represents
-#' the center
-#'
+#' @param modus the object that represents the center given by the corresponding
+#' intent of the center
 #'
 #' @export
-compute_betweenness_depth <- function(intent, context, index_modus) {
+compute_betweenness_depth <- function(intent, context, modus) {
   if (is.vector(intent)) {
     m <- nrow(context)
-    extent <- calculate_phi(pmin(context[index_modus, ], intent), context)
+    extent <- calculate_phi(pmin(modus, intent), context)
     ans <- sum(extent)
     return(m - ans)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
     for (k in (1:nrow(intent))) {
-      ans[k] <- compute_betweenness_depth(intent[k, ], context, index_modus)
+      ans[k] <- compute_betweenness_depth(intent[k, ], context, modus)
     }
     return(ans)
   }
