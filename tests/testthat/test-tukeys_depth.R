@@ -17,7 +17,15 @@ test_that("convert_list_to_context works", {
 test_that("compute_betweenness_depth works", {
 
   context <- random_context(1000,5)
-  bd <- compute_betweenness_depth(context,context,1)
+  bd <- compute_betweenness_depth(context,context,context[1,])
+  expect_equal(which.max(bd),1)
+
+})
+
+test_that("compute_one_simplicial_depth works", {
+
+  context <- random_context(10,5)
+  bd <- compute_one_simplicial_depth(context,context,context[1,])
   expect_equal(which.max(bd),1)
 
 })
