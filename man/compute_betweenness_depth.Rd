@@ -5,15 +5,15 @@
 \title{Simple localized depth function based on betweenness w.r.t.a prespecified
 mode}
 \usage{
-compute_betweenness_depth(intent, context, index_modus)
+compute_betweenness_depth(intent, context, modus)
 }
 \arguments{
 \item{intent}{intent of the envisage object}
 
 \item{context}{the underlying context}
 
-\item{index_modus}{the index of the object within the context that represents
-the center}
+\item{modus}{the object that represents the center given by the corresponding
+intent of the center}
 }
 \description{
 'compute_betweenness_depth' computes a simple depth function

@@ -612,7 +612,7 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
 #'
 #' @description 'compute_betweenness_depth' computes a simple depth function
 #' by counting how many points are between the envisaged point and a
-#' center (index_modus). This depth function is not quasiconcave but
+#' center (modus). This depth function is not quasiconcave but
 #' it is star-shaped.
 #' @param intent intent of the envisage object
 #'
