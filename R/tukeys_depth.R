@@ -653,22 +653,19 @@ compute_betweenness_depth <- function(intent, context, modus) {
 #'
 #' @param context the underlying context
 #'
-#' @param index_modus the index of the object within the context that represents
-#' the center
+#' @param modus the modus that represents the center (given as the
+#'  corresponding intent)
 #'
 #'
 #' @export
-compute_one_simplicial_depth <- function(intent, context, index_modus) {
+compute_one_simplicial_depth <- function(intent, context, modus) {
   #
-  if (is.matrix(intent)) {
+  if (is.vector(intent)) {
     m <- nrow(context)
     ans <- 0
     for (k in (1:m)) {
-      extent <- rep(0, m)
-      extent[index_modus] <- 1
-      extent[k] <- 1
-      if (all(calculate_psi(extent, context) <= intent)) {
-        ans <- ans + 1
+      if (all(pmin(modus,context[k,]) <= intent)){
+          ans <- ans + 1
       }
     }
     return(ans)
@@ -676,7 +673,7 @@ compute_one_simplicial_depth <- function(intent, context, index_modus) {
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
     for (k in (1:nrow(intent))) {
-      ans[k] <- compute_one_simplicial_depth(intent[k, ], context, index_modus)
+      ans[k] <- compute_one_simplicial_depth(intent[k, ], context, modus)
     }
     return(ans)
   }
