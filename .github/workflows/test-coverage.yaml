@@ -22,6 +22,6 @@ jobs:
           extra-packages: any::covr
           needs: coverage
 
-      - name: Test coverage
-        run: covr::codecov(quiet = FALSE)
+      - name: Test coverage pipline
+        run: if((covr::percent_coverage(covr::package_coverage(quiet = TRUE)) < 90)) {stop()}
         shell: Rscript {0}
