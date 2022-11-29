@@ -96,7 +96,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #'
 #' @return dataframe representing the crosstable/formal context
 compute_dual_ordinal_scaling_vec <- function(data_values,
-                                               add_column_name = NULL) {
+                                             add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
   attr <- sort(unique(data_values))
@@ -200,8 +200,10 @@ compute_number_columns_attr <- function(data_matrix) {
 #' @examples
 #' attr_nominal <- as.factor(c("factor_1", "factor_2", "factor_2", "factor_1"))
 #' attr_numeric <- as.factor(c(1.2, 1, 1.6, 2))
-#' compute_conceptual_scaling(data.frame(nominal = attr_nominal,
-#'                       numeric = as.numeric(as.character(attr_numeric))))
+#' compute_conceptual_scaling(data.frame(
+#'   nominal = attr_nominal,
+#'   numeric = as.numeric(as.character(attr_numeric))
+#' ))
 #' @export
 compute_conceptual_scaling <- function(data_matrix) {
   number_obj <- dim(data_matrix)[1]
@@ -219,7 +221,6 @@ compute_conceptual_scaling <- function(data_matrix) {
 
   t <- 1
   for (k in (1:number_attr)) {
-
     if (class(data_matrix[, k])[1] == "ordered" ||
       class(data_matrix[, k])[1] == "numeric" ||
       class(data_matrix[, k])[1] == "integer") {

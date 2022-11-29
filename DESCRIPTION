@@ -17,4 +17,5 @@ Imports:
     fcaR,
     gtools,
     relations,
+    Rfast,
     stats

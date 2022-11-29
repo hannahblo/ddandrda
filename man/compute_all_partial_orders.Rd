@@ -11,13 +11,16 @@ compute_all_partial_orders(q, names = (1:q), complemented, list)
 
 \item{names}{are the names of the q elements}
 
-\item{complemented}{if TRUE, the orders are return in a complemented conceptual scaling}
+\item{complemented}{if TRUE, the orders are return in a complemented
+conceptual scaling}
 
-\item{list}{if TRUE the orders are returned as a list. Otherwise a formal context is returned}
+\item{list}{if TRUE the orders are returned as a list. Otherwise a
+formal context is returned}
 }
 \value{
 returns the set of all partial orders on a space of q elements
 }
 \description{
-'compute_all_partial_orders' returns the set of all partial orders on a set of $q$ elements
+'compute_all_partial_orders' returns the set of all partial
+orders on a set of $q$ elements
 }
