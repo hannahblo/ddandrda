@@ -62,7 +62,7 @@ compute_transitive_hull <- function(relation_mat) {
   if (!is.matrix(relation_mat)) {
     stop("relation_mat must be matrix.")
   }
-  if (!all(relation_mat %in% c(0,1))) {
+  if (!all(relation_mat %in% c(0, 1))) {
     stop("relation_mat must be matrix containing only 0's or 1's.")
   }
 
@@ -128,10 +128,10 @@ compute_transitive_hull <- function(relation_mat) {
 test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
 
   # Input check
-  if (!is.matrix(po_candidate)) {
+  if (!is.matrix(po_candidate) || !all(po_candidate %in% c(0, 1))) {
     stop("po_candidate must be matrix.")
   }
-  if (!all(po_candidate %in% c(0,1))) {
+  if (!all(po_candidate %in% c(0, 1))) {
     stop("po_candidate must be matrix containing only 0's or 1's.")
   }
 
@@ -139,7 +139,7 @@ test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
     stop("po_candidate must be squared matrix.")
   }
 
-  # Step 0: Check if on diagonal consists of 1
+  # Step 0: Check the simple cases, depending on omit_relfexivity
   if (all(po_candidate == diag(nrow(po_candidate)))) {
     return(TRUE)
   }

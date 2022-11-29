@@ -1,36 +1,22 @@
 
 
-### formal context based on a subset of partial order (definition)
-compute_fc_subset_porders <- function(partial_orders) {
-  # @partial_orders(list of matrices): each matrix represents a partial order
-  # IMPORTANT: As computation is much easier to understand if reflexiv part is added,
-  # we leave this redundant row!!!!!!!!
+compute_disting_attr_fc <- function(fc) {
 
   stop("noch durchgehen obdas passt, insb mit packet, bisher nur kopiert")
-  fc <- matrix(, ncol = length(partial_orders[[1]]) * 2, nrow = length(partial_orders))
 
-  for (i in 1:length(partial_orders)) {
-    fc[i, ] <- c(partial_orders[[i]], !partial_orders[[i]])
+  # this is done vio the formal subcontext
+  distingish_obj <- as.list(rep(NA, dim(fc)[1]))
+  index_disting_general <- which(colSums(fc) == dim(fc)[1] - 1)
+
+  for (index_fc in seq(1, dim(fc)[1])) {
+    distingish_obj[[index_fc]] <-
+      index_disting_general[which(fc[index_fc, index_disting_general] == 0)]
   }
 
-  return(fc)
+  return(distingish_obj)
 }
 
-# compute_disting_attr <- function(partial_orders) {
-#
-#   stop("noch durchgehen obdas passt, insb mit packet, bisher nur kopiert")
-#
-#   # this is done vio the formal subcontext
-#   fc <- compute_fc_subset_porders(partial_orders)
-#   distingishable_set <- as.list(rep(NA, length(partial_orders)))
-#   index_disting_general <- which(colSums(fc) == dim(fc)[1] - 1)
-#
-#   for (index_po in seq(1, length(partial_orders))) {
-#     distingishable_set[[index_po]] <- index_disting_general[which(fc[index_po, index_disting_general] == 0)]
-#   }
-#
-#   return(distingishable_set)
-# }
+
 #
 # test_if_ufg_partial <- function(ufg_candidate) {
 #

@@ -191,6 +191,7 @@ compute_number_columns_attr <- function(data_matrix) {
 #' Information about the scalind methods can be found in:
 #' Ganter, B., Will, R. (2008): Formale Begriffsanalyse,
 #' Mathematische Grundlagen, Springer
+#' TODO CHANGES IN THE CODE HAVE NOT BEEN ADDED IN DESCRIPTION
 #'
 #' @param data_matrix (dataframe): each row represents one attribute
 #' (not necessarily two-valued)
@@ -205,62 +206,120 @@ compute_number_columns_attr <- function(data_matrix) {
 #'   numeric = as.numeric(as.character(attr_numeric))
 #' ))
 #' @export
-compute_conceptual_scaling <- function(data_matrix) {
-  number_obj <- dim(data_matrix)[1]
-  number_attr <- dim(data_matrix)[2]
-  colnames_data <- colnames(data_matrix)
+compute_conceptual_scaling <- function(input_factor = NULL,
+                                       input_ordinal_numeric = NULL,
+                                       input_spatial = NULL,
+                                       input_porder = NULL,
+                                       scaling_methods = NULL,
+                                       suppress_messages = FALSE) {
 
-  number_columns_needed <- compute_number_columns_attr(data_matrix)
+  # Input check
+  if (all(
+    is.null(input_factor),
+    is.null(input_ordinal_numeric),
+    is.null(input_spatial),
+    is.null(input_porder)
+  )) {
+    stop("Data input is empty.")
+  }
 
-  # Memory spaces
-  context_converted <- array(0, c(
-    number_obj,
-    number_columns_needed$number_column_all_attr
+  length_values <- unique(c(
+    length(input_factor),
+    length(input_ordinal_numeric),
+    length(input_spatial),
+    length(input_porder)
   ))
-  colname_context <- rep("", number_columns_needed$number_column_all_attr)
+  number_obj <- setdiff(length_values, c(0))
+  if (length(number_obj) > 1) {
+    stop("Data inputs must have same length or be NULL.")
+  }
 
-  t <- 1
-  for (k in (1:number_attr)) {
-    if (class(data_matrix[, k])[1] == "ordered" ||
-      class(data_matrix[, k])[1] == "numeric" ||
-      class(data_matrix[, k])[1] == "integer") {
-      # Calculating the context for the attribute k
-      inner_context <- cbind(
-        compute_ordinal_scaling_vec(
-          as.numeric(data_matrix[, k]), colnames_data[k]
-        ),
-        compute_dual_ordinal_scaling_vec(
-          as.numeric(data_matrix[, k]), colnames_data[k]
-        )
-      )
-      # number of columns needed for saving
-      column_number_k <- number_columns_needed$number_column_per_attr[k] - 1
+  if (!is.null(input_spatial)) {
+    stop("Is not implemented yet.")
+  }
 
-      # Saving
-      context_converted[, t:(t + column_number_k)] <- inner_context
-      colname_context[t:(t + column_number_k)] <- colnames(inner_context)
+  # TODO
+  # check scaling methods used
 
-      t <- t + column_number_k + 1
+  # TODO
+  # when input rows have names --> check if the order is everywhere the same
+
+
+
+  f_context <- matrix(NA, nrow = number_obj, ncol = 0)
+  # TODO
+  # add the name of rows
+
+  # Scaling of partial orders
+  if (!is.null(input_porder)) {
+    if (!is.list(input_porder) || !is.matrix(input_porder[[1]])) {
+      stop("input_spatial must either be NULL or a list of matrices.")
     }
-    if (class(data_matrix[, k])[1] == "factor") {
-      # Calculating the context for the attribute k
-      inner_context <- compute_nominal_scaling_vec(
-        data_matrix[, k],
-        colnames_data[k]
+
+    # TODO
+    # add the names of columns
+    if (!("porder_edge" %in% scaling_methods)) {
+      porder_context <- matrix(NA,
+        ncol = length(input_porder[[1]]) * 2,
+        nrow = length(input_porder)
       )
-      # number of columns needed for saving
-      column_number_k <- number_columns_needed$number_column_per_attr[k] - 1
+      for (i in 1:length(input_porder)) {
+        porder_context[i, ] <- c(input_porder[[i]], !input_porder[[i]])
+      }
+    }
 
-      # Saving
-      context_converted[, t:(t + column_number_k)] <- inner_context
-      colname_context[t:(t + column_number_k)] <- colnames(inner_context)
 
-      t <- t + column_number_k + 1
+    if ("porder_edge" %in% scaling_methods) {
+      porder_context <- matrix(NA,
+        ncol = length(input_porder[[1]]),
+        nrow = length(input_porder)
+      )
+      for (i in 1:length(input_porder)) {
+        porder_context[i, ] <- c(input_porder[[i]])
+      }
+    }
+
+    cbind(f_context, porder_context)
+  }
+
+  # Scaling of spatial data
+  # TODO
+
+  # Scaling of nominal data
+  if (!is.null(input_factor)) {
+    if (!(class(input_factor)[1] == "factor")) {
+      stop("input_factor must either be NULL or a vector of factors.")
+    }
+
+    nominal_context <- compute_nominal_scaling_vec(input_factor)
+    # TODO
+    # add names of columns
+    f_context <- cbind(f_context, nominal_context)
+  }
+
+
+  # Scaling of ordinal, numeric data
+  if (!is.null(input_ordinal_numeric)) {
+    if (!(class(input_ordinal_numeric)[1] == "ordered" ||
+      class(input_ordinal_numeric)[1] == "numeric" ||
+      class(input_ordinal_numeric)[1] == "integer")) {
+      stop("input_ordinal_numeric must either be null or of class ordered,
+           numeric or integer.")
+    }
+
+    # TODO
+    # Name of Rows
+    ordinal_context <- compute_ordinal_scaling_vec(
+      as.numeric(input_ordinal_numeric)
+    )
+    f_context <- cbind(f_context, ordinal_context)
+    if (!("ordinal" %in% scaling_methods)) {
+      dual_context <- compute_dual_ordinal_scaling_vec(
+        as.numeric(input_ordinal_numeric)
+      )
+      f_context <- cbind(f_context, dual_context)
     }
   }
 
-  # Changing colnames
-  colnames(context_converted) <- colname_context
-
-  return(context_converted)
+  return(f_context)
 }
