@@ -1100,16 +1100,17 @@ compute_weighted_tukeys_depth <- function(intent, context, modus,complemented,
     if(is.vector(intent)){
         if(all(as.vector(modus)==as.vector(intent))) {return(1)}
         index_1 <- which(as.vector(modus)==1 & as.vector(intent)==0)
-        max_1 <- alpha_weight*reg_max(delta_mu[index_1])
+        max_1 <- parameters$alpha_weight*reg_max(delta_mu[index_1])
         index_2 <- which(as.vector(modus)==0 & as.vector(intent)==1)
-        max_2 <- beta_weight*reg_max(delta_mu[index_2])
+        max_2 <- parameters$beta_weight*reg_max(delta_mu[index_2])
         return(1-max(max_1,max_2))
     }
     if(is.matrix(intent)){
       n_rows <- nrow(intent)
       result <- rep(0,n_rows)
       for(k in (1:n_rows)){
-        result[k] <- compute_weighted_tukeys_depth (intent[k,], context, modus, complemented=FALSE, ...)
+        result[k] <- compute_weighted_tukeys_depth (intent[k,], context, modus, complemented=FALSE,
+                                                    parameters=parameters)
       }
       return(result)
     }
@@ -1123,10 +1124,10 @@ compute_weighted_tukeys_depth <- function(intent, context, modus,complemented,
 
 
     if(is.vector(intent)){
-      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],context[,(1:n_items^2)], modus[,(1:n_items)], complemented=FALSE, ...))
+      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],context[,(1:n_items^2)], modus[,(1:n_items)], complemented=FALSE, parameters=parameters))
     }
     if(is.matrix(intent)){
-      return(compute_weighted_tukeys_depth(intent[,(1:n_items^2)], context[,(1:n_items^2)], modus[,(1:n_items)],complemented=FALSE, ...))
+      return(compute_weighted_tukeys_depth(intent[,(1:n_items^2)], context[,(1:n_items^2)], modus[,(1:n_items)],complemented=FALSE, parameters=parameters))
     }
 
   }
