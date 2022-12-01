@@ -1,3 +1,9 @@
+# TODO
+reg_max <- function(x){
+  if(length(x)==0){return(0)}
+  else{return(max(x))}
+}
+
 #' Plot a binary relation
 #' @description 'plot_relation' plots a binary relation(e.g., a partial order)
 #' by drawing the Hasse diagramm of its Dedekind–MacNeille completion. Note
@@ -409,7 +415,7 @@ compute_tukeys_separation <- function(c_orders1, c_orders2,
                                       start_order = c_orders1[[1]] * 0) {
   # name urspr. tukeys_true:median_difference
   # coputes that partial order in the space of ALL partial orders
-  # that has the maximal tukeys depth w.r.t. the given data cloud representet
+  # that has the maximal Tukeys depth w.r.t. the given data cloud representet
   # by th given contetxt (given in the form of a list of posets, where every
   # etry of the list is an incidence relation apposited with its negation
   # (In terms of conceptual scaling we use here the complemented scaling
@@ -552,6 +558,26 @@ strictly_quasiconcave_phull <- function(depths, context) {
   return(ans)
 }
 
+
+
+# TODO
+# Überprüfen ob das identisch ist zu Adaption von is_quasiconcave
+compute_quasiconcave_hull <- function(depth_values,context){
+  ans <- rep(0,length(depth_values))
+  for(k in sort(unique(depth_values))){
+    i <- which(depth_values>=k)
+    temp <- rep(0,nrow(context))
+    temp[i] <- 1
+    temp <- operator_closure_obj_input(temp,context)
+    ans[which(temp==1)] <- k
+
+  }
+  return(ans)
+}
+
+
+
+
 #' All partial orders on a set of q elements
 #'
 #' @description 'compute_all_partial_orders' returns the set of all partial
@@ -627,7 +653,7 @@ compute_betweenness_depth <- function(intent, context, modus) {
     m <- nrow(context)
     extent <- calculate_phi(pmin(modus, intent), context)
     ans <- sum(extent)
-    return(m - ans)
+    return((m - ans)/m)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
@@ -659,23 +685,29 @@ compute_betweenness_depth <- function(intent, context, modus) {
 #'
 #' @export
 compute_one_simplicial_depth <- function(intent, context, modus) {
-  #
+  n_rows <- nrow(context)
   if (is.vector(intent)) {
-    m <- nrow(context)
+
     ans <- 0
-    for (k in (1:m)) {
+    for (k in (1:n_rows)) {
       if (all(pmin(modus,context[k,]) <= intent)){
           ans <- ans + 1
       }
     }
-    return(ans)
+    return(ans/n_rows)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
-    for (k in (1:nrow(intent))) {
-      ans[k] <- compute_one_simplicial_depth(intent[k, ], context, modus)
+    for (k in (1:n_rows)) {
+      temp <- pmin(modus,context[k,])
+      #if(all( temp<= intent)){
+        extent <- calculate_phi(temp,intent)
+        ans <- ans +extent
+
+      #}
+      #ans[k] <- compute_one_simplicial_depth(intent[k, ], context, modus)
     }
-    return(ans)
+    return(ans/n_rows)
   }
 }
 
@@ -1026,3 +1058,79 @@ compare_closures_lower_i <- function(old_closure, new_closure, element) {
       all(pmin(old_closure, temp) == pmin(new_closure, temp)))
   }
 }
+
+
+# functions from paper Blocher et al. 2022
+
+compute_delta_mu_p_q <- function(index_p,index_q,p_order) {
+  upper_bounds <- (p_order[index_p,]==1 & p_order[index_q,]==1)
+  lower_bounds <- (p_order[,index_p]==1 & p_order[,index_q]==1)
+  set_1 <- calculate_phi(upper_bounds,p_order)
+  set_2 <- calculate_psi(lower_bounds,p_order)
+  cardinality <- sum(pmin(set_1,set_2)) - 1
+  return(cardinality)
+}
+
+
+compute_delta_mu <- function(p_order) {
+
+   n_rows <- nrow(p_order)
+   n_cols <- ncol(p_order)
+   if(n_rows!=n_cols) {print("Warning: Relation matrix p_order is not a square
+                             matrix!")}
+   delta_mu <- array(0,c(n_rows,n_cols))
+   for(l in (1:n_cols)) {
+     for(k in (1:n_rows)) {
+       delta_mu[k,l] <- compute_delta_mu_p_q(k,l,p_order)
+     }
+
+   }
+return(delta_mu)
+}
+
+compute_weighted_tukeys_depth <- function(intent, context, modus,complemented,
+                                          parameters=list(alpha_weight=NULL,
+                                                          beta_weight=NULL)) {
+
+
+  if(!complemented) {
+    dim(modus) <- rep(sqrt(length(modus)),2)
+    delta_mu <- compute_delta_mu(modus)
+    delta_mu <- as.vector(delta_mu)
+    if(is.vector(intent)){
+        if(all(as.vector(modus)==as.vector(intent))) {return(1)}
+        index_1 <- which(as.vector(modus)==1 & as.vector(intent)==0)
+        max_1 <- alpha_weight*reg_max(delta_mu[index_1])
+        index_2 <- which(as.vector(modus)==0 & as.vector(intent)==1)
+        max_2 <- beta_weight*reg_max(delta_mu[index_2])
+        return(1-max(max_1,max_2))
+    }
+    if(is.matrix(intent)){
+      n_rows <- nrow(intent)
+      result <- rep(0,n_rows)
+      for(k in (1:n_rows)){
+        result[k] <- compute_weighted_tukeys_depth (intent[k,], context, modus, complemented=FALSE, ...)
+      }
+      return(result)
+    }
+  }
+
+  if(complemented){
+
+    n_items <- sqrt(length(modus)/2)
+    dim(modus) <- c(n_items,2*n_items)
+
+
+
+    if(is.vector(intent)){
+      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],context[,(1:n_items^2)], modus[,(1:n_items)], complemented=FALSE, ...))
+    }
+    if(is.matrix(intent)){
+      return(compute_weighted_tukeys_depth(intent[,(1:n_items^2)], context[,(1:n_items^2)], modus[,(1:n_items)],complemented=FALSE, ...))
+    }
+
+  }
+
+}
+
+

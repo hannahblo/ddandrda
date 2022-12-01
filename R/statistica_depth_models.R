@@ -21,6 +21,7 @@
 sample_from_betweenness_model <- function(context, modus,
                                      scale, p, n, decay_type = "exp", ...) {
   depths <- compute_betweenness_depth(context, context, modus)
+  #depths <- quasiconcave_hull(depths,context) #ACHTUNG: RAUS
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
   indexs <- sample((1:nrow(context)), size = n, prob = probs, replace = TRUE)
   return(context[indexs, ])
@@ -117,11 +118,25 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
     probs <- 1 / ((1 - depths)^p) - 1
     # case depth=1: to think about
   } else if (decay_type == "pearson_vii") {
-    probs <- PearsonDS::dpearsonVII((1 - depths)^p,
+    depths <- depths
+    probs <- PearsonDS::dpearsonVII(((1 - depths)^p),
       location = 0, scale = scale,
       log = FALSE, ...
     )
   }
   probs <- probs / sum(probs)
   return(probs)
+}
+
+
+sample_from_expl_depth_model <- function(context, modus,
+                                    scale, p, n, decay_type = "exp",
+                                    depth_function, quasiconcavize=FALSE, ...) {
+  depths <- depth_function(context, context, modus, ...)
+  if(quasiconcavize) {
+    depths <- compute_quasiconcave_hull(depths, context)
+  }
+  probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
+  indexs <- sample((1:nrow(context)), size = n, prob = probs, replace = TRUE)
+  return(context[indexs, ])
 }

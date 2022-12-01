@@ -204,4 +204,7 @@ test_that("compute_local_tukeys_depth works", {
 
 })
 
+test_that("compute_weighted_tukeys_depth works", {
+  all_partial_5_orders <- compute_all_partial_orders(n_items=5,complemented=TRUE,list=FALSE)
 
+})
