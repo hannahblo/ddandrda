@@ -17,20 +17,28 @@
 #' @examples
 #' n_items <- 5
 #' steps <- 10000
-#' context_for_n_items_p_orders <- compute_context_all_p_orders(n_items=n_items)
-#' c_orders <- compute_all_partial_orders(n_items=n_items,complemented=TRUE,
-#' list=TRUE)
-#' context <- convert_list_to_context(c_orders,complemented=TRUE)
-#' index <- sample((1:nrow(context)),size=3)
-#' sampled_context <- context[index,]
-#' g <- function(intent,context){0.00001+compute_tukeys_depth(c(intent,1-intent)
-#' , sampled_context)}
+#' context_for_n_items_p_orders <- compute_context_all_p_orders(n_items = n_items)
+#' c_orders <- compute_all_partial_orders(
+#'   n_items = n_items, complemented = TRUE,
+#'   list = TRUE
+#' )
+#' context <- convert_list_to_context(c_orders, complemented = TRUE)
+#' index <- sample((1:nrow(context)), size = 3)
+#' sampled_context <- context[index, ]
+#' g <- function(intent, context) {
+#'   0.00001 + compute_tukeys_depth(
+#'     c(intent, 1 - intent),
+#'     sampled_context
+#'   )
+#' }
 #' tukeys_true_median <- compute_tukeys_median_order(c_orders[index])
 #' tukeys_median_based_on_mc_heuristic <- sample_concept(
-#' context_for_n_items_p_orders,steps=steps,g)
-#' par(mfrow=c(2,1))
+#'   context_for_n_items_p_orders,
+#'   steps = steps, g
+#' )
+#' par(mfrow = c(2, 1))
 #' plot_relation(tukeys_true_median$median)
-#' dim(tukeys_median_based_on_mc_heuristic) <- c(n_items,n_items)
+#' dim(tukeys_median_based_on_mc_heuristic) <- c(n_items, n_items)
 #' plot_relation(tukeys_median_based_on_mc_heuristic)
 #'
 #' @export
@@ -81,9 +89,12 @@ return_eins <- function() {
 #' @examples n_items <- 5
 #' steps <- 10000
 #' context_for_n_items_p_orders <- compute_context_all_p_orders(
-#' n_items = n_items)
-#' c_orders <- compute_all_partial_orders(n_items = n_items,
-#' complemented = TRUE, list = TRUE)
+#'   n_items = n_items
+#' )
+#' c_orders <- compute_all_partial_orders(
+#'   n_items = n_items,
+#'   complemented = TRUE, list = TRUE
+#' )
 #' context <- convert_list_to_context(c_orders, complemented = TRUE)
 #' set.seed(1234567)
 #' index <- sample((1:nrow(context)), size = 3)
@@ -92,14 +103,15 @@ return_eins <- function() {
 #'   0.00001 + compute_tukeys_depth(c(intent, 1 - intent), sampled_context)
 #' }
 #' tukeys_true_median <- compute_tukeys_median_order(c_orders[index])
-#' depths <- compute_tukeys_depth(sampled_context,sampled_context)
+#' depths <- compute_tukeys_depth(sampled_context, sampled_context)
 #'
 #' start_intent <- ddandrda:::calculate_psi(
-#' (sampled_context[which.max(depths),])[(1:n_items)],
-#' context_for_n_items_p_orders)
+#'   (sampled_context[which.max(depths), ])[(1:n_items)],
+#'   context_for_n_items_p_orders
+#' )
 #' tukeys_median_based_on_mc_heuristic <- sample_concept(
 #'   context_for_n_items_p_orders,
-#'   steps = steps, g, start_intent=start_intent
+#'   steps = steps, g, start_intent = start_intent
 #' )
 #' par(mfrow = c(2, 1))
 #' plot_relation(tukeys_true_median$median)
@@ -107,7 +119,7 @@ return_eins <- function() {
 #' plot_relation(tukeys_median_based_on_mc_heuristic)
 #'
 #' @export
-sample_concept <- function(context, steps = 1000, f,start_intent=NULL) {
+sample_concept <- function(context, steps = 1000, f, start_intent = NULL) {
   maximum <- -Inf
   m <- dim(context)[1]
   n <- dim(context)[2]
@@ -121,9 +133,9 @@ sample_concept <- function(context, steps = 1000, f,start_intent=NULL) {
     b <- rep(1, n)
     a <- bottom_obj
   }
-  if(!is.null(start_intent)) {
+  if (!is.null(start_intent)) {
     b <- start_intent
-    a <- calculate_phi(b,context)
+    a <- calculate_phi(b, context)
   }
   for (i in (1:steps)) {
     if (stats::runif(1) > 0.5) {

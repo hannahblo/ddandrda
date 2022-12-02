@@ -19,9 +19,9 @@
 #' object
 #' @export
 sample_from_betweenness_model <- function(context, modus,
-                                     scale, p, n, decay_type = "exp", ...) {
+                                          scale, p, n, decay_type = "exp", ...) {
   depths <- compute_betweenness_depth(context, context, modus)
-  #depths <- quasiconcave_hull(depths,context) #ACHTUNG: RAUS
+  # depths <- quasiconcave_hull(depths,context) #ACHTUNG: RAUS
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
   indexs <- sample((1:nrow(context)), size = n, prob = probs, replace = TRUE)
   return(context[indexs, ])
@@ -114,6 +114,7 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
                               (computing a trivial probability vector.
                               Note that there are depth values >=1 ! and
                               you use the inverse decay function ")
+      return(NULL)
     }
     probs <- 1 / ((1 - depths)^p) - 1
     # case depth=1: to think about
@@ -130,10 +131,11 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
 
 
 sample_from_expl_depth_model <- function(context, modus,
-                                    scale, p, n, decay_type = "exp",
-                                    depth_function, quasiconcavize=FALSE, ...) {
+                                         scale, p, n, decay_type = "exp",
+                                         depth_function, quasiconcavize = FALSE, ...) {
   depths <- depth_function(context, context, modus, ...)
-  if(quasiconcavize) {
+  depths <<- depths
+  if (quasiconcavize) {
     depths <- compute_quasiconcave_hull(depths, context)
   }
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)

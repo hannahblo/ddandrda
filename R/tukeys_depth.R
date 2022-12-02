@@ -1,7 +1,10 @@
 # TODO
-reg_max <- function(x){
-  if(length(x)==0){return(0)}
-  else{return(max(x))}
+reg_max <- function(x) {
+  if (length(x) == 0) {
+    return(0)
+  } else {
+    return(max(x))
+  }
 }
 
 #' Plot a binary relation
@@ -18,21 +21,27 @@ reg_max <- function(x){
 #'
 #' # plot an interval order
 #' upper <- (1:10)
-#' lower <- upper-runif(10)
-#' interval_order <- array(0,c(10,10))
-#' for(k in (1:10)){for(l in (1:10)){interval_order[k,l]= (upper[k]<=lower[l])}}
+#' lower <- upper - runif(10)
+#' interval_order <- array(0, c(10, 10))
+#' for (k in (1:10)) {
+#'   for (l in (1:10)) {
+#'     interval_order[k, l] <- (upper[k] <= lower[l])
+#'   }
+#' }
 #' plot_relation(interval_order)
 #'
 #' # plot a quasiorder
-#' q_order <- array(1*(runif(100)>=0.9),c(10,10))
-#' diag(q_order) <-1
-#' q_order[1,2] <-q_order[2,1] <-1
+#' q_order <- array(1 * (runif(100) >= 0.9), c(10, 10))
+#' diag(q_order) <- 1
+#' q_order[1, 2] <- q_order[2, 1] <- 1
 #' q_order <- compute_transitive_hull(q_order)
 #' plot_relation(q_order)
 #'
 #' # plot the Chevron
-#' chevron <- rbind(c(1,1,0,0,0,0),c(0,1,0,0,0,0),c(1,1,1,0,1,1),
-#' c(0,1,0,1,0,1),c(0,0,0,0,1,1),c(0,0,0,0,0,1))
+#' chevron <- rbind(
+#'   c(1, 1, 0, 0, 0, 0), c(0, 1, 0, 0, 0, 0), c(1, 1, 1, 0, 1, 1),
+#'   c(0, 1, 0, 1, 0, 1), c(0, 0, 0, 0, 1, 1), c(0, 0, 0, 0, 0, 1)
+#' )
 #' plot_relation(chevron)
 #' @export
 plot_relation <- function(incidence) {
@@ -87,7 +96,9 @@ compute_tukeys_outlyingness <- function(intent,
                                         context,
                                         row_weights = rep(1, nrow(context)),
                                         col_weights = rep(1, ncol(context))) {
-  if(all(intent==1)) {return(0)}
+  if (all(intent == 1)) {
+    return(0)
+  }
   normed_row_weights <- row_weights / sum(row_weights)
   weighted_context <- ((normed_row_weights) %*% t(col_weights)) * context
   weighted_column_means <- t(weighted_context) %*% (rep(1, nrow(context)))
@@ -184,29 +195,28 @@ compute_tukeys_depth <- function(intent,
 #' w.r.t. the location gibven by the object location.
 #'
 #' @export
-compute_local_tukeys_depth <- function(intent,context,location,
+compute_local_tukeys_depth <- function(intent, context, location,
                                        row_weights = rep(1, nrow(context)),
                                        col_weights = rep(1, ncol(context))) {
-  indexs <- which(location==1)
-  intent2 <-intent[,indexs]
-  context2 <- context[,indexs]
-  if(length(indexs)==1) {
-    dim(intent2) <- c(length(intent2),1)
-    dim(context2) <- c(length(context2),1)
-
-
+  indexs <- which(location == 1)
+  intent2 <- intent[, indexs]
+  context2 <- context[, indexs]
+  if (length(indexs) == 1) {
+    dim(intent2) <- c(length(intent2), 1)
+    dim(context2) <- c(length(context2), 1)
   }
-  if(is.matrix(intent)){
-  return(compute_tukeys_depth(intent2,context2))#,row_weights,
-                              # col_weights[indexs]))
+  if (is.matrix(intent)) {
+    return(compute_tukeys_depth(intent2, context2)) # ,row_weights,
+    # col_weights[indexs]))
 
-  ## ACHTUNG: colweithgst/rowweights noch ergaenzen!!!!!!!
+    ## ACHTUNG: colweithgst/rowweights noch ergaenzen!!!!!!!
   }
-  if(is.vector(intent)){
-    return(compute_tukeys_depth(intent[indexs],context[,indexs],row_weights,
-                                col_weights[indexs]))
+  if (is.vector(intent)) {
+    return(compute_tukeys_depth(
+      intent[indexs], context[, indexs], row_weights,
+      col_weights[indexs]
+    ))
   }
-
 }
 
 
@@ -231,8 +241,10 @@ compute_local_tukeys_depth <- function(intent,context,location,
 #'  orders in complemented conceptual scaling that are supersets of the relation
 #' start_order. (start_order needs not to be a partial order))
 #' @examples
-#' all_4_c_orders <- compute_all_partial_orders(n_items = 4, complemented = TRUE,
-#'  list = TRUE)
+#' all_4_c_orders <- compute_all_partial_orders(
+#'   n_items = 4, complemented = TRUE,
+#'   list = TRUE
+#' )
 #' sampled_c_orders <- all_4_c_orders[c(rep(10, 20), (1:8), (21:30))]
 #' tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
 #' plot_relation(tukeys_median)
@@ -328,13 +340,11 @@ is_extendable_to_p_order <- function(c_order) {
 #' @return  the value of the test statistic
 #'
 #' @examples
-#' all_4_c_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
-#' i <- sample((1:219),size=110)
+#' all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
+#' i <- sample((1:219), size = 110)
 #' c_orders1 <- all_4_c_orders[i]
 #' c_orders2 <- all_4_c_orders[-i]
-#' compute_loc_sep_statistic(c_orders1,c_orders2,0.8)
-#'
-#'
+#' compute_loc_sep_statistic(c_orders1, c_orders2, 0.8)
 #'
 #' @export
 compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
@@ -347,10 +357,12 @@ compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
 
 
   start_order1 <- Reduce("pmin", c_orders1[which(depth1 >= stats::quantile(
-    depth1, lambda))])
+    depth1, lambda
+  ))])
 
   start_order2 <- Reduce("pmin", c_orders2[which(depth2 >= stats::quantile(
-    depth2, lambda))])
+    depth2, lambda
+  ))])
   depth1 <- compute_tukeys_median_order(c_orders1, start_order2)$depth
   depth2 <- compute_tukeys_median_order(c_orders2, start_order1)$depth
   return(min(depth1, depth2))
@@ -562,15 +574,14 @@ strictly_quasiconcave_phull <- function(depths, context) {
 
 # TODO
 # Überprüfen ob das identisch ist zu Adaption von is_quasiconcave
-compute_quasiconcave_hull <- function(depth_values,context){
-  ans <- rep(0,length(depth_values))
-  for(k in sort(unique(depth_values))){
-    i <- which(depth_values>=k)
-    temp <- rep(0,nrow(context))
+compute_quasiconcave_hull <- function(depth_values, context) {
+  ans <- rep(0, length(depth_values))
+  for (k in sort(unique(depth_values))) {
+    i <- which(depth_values >= k)
+    temp <- rep(0, nrow(context))
     temp[i] <- 1
-    temp <- operator_closure_obj_input(temp,context)
-    ans[which(temp==1)] <- k
-
+    temp <- operator_closure_obj_input(temp, context)
+    ans[which(temp == 1)] <- k
   }
   return(ans)
 }
@@ -606,8 +617,8 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
   fc$find_concepts()
   ans <- t(as.matrix(fc$concepts$intents()))
   ## delete all-relation
-  index <- which(rowSums(ans)==ncol(ans))
-  ans <- ans[-index,]
+  index <- which(rowSums(ans) == ncol(ans))
+  ans <- ans[-index, ]
 
   # old code: ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
   # old code: ans <- ans$intents[-nrow(ans$intents), ]
@@ -653,7 +664,7 @@ compute_betweenness_depth <- function(intent, context, modus) {
     m <- nrow(context)
     extent <- calculate_phi(pmin(modus, intent), context)
     ans <- sum(extent)
-    return((m - ans)/m)
+    return((m - ans) / m)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
@@ -687,27 +698,26 @@ compute_betweenness_depth <- function(intent, context, modus) {
 compute_one_simplicial_depth <- function(intent, context, modus) {
   n_rows <- nrow(context)
   if (is.vector(intent)) {
-
     ans <- 0
     for (k in (1:n_rows)) {
-      if (all(pmin(modus,context[k,]) <= intent)){
-          ans <- ans + 1
+      if (all(pmin(modus, context[k, ]) <= intent)) {
+        ans <- ans + 1
       }
     }
-    return(ans/n_rows)
+    return(ans / n_rows)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
     for (k in (1:n_rows)) {
-      temp <- pmin(modus,context[k,])
-      #if(all( temp<= intent)){
-        extent <- calculate_phi(temp,intent)
-        ans <- ans +extent
+      temp <- pmin(modus, context[k, ])
+      # if(all( temp<= intent)){
+      extent <- calculate_phi(temp, intent)
+      ans <- ans + extent
 
-      #}
-      #ans[k] <- compute_one_simplicial_depth(intent[k, ], context, modus)
+      # }
+      # ans[k] <- compute_one_simplicial_depth(intent[k, ], context, modus)
     }
-    return(ans/n_rows)
+    return(ans / n_rows)
   }
 }
 
@@ -1062,76 +1072,75 @@ compare_closures_lower_i <- function(old_closure, new_closure, element) {
 
 # functions from paper Blocher et al. 2022
 
-compute_delta_mu_p_q <- function(index_p,index_q,p_order) {
-  upper_bounds <- (p_order[index_p,]==1 & p_order[index_q,]==1)
-  lower_bounds <- (p_order[,index_p]==1 & p_order[,index_q]==1)
-  set_1 <- calculate_phi(upper_bounds,p_order)
-  set_2 <- calculate_psi(lower_bounds,p_order)
-  cardinality <- sum(pmin(set_1,set_2)) - 1
+compute_delta_mu_p_q <- function(index_p, index_q, p_order) {
+  upper_bounds <- (p_order[index_p, ] == 1 & p_order[index_q, ] == 1)
+  lower_bounds <- (p_order[, index_p] == 1 & p_order[, index_q] == 1)
+  set_1 <- calculate_phi(upper_bounds, p_order)
+  set_2 <- calculate_psi(lower_bounds, p_order)
+  cardinality <- sum(pmin(set_1, set_2)) - 1
   return(cardinality)
 }
 
 
 compute_delta_mu <- function(p_order) {
-
-   n_rows <- nrow(p_order)
-   n_cols <- ncol(p_order)
-   if(n_rows!=n_cols) {print("Warning: Relation matrix p_order is not a square
-                             matrix!")}
-   delta_mu <- array(0,c(n_rows,n_cols))
-   for(l in (1:n_cols)) {
-     for(k in (1:n_rows)) {
-       delta_mu[k,l] <- compute_delta_mu_p_q(k,l,p_order)
-     }
-
-   }
-return(delta_mu)
+  n_rows <- nrow(p_order)
+  n_cols <- ncol(p_order)
+  if (n_rows != n_cols) {
+    print("Warning: Relation matrix p_order is not a square
+                             matrix!")
+  }
+  delta_mu <- array(0, c(n_rows, n_cols))
+  for (l in (1:n_cols)) {
+    for (k in (1:n_rows)) {
+      delta_mu[k, l] <- compute_delta_mu_p_q(k, l, p_order)
+    }
+  }
+  return(delta_mu)
 }
 
-compute_weighted_tukeys_depth <- function(intent, context, modus,complemented,
-                                          parameters=list(alpha_weight=NULL,
-                                                          beta_weight=NULL)) {
-
-
-  if(!complemented) {
-    dim(modus) <- rep(sqrt(length(modus)),2)
+compute_weighted_tukeys_depth <- function(intent, context, modus, complemented,
+                                          parameters = list(
+                                            alpha_weight = NULL,
+                                            beta_weight = NULL
+                                          )) {
+  if (!complemented) {
+    dim(modus) <- rep(sqrt(length(modus)), 2)
     delta_mu <- compute_delta_mu(modus)
     delta_mu <- as.vector(delta_mu)
-    if(is.vector(intent)){
-        if(all(as.vector(modus)==as.vector(intent))) {return(1)}
-        index_1 <- which(as.vector(modus)==1 & as.vector(intent)==0)
-        max_1 <- parameters$alpha_weight*reg_max(delta_mu[index_1])
-        index_2 <- which(as.vector(modus)==0 & as.vector(intent)==1)
-        max_2 <- parameters$beta_weight*reg_max(delta_mu[index_2])
-        return(1-max(max_1,max_2))
+    if (is.vector(intent)) {
+      if (all(as.vector(modus) == as.vector(intent))) {
+        return(1)
+      }
+      index_1 <- which(as.vector(modus) == 1 & as.vector(intent) == 0)
+      max_1 <- parameters$alpha_weight * reg_max(delta_mu[index_1])
+      index_2 <- which(as.vector(modus) == 0 & as.vector(intent) == 1)
+      max_2 <- parameters$beta_weight * reg_max(delta_mu[index_2])
+      return(1 - max(max_1, max_2))
     }
-    if(is.matrix(intent)){
+    if (is.matrix(intent)) {
       n_rows <- nrow(intent)
-      result <- rep(0,n_rows)
-      for(k in (1:n_rows)){
-        result[k] <- compute_weighted_tukeys_depth (intent[k,], context, modus, complemented=FALSE,
-                                                    parameters=parameters)
+      result <- rep(0, n_rows)
+      for (k in (1:n_rows)) {
+        result[k] <- compute_weighted_tukeys_depth(intent[k, ], context, modus,
+          complemented = FALSE,
+          parameters = parameters
+        )
       }
       return(result)
     }
   }
 
-  if(complemented){
-
-    n_items <- sqrt(length(modus)/2)
-    dim(modus) <- c(n_items,2*n_items)
-
+  if (complemented) {
+    n_items <- sqrt(length(modus) / 2)
+    dim(modus) <- c(n_items, 2 * n_items)
 
 
-    if(is.vector(intent)){
-      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],context[,(1:n_items^2)], modus[,(1:n_items)], complemented=FALSE, parameters=parameters))
+
+    if (is.vector(intent)) {
+      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)], context[, (1:n_items^2)], modus[, (1:n_items)], complemented = FALSE, parameters = parameters))
     }
-    if(is.matrix(intent)){
-      return(compute_weighted_tukeys_depth(intent[,(1:n_items^2)], context[,(1:n_items^2)], modus[,(1:n_items)],complemented=FALSE, parameters=parameters))
+    if (is.matrix(intent)) {
+      return(compute_weighted_tukeys_depth(intent[, (1:n_items^2)], context[, (1:n_items^2)], modus[, (1:n_items)], complemented = FALSE, parameters = parameters))
     }
-
   }
-
 }
-
-

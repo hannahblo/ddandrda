@@ -27,20 +27,28 @@ and the all relation is not a partial order
 \examples{
 n_items <- 5
 steps <- 10000
-context_for_n_items_p_orders <- compute_context_all_p_orders(n_items=n_items)
-c_orders <- compute_all_partial_orders(n_items=n_items,complemented=TRUE,
-list=TRUE)
-context <- convert_list_to_context(c_orders,complemented=TRUE)
-index <- sample((1:nrow(context)),size=3)
-sampled_context <- context[index,]
-g <- function(intent,context){0.00001+compute_tukeys_depth(c(intent,1-intent)
-, sampled_context)}
+context_for_n_items_p_orders <- compute_context_all_p_orders(n_items = n_items)
+c_orders <- compute_all_partial_orders(
+  n_items = n_items, complemented = TRUE,
+  list = TRUE
+)
+context <- convert_list_to_context(c_orders, complemented = TRUE)
+index <- sample((1:nrow(context)), size = 3)
+sampled_context <- context[index, ]
+g <- function(intent, context) {
+  0.00001 + compute_tukeys_depth(
+    c(intent, 1 - intent),
+    sampled_context
+  )
+}
 tukeys_true_median <- compute_tukeys_median_order(c_orders[index])
 tukeys_median_based_on_mc_heuristic <- sample_concept(
-context_for_n_items_p_orders,steps=steps,g)
-par(mfrow=c(2,1))
+  context_for_n_items_p_orders,
+  steps = steps, g
+)
+par(mfrow = c(2, 1))
 plot_relation(tukeys_true_median$median)
-dim(tukeys_median_based_on_mc_heuristic) <- c(n_items,n_items)
+dim(tukeys_median_based_on_mc_heuristic) <- c(n_items, n_items)
 plot_relation(tukeys_median_based_on_mc_heuristic)
 
 }
