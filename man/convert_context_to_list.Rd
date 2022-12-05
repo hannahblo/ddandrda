@@ -22,7 +22,7 @@ a list of complemented incidence matrices is returned)}
 \item{row_names}{Names of the rows of the context}
 }
 \description{
-'convert_context_to_list' converts a context that represents a partial
-order (or an arbitrary homogeneous relation, possibly complemented) into
-a list
+'convert_context_to_list' converts a context that represents
+a partial order (or an arbitrary homogeneous relation, possibly complemented)
+into a list
 }

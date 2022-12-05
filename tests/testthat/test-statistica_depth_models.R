@@ -8,7 +8,7 @@ test_that("compute_probs_depth_model works", {
 
 test_that("sample_betweenness_model works", {
   set.seed(1234567)
-  context <- random_context(1000, 5)
+  context <- compute_random_context(1000, 5)
   context <- cbind(context, 0)
   model1 <- sample_from_betweenness_model(
     context = context, modus = context[1, ],
@@ -28,7 +28,7 @@ test_that("sample_betweenness_model works", {
 })
 
 test_that("sample_from_expl_depth_model works", {
-  context <- random_context(100, 5)
+  context <- compute_random_context(100, 5)
   result <- sample_from_expl_depth_model(context, context[20, ],
     scale = 1, p = 1, n = 10,
     decay_type = "exp", depth_function = compute_local_tukeys_depth, quasiconcavize = TRUE

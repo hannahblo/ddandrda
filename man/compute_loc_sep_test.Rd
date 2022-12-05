@@ -31,11 +31,11 @@ lambda * 100 percent of the observed depth values. For a very small value of
 lambda, the test statistic is more or less similar to a generalization of
 the M-based#' test, wheres for very high values of lambda one gets
 essentially a test that is similar to a generalization of the T-based test
-defined in
-
-Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
-and Scales Using Data Depth.
-Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
-
-The test is performed as a simple observation-randomization test
+defined in Li et al. 2004. The test is performed as a simple
+observation-randomization test.
+}
+\references{
+Jun Li and Regina Y. Liu: New Nonparametric Tests of
+Multivariate Locations and Scales Using Data Depth. Statistical Science,
+Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 }

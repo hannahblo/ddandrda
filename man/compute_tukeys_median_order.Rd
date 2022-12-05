@@ -18,6 +18,9 @@ highest Tukey depth. Concretely the search space is the space of all partial
 orders in complemented conceptual scaling that are supersets of the relation
 start_order. (start_order needs not to be a partial order))}
 }
+\value{
+returns the partial order with the highest Tukey depth.
+}
 \description{
 'compute_tukeys_median_order' computes that partial order
 in the space of ALL partial orders (that are supersets of start_order)

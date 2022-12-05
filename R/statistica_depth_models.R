@@ -43,7 +43,7 @@ sample_from_betweenness_model <- function(context, modus,
 #' @param scale is the scale parameter in the model.
 #' @param p is the power that is applied to the outlyingness-values.
 #' @param decay_type is the type of the decay function (one of "exp", "inverse"
-#'  or "pearson_vii")
+#' or "pearson_vii")
 #' @param ... further parameters (e.g., degrees of freedom for the
 #' Pearson type VII model)
 #' @return a vector of the same length as the length of dpths which gives the
@@ -117,7 +117,7 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
       return(NULL)
     }
     probs <- 1 / ((1 - depths)^p) - 1
-    # case depth=1: to think about
+    # TODO case depth=1: to think about
   } else if (decay_type == "pearson_vii") {
     depths <- depths
     probs <- PearsonDS::dpearsonVII(((1 - depths)^p),
@@ -129,7 +129,50 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
   return(probs)
 }
 
-
+#' Sampling form an explicitly given depth model
+#'
+#' @description 'sample_from_expl_depth_model' samples a number of
+#' objects from a formal context according to an explicitly given model where in
+#' a first step the sampling probabilities of all objects of the context are
+#' calculated in according to a depth-based statistical model of the form
+#'
+#'
+#' P(X=x) = C_lambda * Gamma((lambda * (1-D^mu(x))^p)),
+#'
+#'
+#' cf. Blocher et al. 2022, p.20, equation (1).
+#' Here, C_lambda is a normalizing constant, mu is a given modus, lambda is a
+#' scale parameter, Gamma is a (weakly decreasing) decay function, p is an
+#' additional power (the parameter p was not present in Blocher et al. 2022).
+#'
+#' @param context is the underlying formal context. (Objects that are not
+#' elements of the context will not be sampled at all.)
+#'
+#' @param modus is the modus of the statistical model.
+#'
+#' @param scale is a scale parameter. Concretely scale = 1/ lambda, see
+#' above. The choice of sclae instaed of lambda as a scale parameter is only for
+#' convenience. Higher values of scale correspond to a higher variability in the
+#' model.
+#'
+#' @param p is an additional power which allows for further flexibility of the
+#' shape of the decay of the probabilities as the depth values get smaller.
+#'
+#' @param n is the number of samples to draw.
+#'
+#' @param decay_type is the type of the decay function, more concretely one of
+#'  "exp", "inverse" or "pearsonvii".
+#'
+#' @param depth_function is the used epth function.
+#'
+#' @param quasiconcavize is by default set to FALSE. If set to TRUE,
+#' depth-values that are returned by the depth function are quasiconcavized
+#' before the model equation (see above) is applied.
+#'
+#' @param ... further parameters (e.g., degrees of freedom for the
+#' Pearson type VII model)
+#'
+#' @export
 sample_from_expl_depth_model <- function(context, modus,
                                          scale, p, n, decay_type = "exp",
                                          depth_function, quasiconcavize = FALSE, ...) {

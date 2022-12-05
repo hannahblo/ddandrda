@@ -2,7 +2,7 @@
 % Please edit documentation in R/tukeys_depth.R
 \name{compute_local_tukeys_depth}
 \alias{compute_local_tukeys_depth}
-\title{Compute local Tukeys depth}
+\title{Computes a local version of Tukeys depth}
 \usage{
 compute_local_tukeys_depth(
   intent,

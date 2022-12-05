@@ -12,13 +12,13 @@ test_that("convert_list_to_context works", {
 })
 
 test_that("compute_betweenness_depth works", {
-  context <- random_context(1000, 5)
+  context <- compute_random_context(1000, 5)
   bd <- compute_betweenness_depth(context, context, context[1, ])
   expect_equal(which.max(bd), 1)
 })
 
 test_that("compute_one_simplicial_depth works", {
-  context <- random_context(10, 5)
+  context <- compute_random_context(10, 5)
   bd <- compute_one_simplicial_depth(context, context, context[1, ])
   expect_equal(which.max(bd), 1)
 })
@@ -92,21 +92,21 @@ test_that("compute_tukeys_median_order works", {
 })
 
 
-test_that("is_quasiconcave works", {
-  context <- random_context(40, 6)
+test_that("test_if_quasiconcave works", {
+  context <- compute_random_context(40, 6)
   context <- cbind(context, 0)
   depths <- compute_tukeys_depth(context, context)
-  ans <- is_quasiconcave(depths, context)
+  ans <- test_if_quasiconcave(depths, context)
 
   expect_equal(ans, TRUE)
 })
 
 
-test_that("is_strictly_quasiconcave works", {
-  context <- random_context(40, 6)
+test_that("test_if_strictly_quasiconcave works", {
+  context <- compute_random_context(40, 6)
   context <- cbind(context, 0)
   depths <- (-1) * compute_tukeys_depth(context, context)
-  ans <- is_strictly_quasiconcave(depths, context)
+  ans <- test_if_strictly_quasiconcave(depths, context)
   expect_equal(ans, FALSE)
 })
 
@@ -133,13 +133,7 @@ test_that("plot_relation works", {
   expect_equal(incidence[1, 1], 1)
 })
 
-test_that("compute_tukeys_separation works", {
-  all_4_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
-  i <- sample((1:219), size = 110)
-  ans <- compute_tukeys_separation(all_4_orders[i], all_4_orders[-i]) >= 0
 
-  expect_equal(ans, TRUE)
-})
 
 test_that("compute_geodetic_median works", {
   all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
@@ -153,24 +147,24 @@ test_that("compute_geodetic_median works", {
 
 
 test_that("calculate_concept_lattice works", {
-  context <- random_context(20, 9)
+  context <- compute_random_context(20, 9)
   ans <- calculate_concept_lattice(context)
   ans2 <- calculate_concept_lattice(context, compute_extents = TRUE)
   expect_equal(ans$intents, ans2$intents)
 })
 
 
-test_that("strictly_quasiconcave_phull works", {
-  context <- random_context(300, 6)
+test_that("get_strict_quasiconcave_phull works", {
+  context <- compute_random_context(300, 6)
   context <- rbind(context, context)
   depths <- runif(600)
-  ans <- all(strictly_quasiconcave_phull(depths, context) >= 0)
+  ans <- all(get_strict_quasiconcave_phull(depths, context) >= 0)
   expect_equal(ans, TRUE)
 })
 
 
 test_that("compute_quasiconcave_hull works", {
-  context <- random_context(100, 7)
+  context <- compute_random_context(100, 7)
   depth_values <- compute_tukeys_depth(context, context)
   names(depth_values) <- NULL
   quasiconcavized_depth_values <- compute_quasiconcave_hull(depth_values, context)
@@ -180,7 +174,7 @@ test_that("compute_quasiconcave_hull works", {
 
 
 test_that("compute_local_tukeys_depth works", {
-  context <- random_context(1000, 6)
+  context <- compute_random_context(1000, 6)
   context <- cbind(context, 1, 1)
   index <- sample((1:1000), size = 1)
   location <- context[index, ]
@@ -191,8 +185,15 @@ test_that("compute_local_tukeys_depth works", {
 })
 
 test_that("compute_weighted_tukeys_depth works", {
-  all_partial_5_orders <- compute_all_partial_orders(n_items = 5, complemented = TRUE, list = FALSE)
-  result <- compute_weighted_tukeys_depth(all_partial_5_orders[20,],all_partial_5_orders,all_partial_5_orders[20,],complemented=TRUE,parameters=list(alphaweight=0.001,beta_weight=0.001))
+  all_partial_5_orders <- compute_all_partial_orders(n_items = 5,
+                                                     complemented = TRUE,
+                                                     list = FALSE)
+  result <- compute_weighted_tukeys_depth(all_partial_5_orders[20,],
+                                          all_partial_5_orders,
+                                          all_partial_5_orders[20,],
+                                          complemented=TRUE,
+                                          parameters=list(alphaweight=0.001,
+                                                          beta_weight=0.001))
   expect_equal(result,1)
 })
 
@@ -212,6 +213,8 @@ test_that("compute_delta_mu works", {
 test_that("compute_weighted_tukeys_depth works", {
   p_orders <- compute_all_partial_orders(5, list = FALSE, complemented = TRUE)
   modus <- p_orders[100, ]
-  result <- compute_weighted_tukeys_depth(p_orders[c(20, 30, 40), ], p_orders, modus, TRUE, list(alpha_weight = .01, beta_weight = .01))
+  result <- compute_weighted_tukeys_depth(p_orders[c(20, 30, 40), ], p_orders,
+                                          modus, TRUE, list(alpha_weight = .01,
+                                                            beta_weight = .01))
   expect_equal(result[1], 0.96)
 })

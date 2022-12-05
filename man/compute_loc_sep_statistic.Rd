@@ -24,7 +24,7 @@ distribution 1 under the constraint that the depth w.r.t. distribution 2
 is not below a certain threshold c defined by the smallest depth of the
 lambda * 100 percent of the observed depth values. Then, by changing the
 roles of distribution 1 and distribution 2 and taking a minimum, the
-statistic is symmetrized For a small value of
+statistic is symmetrized. For a small value of
 lambda the test statistic is more or less similar to a generalization of
 the T-based test. (This value lambda is that value for which both
 optimizations lead to the same maximal value. A value of lambda smaller
@@ -33,7 +33,8 @@ essentially a test that is similar to a generalization of the M-based test
 defined in Li et al. (2004)
 }
 \examples{
-all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
+all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE,
+list = TRUE)
 i <- sample((1:219), size = 110)
 c_orders1 <- all_4_c_orders[i]
 c_orders2 <- all_4_c_orders[-i]
