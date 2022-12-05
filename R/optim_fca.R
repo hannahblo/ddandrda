@@ -97,8 +97,10 @@ return_eins <- function() {
 #' )
 #' context <- convert_list_to_context(c_orders, complemented = TRUE)
 #'
-#' withr::with_seed(seed=1234567,
-#' index <- sample((1:nrow(context)), size = 3))
+#' withr::with_seed(
+#'   seed = 1234567,
+#'   index <- sample((1:nrow(context)), size = 3)
+#' )
 #' sampled_context <- context[index, ]
 #' g <- function(intent, context) {
 #'   0.00001 + compute_tukeys_depth(c(intent, 1 - intent), sampled_context)

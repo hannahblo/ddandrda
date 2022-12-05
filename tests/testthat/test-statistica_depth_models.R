@@ -7,8 +7,10 @@ test_that("compute_probs_depth_model works", {
 
 
 test_that("sample_betweenness_model works", {
-  withr::with_seed(seed=1234567,
-  context <- compute_random_context(1000, 5))
+  withr::with_seed(
+    seed = 1234567,
+    context <- compute_random_context(1000, 5)
+  )
   context <- cbind(context, 0)
   model1 <- sample_from_betweenness_model(
     context = context, modus = context[1, ],

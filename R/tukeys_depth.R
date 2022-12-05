@@ -264,7 +264,7 @@ compute_local_tukeys_depth <- function(intent, context, location,
 #' @export
 compute_tukeys_median_order <- function(c_orders,
                                         start_order = c_orders[[1]] * 0) {
-    # input checks
+  # input checks
   if (!test_if_extendable_to_p_order(start_order)) {
     print("warning: invalid relation start_order (start_order is not extendable
            to a partial order, therefore the searchspce is empty.")
@@ -354,8 +354,10 @@ test_if_extendable_to_p_order <- function(c_order) {
 #' @return  the value of the test statistic
 #'
 #' @examples
-#' all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE,
-#' list = TRUE)
+#' all_4_c_orders <- compute_all_partial_orders(4,
+#'   complemented = TRUE,
+#'   list = TRUE
+#' )
 #' i <- sample((1:219), size = 110)
 #' c_orders1 <- all_4_c_orders[i]
 #' c_orders2 <- all_4_c_orders[-i]
@@ -480,13 +482,15 @@ compute_loc_sep_test <- function(c_orders1, c_orders2, lambda, n_rep) {
 #'   list = TRUE
 #' )
 #'
-#' withr::with_seed(seed=1234567,
-#' indexs <- sample((1:length(all_5_c_orders)),size=10)
+#' withr::with_seed(
+#'   seed = 1234567,
+#'   indexs <- sample((1:length(all_5_c_orders)), size = 10)
 #' )
 #' sampled_c_orders <- all_5_c_orders[indexs]
 #' tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
 #' tukeys_geodetic_median <- compute_geodetic_median(sampled_c_orders,
-#' auto=TRUE,fraction=0.9)$median
+#'   auto = TRUE, fraction = 0.9
+#' )$median
 #'
 #' plot_relation(tukeys_median)
 #' plot_relation(tukeys_geodetic_median)
@@ -755,15 +759,15 @@ compute_one_simplicial_depth <- function(intent, context, modus) {
   }
 }
 
-#TODO
+# TODO
 # zu ueberarbeiten:
 # exportieren?
 compute_ranking_scaling <- function(x,
-                            remove_full_columns = FALSE,
-                            complemented = FALSE) {
+                                    remove_full_columns = FALSE,
+                                    complemented = FALSE) {
 
-# given a matrix x where every row is one data point, computes for every data#
-# point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
+  # given a matrix x where every row is one data point, computes for every data#
+  # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
 
   m <- dim(x)[1]
   n <- dim(x)[2]
@@ -788,7 +792,7 @@ compute_ranking_scaling <- function(x,
       ), collapse = "")
 
       neg_names[t] <- paste(c(" NOT(", colnames(ans)[t], ") "),
-                            collapse = ""
+        collapse = ""
       )
 
       t <- t + 1
@@ -869,16 +873,16 @@ calculate_phi <- function(subset_attributes, context) {
 
 
 compute_random_context <- function(nrow = 20,
-                           ncol = 10,
-                           prob = 0.5,seed=1234567) {
-  if(!is.null(seed)){
-
-    withr::with_seed(seed=seed,
-    result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1)
-
-
+                                   ncol = 10,
+                                   prob = 0.5, seed = 1234567) {
+  if (!is.null(seed)) {
+    withr::with_seed(
+      seed = seed,
+      result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+    )
+  } else {
+    result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
   }
-  else{result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1}
   return(result)
 }
 
@@ -1220,17 +1224,19 @@ compute_weighted_tukeys_depth <- function(intent, context, modus, complemented,
 
     if (is.vector(intent)) {
       return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],
-                                           context[, (1:n_items^2)],
-                                           modus[, (1:n_items)],
-                                           complemented = FALSE,
-                                           parameters = parameters))
+        context[, (1:n_items^2)],
+        modus[, (1:n_items)],
+        complemented = FALSE,
+        parameters = parameters
+      ))
     }
     if (is.matrix(intent)) {
       return(compute_weighted_tukeys_depth(intent[, (1:n_items^2)],
-                                           context[, (1:n_items^2)],
-                                           modus[, (1:n_items)],
-                                           complemented = FALSE,
-                                           parameters = parameters))
+        context[, (1:n_items^2)],
+        modus[, (1:n_items)],
+        complemented = FALSE,
+        parameters = parameters
+      ))
     }
   }
 }
