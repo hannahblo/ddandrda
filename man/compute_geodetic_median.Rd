@@ -49,8 +49,10 @@ all_5_c_orders <- compute_all_partial_orders(
   n_items = 5, complemented = TRUE,
   list = TRUE
 )
-set.seed(1234567)
+
+withr::with_seed(seed=1234567,
 indexs <- sample((1:length(all_5_c_orders)),size=10)
+)
 sampled_c_orders <- all_5_c_orders[indexs]
 tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
 tukeys_geodetic_median <- compute_geodetic_median(sampled_c_orders,

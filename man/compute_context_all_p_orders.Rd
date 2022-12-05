@@ -21,8 +21,6 @@ intents of a formal context where every object is a linear order L and
 every attribute is a pair (a,b) and L I (a,b) iff (a,b) in L.
 Note that the empty intersection of objects gives the all relation,
 and the all relation is not a partial order
-
-#'
 }
 \examples{
 n_items <- 5

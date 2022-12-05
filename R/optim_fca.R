@@ -6,11 +6,11 @@
 #' of a set of linear orders (more concretely the set of all linear
 #' extensions), one can can compute the set of all partial orders as the
 #' intents of a formal context where every object is a linear order L and
-#'  every attribute is a pair (a,b) and L I (a,b) iff (a,b) in L.
+#' every attribute is a pair (a,b) and L I (a,b) iff (a,b) in L.
 #' Note that the empty intersection of objects gives the all relation,
 #' and the all relation is not a partial order
 #'
-#' #'
+#'
 #' @param n_items is the number of elements of the basic space
 #' @param names are the names of the n_items elements
 #'
@@ -45,7 +45,7 @@
 compute_context_all_p_orders <- function(n_items, names = (1:n_items)) {
   perms <- gtools::permutations(n_items, n_items)
   colnames(perms) <- names
-  context <- ranking_scaling(perms,
+  context <- compute_ranking_scaling(perms,
     remove_full_columns = FALSE,
     complemented = FALSE
   )
@@ -96,8 +96,9 @@ return_eins <- function() {
 #'   complemented = TRUE, list = TRUE
 #' )
 #' context <- convert_list_to_context(c_orders, complemented = TRUE)
-#' set.seed(1234567)
-#' index <- sample((1:nrow(context)), size = 3)
+#'
+#' withr::with_seed(seed=1234567,
+#' index <- sample((1:nrow(context)), size = 3))
 #' sampled_context <- context[index, ]
 #' g <- function(intent, context) {
 #'   0.00001 + compute_tukeys_depth(c(intent, 1 - intent), sampled_context)

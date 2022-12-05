@@ -46,8 +46,13 @@ reg_max <- function(x) {
 #' plot_relation(chevron)
 #' @export
 plot_relation <- function(incidence) {
+  # define the incidence as a formal context for the fcaR package
   fc <- fcaR::FormalContext$new(incidence[, (1:nrow(incidence))])
+  # compute all concepts
   fc$find_concepts()
+  # plot the Hasse graph of the formal concept lattice, i.e., the diagram of the
+  # Dedekind–MacNeille completion of the relation incidence (given as a 0-1
+  # matrix)
   fc$concepts$plot()
 }
 #' Convert a context into a list
@@ -101,6 +106,7 @@ compute_tukeys_outlyingness <- function(intent,
   if (all(intent == 1)) {
     return(0)
   }
+  # compute weighted column-max
   normed_row_weights <- row_weights / sum(row_weights)
   weighted_context <- ((normed_row_weights) %*% t(col_weights)) * context
   weighted_column_means <- t(weighted_context) %*% (rep(1, nrow(context)))
@@ -154,6 +160,7 @@ compute_tukeys_depth <- function(intent,
                                  context,
                                  row_weights = rep(1, nrow(context)),
                                  col_weights = rep(1, ncol(context))) {
+  # Tukeys depth is simply computed as 1- Tukeys outlyingness
   return(1 - compute_tukeys_outlyingness(
     intent,
     context,
@@ -199,9 +206,12 @@ compute_tukeys_depth <- function(intent,
 compute_local_tukeys_depth <- function(intent, context, location,
                                        row_weights = rep(1, nrow(context)),
                                        col_weights = rep(1, ncol(context))) {
+  # select only that attributes that the object location has
   indexs <- which(location == 1)
   intent2 <- intent[, indexs]
   context2 <- context[, indexs]
+  # if indexs has length 1 then one has to redefine intent2 and context2 as
+  # matrices
   if (length(indexs) == 1) {
     dim(intent2) <- c(length(intent2), 1)
     dim(context2) <- c(length(context2), 1)
@@ -260,14 +270,12 @@ compute_tukeys_median_order <- function(c_orders,
            to a partial order, therefore the searchspce is empty.")
   }
   n_rows <- nrow(c_orders[[1]])
-  # columnsums represent the corresponding outlyingness values w.r.t. Tukeys
-  # depth
+  # sum_c_order represents (up to a multiple) the corresponding
+  # outlyingness values w.r.t. Tukeys depth
   sum_c_order <- Reduce("+", c_orders)
   # In the end ans_old will be the deepest partial order that will be return,
-  # whereas
-  # ans_new is the first relation that has larger depth but is not extendable
-  # to a
-  # partial order anymore
+  # whereas ans_new is the first relation that has larger depth but is not
+  # extendable to a partial order anymore
   ans_old <- ans_new <- start_order
   # set recursively attributes in ans_new to 1 to decrease Tukeys depth
   # start attributes that correspond to the largest Tukeys outlyingness values
@@ -281,7 +289,6 @@ compute_tukeys_median_order <- function(c_orders,
       median <- cbind(ans_old[, (1:n_rows)], 1 - ans_old[, (1:n_rows)])
       context <- convert_list_to_context(c_orders, complemented = TRUE)
       depth <- compute_tukeys_depth(as.vector(median), context)
-
       return(list(median = median, depth = depth))
     }
     m_leq <- ans_new[, (1:n_rows)]
@@ -362,12 +369,9 @@ compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
   context2 <- convert_list_to_context(c_orders2, complemented = TRUE)
   depth1 <- compute_tukeys_depth(context1, context1)
   depth2 <- compute_tukeys_depth(context2, context2)
-
-
   start_order1 <- Reduce("pmin", c_orders1[which(depth1 >= stats::quantile(
     depth1, lambda
   ))])
-
   start_order2 <- Reduce("pmin", c_orders2[which(depth2 >= stats::quantile(
     depth2, lambda
   ))])
@@ -397,7 +401,6 @@ compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
 #' Multivariate Locations and Scales Using Data Depth. Statistical Science,
 #' Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 #'
-
 #'
 #' @param c_orders1 complemented orders of distribution 1
 #' @param c_orders2 complemented orders of distribution 2
@@ -476,8 +479,10 @@ compute_loc_sep_test <- function(c_orders1, c_orders2, lambda, n_rep) {
 #'   n_items = 5, complemented = TRUE,
 #'   list = TRUE
 #' )
-#' set.seed(1234567)
+#'
+#' withr::with_seed(seed=1234567,
 #' indexs <- sample((1:length(all_5_c_orders)),size=10)
+#' )
 #' sampled_c_orders <- all_5_c_orders[indexs]
 #' tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
 #' tukeys_geodetic_median <- compute_geodetic_median(sampled_c_orders,
@@ -491,13 +496,13 @@ compute_geodetic_median <- function(c_orders,
                                     proportion,
                                     auto = FALSE, fraction) {
   context <- convert_list_to_context(c_orders, complemented = FALSE)
-  td <- compute_tukeys_depth(context, context)
+  tukeys_depth <- compute_tukeys_depth(context, context)
   if (auto) {
     tukeys_median <- as.vector(compute_tukeys_median_order(c_orders))$median
-    ordered_depths <- sort(td, decreasing = TRUE)
+    ordered_depths <- sort(tukeys_depth, decreasing = TRUE)
     for (k in seq_along(c_orders)) {
       extent <- rep(0, ncol(context))
-      extent[which(td >= ordered_depths[k])] <- 1
+      extent[which(tukeys_depth >= ordered_depths[k])] <- 1
       intent <- calculate_psi(extent, context)
       if (all(intent <= tukeys_median)) {
         proportion <- k / length(c_orders) * fraction
@@ -506,7 +511,7 @@ compute_geodetic_median <- function(c_orders,
     }
   }
 
-  i <- which(td >= stats::quantile(td, 1 - proportion))
+  i <- which(tukeys_depth >= stats::quantile(tukeys_depth, 1 - proportion))
   extent <- rep(0, length(c_orders))
   extent[i] <- 1
   intent <- calculate_psi(extent, context)
@@ -561,6 +566,7 @@ test_if_quasiconcave <- function(depths, context) {
 
 
 test_if_strictly_quasiconcave <- function(depths, context) {
+  # tests if a depth function is strictly quasiconcave
   m <- nrow(context)
   for (k in (1:m)) {
     i <- which(depths >= depths[k])
@@ -575,6 +581,11 @@ test_if_strictly_quasiconcave <- function(depths, context) {
 }
 
 get_strict_quasiconcave_phull <- function(depths, context) {
+  # computes depth values based on the given depth values depths and the under-
+  # lying context context by starting with depths and then successively
+  # enlarging the depth values to make the depth values strictly quasiconcave.
+  # Of course this does not always work since there are contexts for which there
+  # is no strictly quasiconcave depth function.
   m <- nrow(context)
   ans <- depths
   for (k in (1:m)) {
@@ -593,6 +604,7 @@ get_strict_quasiconcave_phull <- function(depths, context) {
 
 
 compute_quasiconcave_hull <- function(depth_values, context) {
+  # computes the quasiconcave hull of a depth function
   ans <- rep(0, length(depth_values))
   for (k in sort(unique(depth_values))) {
     i <- which(depth_values >= k)
@@ -627,7 +639,7 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
                                        complemented, list) {
   perms <- gtools::permutations(n_items, n_items)
   colnames(perms) <- names
-  context <- ranking_scaling(perms,
+  context <- compute_ranking_scaling(perms,
     remove_full_columns = FALSE,
     complemented = FALSE
   )
@@ -637,10 +649,6 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
   ## delete all-relation
   index <- which(rowSums(ans) == ncol(ans))
   ans <- ans[-index, ]
-
-  # TODO : remove old code: ans <- calculate_concept_lattice(context = context,
-  # compute_extents = FALSE)
-  # old code: ans <- ans$intents[-nrow(ans$intents), ]
   colnames(ans) <- colnames(context)
   ans_list <- convert_context_to_list(ans, complemented = FALSE)
   if (list) {
@@ -750,9 +758,13 @@ compute_one_simplicial_depth <- function(intent, context, modus) {
 #TODO
 # zu ueberarbeiten:
 # exportieren?
-ranking_scaling <- function(x,
+compute_ranking_scaling <- function(x,
                             remove_full_columns = FALSE,
                             complemented = FALSE) {
+
+# given a matrix x where every row is one data point, computes for every data#
+# point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
+
   m <- dim(x)[1]
   n <- dim(x)[2]
   names <- rep("", n^2)
@@ -858,8 +870,16 @@ calculate_phi <- function(subset_attributes, context) {
 
 compute_random_context <- function(nrow = 20,
                            ncol = 10,
-                           prob = 0.5) {
-  matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+                           prob = 0.5,seed=1234567) {
+  if(!is.null(seed)){
+
+    withr::with_seed(seed=seed,
+    result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1)
+
+
+  }
+  else{result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1}
+  return(result)
 }
 
 calculate_psi <- function(subset_objects, context) {
