@@ -50,13 +50,15 @@ all_5_c_orders <- compute_all_partial_orders(
   list = TRUE
 )
 
-withr::with_seed(seed=1234567,
-indexs <- sample((1:length(all_5_c_orders)),size=10)
+withr::with_seed(
+  seed = 1234567,
+  indexs <- sample((1:length(all_5_c_orders)), size = 10)
 )
 sampled_c_orders <- all_5_c_orders[indexs]
 tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
 tukeys_geodetic_median <- compute_geodetic_median(sampled_c_orders,
-auto=TRUE,fraction=0.9)$median
+  auto = TRUE, fraction = 0.9
+)$median
 
 plot_relation(tukeys_median)
 plot_relation(tukeys_geodetic_median)

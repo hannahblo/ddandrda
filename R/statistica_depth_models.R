@@ -36,9 +36,11 @@ sample_from_betweenness_model <- function(context, modus,
                                           scale, p, n,
                                           decay_type = "exp", ...) {
   depths <- compute_betweenness_depth(context, context, modus)
-  # depths <- quasiconcave_hull(depths,context) #ACHTUNG: RAUS
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
-  indexs <- sample((1:nrow(context)), size = n, prob = probs, replace = TRUE)
+  indexs <- sample(seq_len(nrow(context)),
+    size = n, prob = probs,
+    replace = TRUE
+  )
   return(context[indexs, ])
 }
 
@@ -52,7 +54,7 @@ sample_from_betweenness_model <- function(context, modus,
 #' of objects of a formal context based on a decay function Gamma.
 #'
 #' @param depths a vector with depth-values. The depth-values are assumed to be
-#'  between zero and one.
+#' between zero and one.
 #'
 #' @param scale is the scale parameter in the model.
 #' @param p is the power that is applied to the outlyingness-values.
@@ -196,6 +198,9 @@ sample_from_expl_depth_model <- function(context, modus,
     depths <- compute_quasiconcave_hull(depths, context)
   }
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
-  indexs <- sample((1:nrow(context)), size = n, prob = probs, replace = TRUE)
+  indexs <- sample(seq_len(nrow(context)),
+    size = n, prob = probs,
+    replace = TRUE
+  )
   return(context[indexs, ])
 }

@@ -47,7 +47,7 @@ reg_max <- function(x) {
 #' @export
 plot_relation <- function(incidence) {
   # define the incidence as a formal context for the fcaR package
-  fc <- fcaR::FormalContext$new(incidence[, (1:nrow(incidence))])
+  fc <- fcaR::FormalContext$new(incidence[, seq_len(nrow(incidence))])
   # compute all concepts
   fc$find_concepts()
   # plot the Hasse graph of the formal concept lattice, i.e., the diagram of the
@@ -365,8 +365,6 @@ test_if_extendable_to_p_order <- function(c_order) {
 #'
 #' @export
 compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
-  n1 <- length(c_orders1)
-  n2 <- length(c_orders2)
   context1 <- convert_list_to_context(c_orders1, complemented = TRUE)
   context2 <- convert_list_to_context(c_orders2, complemented = TRUE)
   depth1 <- compute_tukeys_depth(context1, context1)
@@ -657,7 +655,7 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
   ans_list <- convert_context_to_list(ans, complemented = FALSE)
   if (list) {
     if (complemented) {
-      for (k in (1:nrow(ans))) {
+      for (k in seq_len(nrow(ans))) {
         ans_list[[k]] <- cbind(ans_list[[k]], 1 - ans_list[[k]])
       }
     }
@@ -705,7 +703,7 @@ compute_betweenness_depth <- function(intent, context, modus) {
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
-    for (k in (1:nrow(intent))) {
+    for (k in seq_len(nrow(intent))) {
       ans[k] <- compute_betweenness_depth(intent[k, ], context, modus)
     }
     return(ans)

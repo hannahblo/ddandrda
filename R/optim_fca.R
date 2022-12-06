@@ -177,17 +177,14 @@ sample_concept <- function(context, steps = 1000, f, start_intent = NULL) {
       a <- aa
       b <- bb
     }
-    # Diesen Teil brauchen wir nichtif (runif(1) >= Q) {
-    # b <- b_maximum
-    # a <- calculate_phi(b, context)
-    # }
+
   }
 
 
 
   return(b_maximum)
 }
-# T=concept.gen(bg,15000,f)
+
 
 g_int <- function(b, bb, context) {
   if (all(b == bb)) {
@@ -210,6 +207,3 @@ g_int <- function(b, bb, context) {
 g_ext <- function(a, aa, context) {
   g_int(a, aa, t(context))
 }
-
-
-# T=concept.gen(bg,10000,f)

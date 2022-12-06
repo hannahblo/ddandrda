@@ -3,7 +3,7 @@
 \name{compute_probs_depth_model}
 \alias{compute_probs_depth_model}
 \title{Compute sampling probabilities of a simple statistical depth model
-based on betweenness depth}
+based on a decay function Gamma.}
 \usage{
 compute_probs_depth_model(depths, scale, p, decay_type = "exp", ...)
 }
@@ -27,8 +27,7 @@ sampling probabilities according to the model.
 }
 \description{
 'compute_probs_depth_model computes the sampling probabilities
-of objects of a formal context based on a simple depth model.
-The model is: TODO
+of objects of a formal context based on a decay function Gamma.
 }
 \examples{
 depths <- seq(0.0000000001, 0.99, length.out = 1000)

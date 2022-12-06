@@ -33,8 +33,10 @@ essentially a test that is similar to a generalization of the M-based test
 defined in Li et al. (2004)
 }
 \examples{
-all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE,
-list = TRUE)
+all_4_c_orders <- compute_all_partial_orders(4,
+  complemented = TRUE,
+  list = TRUE
+)
 i <- sample((1:219), size = 110)
 c_orders1 <- all_4_c_orders[i]
 c_orders2 <- all_4_c_orders[-i]

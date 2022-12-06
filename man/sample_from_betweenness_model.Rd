@@ -38,6 +38,20 @@ where each row is a 0-1 vector representing the attributes of one sampled
 object
 }
 \description{
-'sample_from_betweenness_model' computes a sample of objects of a
-formal context based on a simple depth model. The model is: TODO
+'sample_from_betweenness_model' computes a sample of objects of
+a formal context based on a simple depth-based statistical model of the form
+
+P(X=x) = C_lambda * Gamma((lambda * (1-D^mu(x))^p)),
+
+cf. Blocher et al. 2022, p.20, equation (1).
+
+Here, C_lambda is a normalizing constant, mu is a given modus, lambda is a
+scale parameter, Gamma is a (weakly decreasing) decay function, p is an
+additional power (the parameter p was not present in Blocher et al. 2022).
+
+The depth function D^mu used here is a simple betweennes based depth (cf.,
+the R function 'compute_betweenness_depth')
+), where one computes the depth values simply by counting how many points are
+between the center mu. This depth function is not quasiconcave but it is
+star-shaped.
 }
