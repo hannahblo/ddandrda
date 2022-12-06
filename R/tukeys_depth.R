@@ -759,14 +759,13 @@ compute_one_simplicial_depth <- function(intent, context, modus) {
   }
 }
 
-# TODO
 # zu ueberarbeiten:
 # exportieren?
 compute_ranking_scaling <- function(x,
                                     remove_full_columns = FALSE,
                                     complemented = FALSE) {
 
-  # given a matrix x where every row is one data point, computes for every data#
+  # given a matrix x where every row is one data point, computes for every data
   # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
 
   m <- dim(x)[1]
@@ -878,10 +877,16 @@ compute_random_context <- function(nrow = 20,
   if (!is.null(seed)) {
     withr::with_seed(
       seed = seed,
-      result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+      result <- matrix(stats::runif(nrow * ncol) <= prob,
+        nrow = nrow,
+        ncol = ncol
+      ) * 1
     )
   } else {
-    result <- matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+    result <- matrix(stats::runif(nrow * ncol) <= prob,
+      nrow = nrow,
+      ncol = ncol
+    ) * 1
   }
   return(result)
 }

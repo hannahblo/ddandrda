@@ -17,7 +17,10 @@
 #' @examples
 #' n_items <- 5
 #' steps <- 10000
-#' context_for_n_items_p_orders <- compute_context_all_p_orders(n_items = n_items)
+#' context_for_n_items_p_orders <- compute_context_all_p_orders(
+#'   n_items =
+#'     n_items
+#' )
 #' c_orders <- compute_all_partial_orders(
 #'   n_items = n_items, complemented = TRUE,
 #'   list = TRUE

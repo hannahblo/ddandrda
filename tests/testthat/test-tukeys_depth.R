@@ -5,8 +5,11 @@ test_that("convert_list_to_context works", {
     list[[k]] <- temp
   }
 
-  list2 <- convert_context_to_list(convert_list_to_context(list, complemented = FALSE),
+  list2 <- convert_context_to_list(convert_list_to_context(
+    list,
     complemented = FALSE
+  ),
+  complemented = FALSE
   )
   expect_equal(list, list2)
 })
@@ -111,13 +114,19 @@ test_that("test_if_strictly_quasiconcave works", {
 })
 
 test_that("compute_all_partial_orders works", {
-  all_4_orders <- compute_all_partial_orders(4, complemented = FALSE, list = FALSE)
+  all_4_orders <- compute_all_partial_orders(4,
+    complemented = FALSE,
+    list = FALSE
+  )
   expect_equal(nrow(all_4_orders), 219)
 })
 
 
 test_that("compute_loc_sep_test works", {
-  all_4_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
+  all_4_orders <- compute_all_partial_orders(4,
+    complemented = TRUE,
+    list = TRUE
+  )
   i <- sample((1:219), size = 110)
   orders1 <- all_4_orders[i]
   orders2 <- all_4_orders[-i]
@@ -136,7 +145,10 @@ test_that("plot_relation works", {
 
 
 test_that("compute_geodetic_median works", {
-  all_4_c_orders <- compute_all_partial_orders(4, complemented = TRUE, list = TRUE)
+  all_4_c_orders <- compute_all_partial_orders(4,
+    complemented = TRUE,
+    list = TRUE
+  )
   i <- sample((1:219), size = 55)
   c_orders <- all_4_c_orders[i]
   ans <- compute_geodetic_median(c_orders, proportion = 1)
@@ -167,7 +179,10 @@ test_that("compute_quasiconcave_hull works", {
   context <- compute_random_context(100, 7)
   depth_values <- compute_tukeys_depth(context, context)
   names(depth_values) <- NULL
-  quasiconcavized_depth_values <- compute_quasiconcave_hull(depth_values, context)
+  quasiconcavized_depth_values <- compute_quasiconcave_hull(
+    depth_values,
+    context
+  )
 
   expect_equal(depth_values, quasiconcavized_depth_values)
 })

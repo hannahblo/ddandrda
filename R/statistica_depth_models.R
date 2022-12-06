@@ -1,7 +1,21 @@
 #' A simple statistical depth model based on betweenness depth
 #'
-#' @description 'sample_from_betweenness_model' computes a sample of objects of a
-#' formal context based on a simple depth model. The model is: TODO
+#' @description 'sample_from_betweenness_model' computes a sample of objects of
+#'  a formal context based on a simple depth-based statistical model of the form
+#'
+#' P(X=x) = C_lambda * Gamma((lambda * (1-D^mu(x))^p)),
+#'
+#' cf. Blocher et al. 2022, p.20, equation (1).
+#'
+#' Here, C_lambda is a normalizing constant, mu is a given modus, lambda is a
+#' scale parameter, Gamma is a (weakly decreasing) decay function, p is an
+#' additional power (the parameter p was not present in Blocher et al. 2022).
+#'
+#' The depth function D^mu used here is a simple betweennes based depth (cf.,
+#' the R function 'compute_betweenness_depth')
+#' ), where one computes the depth values simply by counting how many points are
+#' between the center mu. This depth function is not quasiconcave but it is
+#' star-shaped.
 #'
 #' @param modus is the modus of the statistical model given as a 0-1-vector
 #' representing the attributes of the mode
@@ -19,7 +33,8 @@
 #' object
 #' @export
 sample_from_betweenness_model <- function(context, modus,
-                                          scale, p, n, decay_type = "exp", ...) {
+                                          scale, p, n,
+                                          decay_type = "exp", ...) {
   depths <- compute_betweenness_depth(context, context, modus)
   # depths <- quasiconcave_hull(depths,context) #ACHTUNG: RAUS
   probs <- compute_probs_depth_model(depths, scale, p, decay_type, ...)
@@ -31,11 +46,10 @@ sample_from_betweenness_model <- function(context, modus,
 
 
 #' Compute sampling probabilities of a simple statistical depth model
-#' based on betweenness depth
+#' based on a decay function Gamma.
 #'
 #' @description 'compute_probs_depth_model computes the sampling probabilities
-#' of objects of a formal context based on a simple depth model.
-#' The model is: TODO
+#' of objects of a formal context based on a decay function Gamma.
 #'
 #' @param depths a vector with depth-values. The depth-values are assumed to be
 #'  between zero and one.
@@ -103,8 +117,8 @@ sample_from_betweenness_model <- function(context, modus,
 #'   "Pearson type VII (df=10)"
 #' ))
 #' @export
-compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...) {
-  # TODO : kommentieren
+compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp",
+                                      ...) {
   if (decay_type == "exp") {
     probs <- exp(-(1 / scale) * (1 - depths)^p)
   } else if (decay_type == "inverse") {
@@ -117,7 +131,6 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
       return(NULL)
     }
     probs <- 1 / ((1 - depths)^p) - 1
-    # TODO case depth=1: to think about
   } else if (decay_type == "pearson_vii") {
     depths <- depths
     probs <- PearsonDS::dpearsonVII(((1 - depths)^p),
@@ -175,7 +188,8 @@ compute_probs_depth_model <- function(depths, scale, p, decay_type = "exp", ...)
 #' @export
 sample_from_expl_depth_model <- function(context, modus,
                                          scale, p, n, decay_type = "exp",
-                                         depth_function, quasiconcavize = FALSE, ...) {
+                                         depth_function, quasiconcavize = FALSE,
+                                         ...) {
   depths <- depth_function(context, context, modus, ...)
   depths <<- depths
   if (quasiconcavize) {

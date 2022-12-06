@@ -1,8 +1,14 @@
 test_that("sample_concept works", {
   n_items <- 4
   CT <- compute_context_all_p_orders(n_items = n_items)
-  c_orders <- compute_all_partial_orders(n_items = n_items, complemented = TRUE, list = TRUE)
-  context <- compute_all_partial_orders(n_items = n_items, complemented = TRUE, list = FALSE)
+  c_orders <- compute_all_partial_orders(
+    n_items = n_items,
+    complemented = TRUE, list = TRUE
+  )
+  context <- compute_all_partial_orders(
+    n_items = n_items,
+    complemented = TRUE, list = FALSE
+  )
   i <- sample((1:nrow(context)), size = 50)
   reference_context <- context[i, ]
   g <- function(intent, context) {
