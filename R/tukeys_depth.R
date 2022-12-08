@@ -1,36 +1,90 @@
-#' Plot a partial order
-#' @description 'plot_order' plots a partial order by drawing the
-#' Hasse diagramm of its Dedekind–MacNeille completion
-#'
-#' @param incidence The incidence relation of the partial order
-#'
-#' @return The drawing of the partial order in the form of the Hasse diagramm of
-#' the Dedekind-MacNeille completion of the given partial order
-#' @export
-plot_order <- function(incidence) {
-  fc <- fcaR::FormalContext$new(incidence[, (1:nrow(incidence))])
-  fc$find_concepts()
-  fc$concepts$plot()
+# computes the maximum value of a vector x with the convention that the empty
+# maximum (i.e., the maximum of a vector of length 0) is defined as zero
+reg_max <- function(x) {
+  if (length(x) == 0) {
+    return(0)
+  } else {
+    return(max(x))
+  }
 }
 
-context_to_list <- function(context, complemented = FALSE, colnames = NULL,
-                            rownames = NULL) {
-  m <- nrow(context)
+#' Plot a binary relation
+#' @description 'plot_relation' plots a binary relation(e.g., a partial order)
+#' by drawing the Hasse diagramm of its Dedekind–MacNeille completion. Note
+#' that the plotted relation needs not to be a partial order, it can be an
+#' arbitrary relation.
+#'
+#' @param incidence The incidence relation of the partial order.
+#'
+#' @return The drawing of the partial order in the form of the Hasse diagramm of
+#' the Dedekind-MacNeille completion of the given partial order.
+#' @examples
+#'
+#' # plot an interval order
+#' upper <- (1:10)
+#' lower <- upper - runif(10)
+#' interval_order <- array(0, c(10, 10))
+#' for (k in (1:10)) {
+#'   for (l in (1:10)) {
+#'     interval_order[k, l] <- (upper[k] <= lower[l])
+#'   }
+#' }
+#' plot_relation(interval_order)
+#'
+#' # plot a quasiorder
+#' q_order <- array(1 * (runif(100) >= 0.9), c(10, 10))
+#' diag(q_order) <- 1
+#' q_order[1, 2] <- q_order[2, 1] <- 1
+#' q_order <- compute_transitive_hull(q_order)
+#' plot_relation(q_order)
+#'
+#' # plot the Chevron
+#' chevron <- rbind(
+#'   c(1, 1, 0, 0, 0, 0), c(0, 1, 0, 0, 0, 0), c(1, 1, 1, 0, 1, 1),
+#'   c(0, 1, 0, 1, 0, 1), c(0, 0, 0, 0, 1, 1), c(0, 0, 0, 0, 0, 1)
+#' )
+#' plot_relation(chevron)
+#' @export
+plot_relation <- function(incidence) {
+  # define the incidence as a formal context for the fcaR package
+  fc <- fcaR::FormalContext$new(incidence[, seq_len(nrow(incidence))])
+  # compute all concepts
+  fc$find_concepts()
+  # plot the Hasse graph of the formal concept lattice, i.e., the diagram of the
+  # Dedekind–MacNeille completion of the relation incidence (given as a 0-1
+  # matrix)
+  fc$concepts$plot()
+}
+#' Convert a context into a list
+#'
+#' @description 'convert_context_to_list' converts a context that represents
+#' a partial order (or an arbitrary homogeneous relation, possibly complemented)
+#' into a list
+#'
+#' @param context The formal context that should be converted
+#' @param complemented should be true if a complemented context is given (then,
+#' a list of complemented incidence matrices is returned)
+#' @param col_names Names of the columns of the context
+#' @param row_names Names of the rows of the context
+#' @export
+convert_context_to_list <- function(context, complemented = FALSE,
+                                    col_names = NULL, row_names = NULL) {
+  n_rows <- nrow(context)
   if (complemented) {
-    q <- sqrt(ncol(context) / 2)
+    n_items <- sqrt(ncol(context) / 2)
   } else {
-    q <- sqrt(ncol(context))
+    n_items <- sqrt(ncol(context))
   }
-  q2 <- q
+  n_cols <- n_items
   if (complemented) {
-    q2 <- 2 * q
+    n_cols <- 2 * n_items
   }
   list <- list()
-  for (k in (1:m)) {
+  for (k in (1:n_rows)) {
     temp <- context[k, ]
-    dim(temp) <- c(q, q2)
-    colnames(temp) <- colnames
-    rownames(temp) <- rownames
+    dim(temp) <- c(n_items, n_cols)
+    colnames(temp) <- col_names
+    rownames(temp) <- row_names
     list[[k]] <- temp
   }
 
@@ -41,11 +95,18 @@ context_to_list <- function(context, complemented = FALSE, colnames = NULL,
 
 
 
-
+# computes Tukeys outlyingness for a given context. This function is only
+# internaly used for computing Tukeys depth as 1- Tukeys outlyingness.
+# Thereofre, for details look at the documentation of the exportet function
+# compute_tukeys_depth directly below
 compute_tukeys_outlyingness <- function(intent,
                                         context,
                                         row_weights = rep(1, nrow(context)),
                                         col_weights = rep(1, ncol(context))) {
+  if (all(intent == 1)) {
+    return(0)
+  }
+  # compute weighted column-max
   normed_row_weights <- row_weights / sum(row_weights)
   weighted_context <- ((normed_row_weights) %*% t(col_weights)) * context
   weighted_column_means <- t(weighted_context) %*% (rep(1, nrow(context)))
@@ -73,16 +134,16 @@ compute_tukeys_outlyingness <- function(intent,
 #' object.
 #'
 #' @param context is a formal context whose objects represent the data cloud
-#' w.r.t. which Tukeys depth is computed
+#' w.r.t. which Tukeys depth is computed.
 #'
 #' @param row_weights it is possible to give every object a weight (with the
-#' interpretation that object with e.g. weight $2$ appear twice as often in the
-#'  data set as objects with weight 1)
+#' interpretation that objects with e.g. weight $2$ appear twice as often in the
+#'  data set as objects with weight 1).
 #'
 #' @param col_weights it is possible to give every attribute a weight (with the
-#'  interpretation that a weighted maximum (minimum) is calculated for
-#'   Tukeys outlyingness (depth) such that attributes with higher weights get
-#'    more important)
+#' interpretation that a weighted maximum (minimum) is calculated for
+#' Tukeys outlyingness (depth) such that attributes with higher weights get
+#' more important).
 #'
 #' @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
 #'
@@ -99,6 +160,7 @@ compute_tukeys_depth <- function(intent,
                                  context,
                                  row_weights = rep(1, nrow(context)),
                                  col_weights = rep(1, ncol(context))) {
+  # Tukeys depth is simply computed as 1- Tukeys outlyingness
   return(1 - compute_tukeys_outlyingness(
     intent,
     context,
@@ -107,87 +169,153 @@ compute_tukeys_depth <- function(intent,
   ))
 }
 
+
+#' Computes a local version of Tukeys depth
+#'
+#' @description 'compute_local_tukeys_depth' returns the local depth value of
+#' an object represented by its intent (given as a 0-1 vector) w.r.t. a
+#' data cloud represented by a formal context and w.r.t. a given location.
+#' W.r.t. a given location simply means that Tukeys depth is not computed
+#' w.r.t. the whole context but w.r.t. the context that is obtained
+#' if every attribute that the object 'location' does not have, is removed
+#'
+#' @param intent represents the envisaged object given by all its attributes
+#' given as a 0-1 vector. It is also possible to compute depth values for
+#' more objects. In this case the objects should be given as a matrix where
+#' each row corresponds to one
+#' object.
+#'
+#' @param context is a formal context whose objects represent the data cloud
+#' w.r.t. which Tukeys depth is computed
+#'
+#' @param location Object that represents the location w.r.t. which Tukeys
+#' depth should be computed. The location is represented by all its attributes
+#' @param row_weights it is possible to give every object a weight (with the
+#' interpretation that object with e.g. weight $2$ appear twice as often in the
+#' data set as objects with weight 1)
+#'
+#' @param col_weights it is possible to give every attribute a weight (with the
+#' interpretation that a weighted maximum (minimum) is calculated for
+#' Tukeys outlyingness (depth) such that attributes with higher weights get
+#' more important)
+#'
+#' @return returns the depth value(s) of the object(s) w.r.t. the data cloud and
+#' w.r.t. the location gibven by the object location.
+#'
+#' @export
+compute_local_tukeys_depth <- function(intent, context, location,
+                                       row_weights = rep(1, nrow(context)),
+                                       col_weights = rep(1, ncol(context))) {
+  # select only that attributes that the object location has
+  indexs <- which(location == 1)
+  intent2 <- intent[, indexs]
+  context2 <- context[, indexs]
+  # if indexs has length 1 then one has to redefine intent2 and context2 as
+  # matrices
+  if (length(indexs) == 1) {
+    dim(intent2) <- c(length(intent2), 1)
+    dim(context2) <- c(length(context2), 1)
+  }
+  if (is.matrix(intent)) {
+    return(compute_tukeys_depth(intent2, context2))
+  }
+  if (is.vector(intent)) {
+    return(compute_tukeys_depth(
+      intent[indexs], context[, indexs], row_weights,
+      col_weights[indexs]
+    ))
+  }
+}
+
+
 #' Tukeys true median order
 #'
 #' @description 'compute_tukeys_median_order' computes that partial order
-#' in the space of ALL partial orders (that are supersets of startorder)
+#' in the space of ALL partial orders (that are supersets of start_order)
 #' that has the maximal Tukeys depth w.r.t. the given
 #' data cloud represented by the given context (given in the form of a list of
 #' posets, where every entry of the list is an incidence relation apposited
 #' with its negation. (In terms of conceptual scaling we use here the
 #' complemented scaling)
 #'
-#' @param corders data set of partial orders (given in the form of a list of
+#' @param c_orders data set of partial orders (given in the form of a list of
 #' posets, where every entry of the list is an incidence relation apposited
 #' with its negation. (In terms of conceptual scaling we use here the
 #' complemented scaling)
 #'
-#' @param startorder is a binary relation that can be used to restrict the space
-#' of partial orders in which one searches the partial order(s) with the highest
-#' Tukey depth. Concretely the search space is the space of all partial orders
-#' in complemented conceptual scaling that are supersets of the relation
-#' startorder. (startorder needs not to be a partial order))
+#' @param start_order is a binary relation that can be used to restrict the
+#' space of partial orders in which one searches the partial order(s) with the
+#' highest Tukey depth. Concretely the search space is the space of all partial
+#' orders in complemented conceptual scaling that are supersets of the relation
+#' start_order. (start_order needs not to be a partial order))
+#'
+#' @return returns the partial order with the highest Tukey depth.
+#'
 #' @examples
-#' all_4_orders <- compute_all_partial_orders(q = 4, complemented = TRUE,
-#'  list = TRUE)
-#' sampled_corders <- all_4_orders[c(rep(10, 20), (1:8), (21:30))]
-#' tukeys_median <- compute_tukeys_median_order(sampled_corders)$median
-#' plot_order(tukeys_median)
-#' plot_order(sampled_corders[[1]])
+#' all_4_c_orders <- compute_all_partial_orders(
+#'   n_items = 4, complemented = TRUE,
+#'   list = TRUE
+#' )
+#' sampled_c_orders <- all_4_c_orders[c(rep(10, 20), (1:8), (21:30))]
+#' tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
+#' plot_relation(tukeys_median)
+#' plot_relation(sampled_c_orders[[1]])
 #'
 #' @export
-compute_tukeys_median_order <- function(corders,
-                                        startorder = corders[[1]] * 0) {
-  # name eigtl. compute_tukeys_true_median_order
-  #
+compute_tukeys_median_order <- function(c_orders,
+                                        start_order = c_orders[[1]] * 0) {
   # input checks
-  if (!is_extendable_to_porder(startorder)) {
-    print("warning: invalid relation startorder (startorder is not extendable
+  if (!test_if_extendable_to_p_order(start_order)) {
+    print("warning: invalid relation start_order (start_order is not extendable
            to a partial order, therefore the searchspce is empty.")
   }
-  q <- nrow(corders[[1]])
-  # columnsums represent the corresponding outlyingness values w.r.t. Tukeys
-  # depth
-  sum_corder <- Reduce("+", corders)
+  n_rows <- nrow(c_orders[[1]])
+  # sum_c_order represents (up to a multiple) the corresponding
+  # outlyingness values w.r.t. Tukeys depth
+  sum_c_order <- Reduce("+", c_orders)
   # In the end ans_old will be the deepest partial order that will be return,
-  # whereas
-  # ans_new is the first relation that has larger depth but is not extendable
-  # to a
-  # partial order anymore
-  ans_old <- ans_new <- startorder
+  # whereas ans_new is the first relation that has larger depth but is not
+  # extendable to a partial order anymore
+  ans_old <- ans_new <- start_order
   # set recursively attributes in ans_new to 1 to decrease Tukeys depth
   # start attributes that correspond to the largest Tukeys outlyingness values
   while (TRUE) {
-    max_corder <- max(sum_corder[which(ans_old == 0)])
-    i <- which(ans_old == 0 & sum_corder == max_corder)
+    max_c_order <- max(sum_c_order[which(ans_old == 0)])
+    i <- which(ans_old == 0 & sum_c_order == max_c_order)
     i <- sample(rep(i, 2), size = 1)
     ans_new <- ans_old
     ans_new[i] <- 1
-    if (!is_extendable_to_porder(ans_new)) {
-      median <- cbind(ans_old[, (1:q)], 1 - ans_old[, (1:q)])
-      context <- list_to_context(corders, complemented = TRUE)
+    if (!test_if_extendable_to_p_order(ans_new)) {
+      median <- cbind(ans_old[, (1:n_rows)], 1 - ans_old[, (1:n_rows)])
+      context <- convert_list_to_context(c_orders, complemented = TRUE)
       depth <- compute_tukeys_depth(as.vector(median), context)
-
       return(list(median = median, depth = depth))
     }
-    m_leq <- ans_new[, (1:q)]
+    m_leq <- ans_new[, (1:n_rows)]
     diag(m_leq) <- 1
     m_leq <- relations::relation_incidence(
       relations::transitive_closure(relations::as.relation(m_leq))
     )
-    m_nleq <- ans_new[, -(1:q)]
+    m_nleq <- ans_new[, -(1:n_rows)]
     ans_old <- cbind(m_leq, m_nleq)
   }
 }
 
-is_extendable_to_porder <- function(corder) {
-  q <- dim(corder)[1]
 
-
-  m_leq <- corder[, (1:q)]
+#' Check if a binary relation is extendable to a partial order
+#' @description 'test_if_extendable_to_p_order' checks if a binary relation can
+#' be extended (in the sense of finding a superset) to a (complemented) partial
+#' order.
+#' @param c_order is a binary relation (apposited with its complements)
+#' @return TRUE if the binary relation is extendable to a partial order. FALSE
+#' otherwise.
+#' @export
+test_if_extendable_to_p_order <- function(c_order) {
+  n_rows <- dim(c_order)[1]
+  m_leq <- c_order[, (1:n_rows)]
   diag(m_leq) <- 1
   m_leq <- compute_transitive_hull(m_leq)
-  m_nleq <- corder[, -(1:q)]
+  m_nleq <- c_order[, -(1:n_rows)]
   if (any(m_leq == 1 & m_nleq == 1)) {
     return(FALSE)
   }
@@ -198,6 +326,7 @@ is_extendable_to_porder <- function(corder) {
 }
 
 #' Location-Separation type test statistic based on Tukeys depth
+#'
 #' @description 'compute_loc_sep_statistic' computes a test statistic for
 #' differences in location or separation of two distributions of order data
 #' based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
@@ -205,7 +334,7 @@ is_extendable_to_porder <- function(corder) {
 #' is not below a certain threshold c defined by the smallest depth of the
 #' lambda * 100 percent of the observed depth values. Then, by changing the
 #' roles of distribution 1 and distribution 2 and taking a minimum, the
-#' statistic is symmetrized For a small value of
+#' statistic is symmetrized. For a small value of
 #' lambda the test statistic is more or less similar to a generalization of
 #' the T-based test. (This value lambda is that value for which both
 #' optimizations lead to the same maximal value. A value of lambda smaller
@@ -213,49 +342,50 @@ is_extendable_to_porder <- function(corder) {
 #' essentially a test that is similar to a generalization of the M-based test
 #' defined in Li et al. (2004)
 #'
-#' @references Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
-#' and Scales Using Data Depth.
+#' @references Jun Li and Regina Y. Liu: New Nonparametric Tests of
+#' Multivariate Locations and Scales Using Data Depth.
 #' Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 #'
-#' @param corders1 complemented orders of distribution 1
-#' @param corders2 complemented orders of distribution 2
+#' @param c_orders1 complemented orders of distribution 1
+#' @param c_orders2 complemented orders of distribution 2
 #' @param lambda parameter for setting the threhold c, see above
 #'
 #'
 #' @return  the value of the test statistic
 #'
 #' @examples
-#' all_4_orders <- compute_all_partial_orders(4,complemented=TRUE,list=TRUE)
-#' i <- sample((1:219),size=110)
-#' orders1 <- all_4_orders[i]
-#' orders2 <- all_4_orders[-i]
-#' compute_loc_sep_statistic(orders1,orders2,0.8)
-#'
-#'
+#' all_4_c_orders <- compute_all_partial_orders(4,
+#'   complemented = TRUE,
+#'   list = TRUE
+#' )
+#' i <- sample((1:219), size = 110)
+#' c_orders1 <- all_4_c_orders[i]
+#' c_orders2 <- all_4_c_orders[-i]
+#' compute_loc_sep_statistic(c_orders1, c_orders2, 0.8)
 #'
 #' @export
-compute_loc_sep_statistic <- function(corders1, corders2, lambda) {
-  n1 <- length(corders1)
-  n2 <- length(corders2)
-  context1 <- list_to_context(corders1, complemented = TRUE)
-  context2 <- list_to_context(corders2, complemented = TRUE)
+compute_loc_sep_statistic <- function(c_orders1, c_orders2, lambda) {
+  context1 <- convert_list_to_context(c_orders1, complemented = TRUE)
+  context2 <- convert_list_to_context(c_orders2, complemented = TRUE)
   depth1 <- compute_tukeys_depth(context1, context1)
   depth2 <- compute_tukeys_depth(context2, context2)
-
-
-  startorder1 <- Reduce("pmin", corders1[which(depth1 >= stats::quantile(
-    depth1, lambda))])
-
-  startorder2 <- Reduce("pmin", corders2[which(depth2 >= stats::quantile(
-    depth2, lambda))])
-  depth1 <- compute_tukeys_median_order(corders1, startorder2)$depth
-  depth2 <- compute_tukeys_median_order(corders2, startorder1)$depth
+  start_order1 <- Reduce("pmin", c_orders1[which(depth1 >= stats::quantile(
+    depth1, lambda
+  ))])
+  start_order2 <- Reduce("pmin", c_orders2[which(depth2 >= stats::quantile(
+    depth2, lambda
+  ))])
+  depth1 <- compute_tukeys_median_order(c_orders1, start_order2)$depth
+  depth2 <- compute_tukeys_median_order(c_orders2, start_order1)$depth
   return(min(depth1, depth2))
 }
 
+
+
 #' Location-Separation type test based on Tukeys depth
+#'
 #' @description 'compute_loc_sep_statistic' computes a test that is based on
-#' the function 'compute_loc_sep_statistic' that is senstivive for
+#' the function 'compute_loc_sep_statistic' that is sensitvive for
 #' differences in location or separation of two distributions of order data
 #' based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
 #' distribution 1 under the constraint that the depth w.r.t. distribution 2
@@ -264,34 +394,34 @@ compute_loc_sep_statistic <- function(corders1, corders2, lambda) {
 #' lambda, the test statistic is more or less similar to a generalization of
 #' the M-based#' test, wheres for very high values of lambda one gets
 #' essentially a test that is similar to a generalization of the T-based test
-#'  defined in
+#' defined in Li et al. 2004. The test is performed as a simple
+#' observation-randomization test.
 #'
-#' Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
-#' and Scales Using Data Depth.
-#' Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
+#' @references Jun Li and Regina Y. Liu: New Nonparametric Tests of
+#' Multivariate Locations and Scales Using Data Depth. Statistical Science,
+#' Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 #'
-#'  The test is performed as a simple observation-randomization test
 #'
-#' @param corders1 complemented orders of distribution 1
-#' @param corders2 complemented orders of distribution 2
+#' @param c_orders1 complemented orders of distribution 1
+#' @param c_orders2 complemented orders of distribution 2
 #' @param lambda parameter for setting the threhold c, see above
-#' @param nrep Number of repetions in the permutation sceme
+#' @param n_rep Number of repetions in the permutation sceme
 #'
 #' @return a list with the value of the test statistic, the value of the test
-#'  under a permutation sceme that corresponds to the null hypothesis of
-#'  identical distributions
+#' under a permutation sceme that corresponds to the null hypothesis of
+#' identical distributions
 #'
 #' @export
-compute_loc_sep_test <- function(corders1, corders2, lambda, nrep) {
-  observed_statistic <- compute_loc_sep_statistic(corders1, corders2, lambda)
-  h0_statistics <- rep(0, nrep)
-  corders <- c(corders1, corders2)
-  n <- length(corders)
-  n1 <- length(corders1)
-  for (k in (1:nrep)) {
+compute_loc_sep_test <- function(c_orders1, c_orders2, lambda, n_rep) {
+  observed_statistic <- compute_loc_sep_statistic(c_orders1, c_orders2, lambda)
+  h0_statistics <- rep(0, n_rep)
+  c_orders <- c(c_orders1, c_orders2)
+  n <- length(c_orders)
+  n1 <- length(c_orders1)
+  for (k in (1:n_rep)) {
     index <- sample((1:n), size = n1)
     h0_statistics[k] <- compute_loc_sep_statistic(
-      corders[index], corders[-index], lambda
+      c_orders[index], c_orders[-index], lambda
     )
   }
 
@@ -306,81 +436,97 @@ compute_loc_sep_test <- function(corders1, corders2, lambda, nrep) {
 
 
 
-compute_tukeys_separation <- function(orders1, orders2,
-                                      startorder = orders1[[1]] * 0) {
-  # name urspr. tukeys_true:median_difference
-  # coputes that partial order in the space of ALL partial orders
-  # that has the maximal tukeys depth w.r.t. the given data cloud representet
-  # by th given contetxt (given in the form of a list of posets, where every
-  # etry of the list is an incidence relation apposited with its negation
-  # (In terms of conceptual scaling we use here the complemented scaling
 
-  q <- nrow(orders1[[1]])
-  sum_1 <- Reduce("+", orders1)
-  sum_2 <- Reduce("+", orders2)
-  sum_1_2 <- pmax(sum_1, sum_2)
-
-
-
-
-  ans_old <- ans_new <- startorder
-
-  max_sum <- max(sum_1_2[which(ans_old == 0)])
-  i <- which(ans_old == 0 & sum_1_2 == max_sum)
-  i <- sample(rep(i, 2), size = 1)
-  while (TRUE) {
-    max_sum_old <- max_sum
-    max_sum <- max(sum_1_2[which(ans_old == 0)])
-    i <- which(ans_old == 0 & sum_1_2 == max_sum)
-    i <- sample(rep(i, 2), size = 1)
-    ans_new <- ans_old
-    ans_new[i] <- 1
-    if (!is_extendable_to_porder(ans_new)) {
-      return(max_sum_old + 0.0001 * max_sum)
-    }
-    m1 <- ans_new[, (1:q)]
-    diag(m1) <- 1
-    m1 <- relations::relation_incidence(relations::transitive_closure(
-      relations::as.relation(m1)
-    ))
-    m2 <- ans_new[, -(1:q)]
-    ans_old <- cbind(m1, m2)
-  }
-}
-
-compute_geodetic_median <- function(corders,
+#' Tukeys geodetic median order
+#'
+#' @description 'compute_geodetic_median' computes that partial order
+#' in the space of ALL partial orders that has the maximal Tukeys depth
+#' w.r.t. the given data cloud represented by the given context
+#' (given in the form of a list of posets, where every entry of the list is
+#' an incidence relation apposited with its negation. (In terms of conceptual
+#' scaling we use here the complemented scaling) under the ADDITIONAL ConsSRAINT
+#' that the partial order is formally implied by the proprotion times 100% of
+#' the most depeste partial orders that are given in the data set. Thus, for
+#' proportion = 1 we obtain the true median partial order w.r.t. Tukeys depth
+#' and for proportion =1/number of data pointe we essentialially (i.e., modulo
+#' ties ) we obtain that partial order in the data set taht has the largest
+#' Tukey data depth.
+#'
+#' @param c_orders data set of partial orders (given in the form of a list of
+#' posets, where every entry of the list is an incidence relation apposited
+#' with its negation. (In terms of conceptual scaling we use here the
+#' complemented scaling)
+#'
+#' @param proportion is the proportion of the deepest observed data points that
+#' have to formally imply the partial order that is considered for the
+#' constrained optimization of Tukeys depth.
+#'
+#' @param auto if set to TRUE (default is FALSE) then the paraneter proportion
+#' is determined automatically: First the least proportion p of the deepest
+#' partial orders that formally imply the true median Tukey order (see the
+#' function 'compute_tukeys_median order) is determined. Then the parameter
+#' proportion is set to fraction * p.
+#'
+#' @param fraction see the parameter auto above.
+#'
+#' @return returns one of the partial orders that is implied by proportion times
+#' 100% of the most deepest data points and has the highest Tukey depth. (If
+#' there are more than one such partial orders, a randomly choosen such partial
+#' orders is returned.)
+#'
+#' @examples
+#' all_5_c_orders <- compute_all_partial_orders(
+#'   n_items = 5, complemented = TRUE,
+#'   list = TRUE
+#' )
+#'
+#' withr::with_seed(
+#'   seed = 1234567,
+#'   indexs <- sample((1:length(all_5_c_orders)), size = 10)
+#' )
+#' sampled_c_orders <- all_5_c_orders[indexs]
+#' tukeys_median <- compute_tukeys_median_order(sampled_c_orders)$median
+#' tukeys_geodetic_median <- compute_geodetic_median(sampled_c_orders,
+#'   auto = TRUE, fraction = 0.9
+#' )$median
+#'
+#' plot_relation(tukeys_median)
+#' plot_relation(tukeys_geodetic_median)
+#'
+#' @export
+compute_geodetic_median <- function(c_orders,
                                     proportion,
                                     auto = FALSE, fraction) {
-  context <- list_to_context(corders, complemented = FALSE)
-  td <- compute_tukeys_depth(context, context)
+  context <- convert_list_to_context(c_orders, complemented = FALSE)
+  tukeys_depth <- compute_tukeys_depth(context, context)
   if (auto) {
-    tukeys_median <- as.vector(compute_tukeys_median_order(corders))$median
-    ordered_depths <- sort(td, decreasing = TRUE)
-    for (k in seq_along(corders)) {
+    tukeys_median <- as.vector(compute_tukeys_median_order(c_orders))$median
+    ordered_depths <- sort(tukeys_depth, decreasing = TRUE)
+    for (k in seq_along(c_orders)) {
       extent <- rep(0, ncol(context))
-      extent[which(td >= ordered_depths[k])] <- 1
+      extent[which(tukeys_depth >= ordered_depths[k])] <- 1
       intent <- calculate_psi(extent, context)
       if (all(intent <= tukeys_median)) {
-        proportion <- k / length(corders) * fraction
+        proportion <- k / length(c_orders) * fraction
         break
       }
     }
   }
 
-  i <- which(td >= stats::quantile(td, 1 - proportion))
-  extent <- rep(0, length(corders))
+  i <- which(tukeys_depth >= stats::quantile(tukeys_depth, 1 - proportion))
+  extent <- rep(0, length(c_orders))
   extent[i] <- 1
   intent <- calculate_psi(extent, context)
-  dim(intent) <- dim(corders[[1]])
-  colnames(intent) <- colnames(corders[[1]])
-  rownames(intent) <- rownames(corders[[1]])
-  return(compute_tukeys_median_order(corders = corders, startorder = intent))
+  dim(intent) <- dim(c_orders[[1]])
+  colnames(intent) <- colnames(c_orders[[1]])
+  rownames(intent) <- rownames(c_orders[[1]])
+  return(compute_tukeys_median_order(c_orders = c_orders, start_order = intent))
 }
 
 
-#' Converts list to context
+#' Convert a list into a context
 #'
-#' @description 'list_to_context' converts a list to a context
+#' @description 'convert_list_to_context' converts a list into a context
 #'
 #' @param list input list
 #'
@@ -388,7 +534,7 @@ compute_geodetic_median <- function(corders,
 #'  attributes
 #'
 #' @export
-list_to_context <- function(list, complemented) {
+convert_list_to_context <- function(list, complemented) {
   # converts a list of orders given by incidence
   # relations as 0-1 matrices into a context of crosses
   m <- length(list)
@@ -406,7 +552,7 @@ list_to_context <- function(list, complemented) {
 
 
 # properties of depth functions
-is_quasiconcave <- function(depths, context) {
+test_if_quasiconcave <- function(depths, context) {
   m <- nrow(context)
   for (k in (1:m)) {
     i <- which(depths > depths[k])
@@ -421,7 +567,8 @@ is_quasiconcave <- function(depths, context) {
 }
 
 
-is_strictly_quasiconcave <- function(depths, context) {
+test_if_strictly_quasiconcave <- function(depths, context) {
+  # tests if a depth function is strictly quasiconcave
   m <- nrow(context)
   for (k in (1:m)) {
     i <- which(depths >= depths[k])
@@ -435,8 +582,12 @@ is_strictly_quasiconcave <- function(depths, context) {
   return(TRUE)
 }
 
-strictly_quasiconcave_phull <- function(depths, context) {
-  # eigtl. name strictly_quasiconcave_pseudohull
+get_strict_quasiconcave_phull <- function(depths, context) {
+  # computes depth values based on the given depth values depths and the under-
+  # lying context context by starting with depths and then successively
+  # enlarging the depth values to make the depth values strictly quasiconcave.
+  # Of course this does not always work since there are contexts for which there
+  # is no strictly quasiconcave depth function.
   m <- nrow(context)
   ans <- depths
   for (k in (1:m)) {
@@ -451,36 +602,60 @@ strictly_quasiconcave_phull <- function(depths, context) {
   return(ans)
 }
 
+
+
+
+compute_quasiconcave_hull <- function(depth_values, context) {
+  # computes the quasiconcave hull of a depth function
+  ans <- rep(0, length(depth_values))
+  for (k in sort(unique(depth_values))) {
+    i <- which(depth_values >= k)
+    temp <- rep(0, nrow(context))
+    temp[i] <- 1
+    temp <- operator_closure_obj_input(temp, context)
+    ans[which(temp == 1)] <- k
+  }
+  return(ans)
+}
+
+
+
+
 #' All partial orders on a set of q elements
 #'
 #' @description 'compute_all_partial_orders' returns the set of all partial
-#'  orders on a set of $q$ elements
+#'  orders on a set of n_items elements
 #'
 #'
-#' @param q is the number of elements of the basic space
-#' @param names are the names of the q elements
+#' @param n_items is the number of elements of the basic space
+#' @param names are the names of the all-together n_items elements
 #' @param complemented if TRUE, the orders are return in a complemented
-#'  conceptual scaling
+#' conceptual scaling
 #' @param list if TRUE the orders are returned as a list. Otherwise a
-#'  formal context is returned
+#' formal context is returned
 #'
 #' @return returns the set of all partial orders on a space of q elements
 #'
 #' @export
-compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
-  perms <- gtools::permutations(q, q)
+compute_all_partial_orders <- function(n_items, names = (1:n_items),
+                                       complemented, list) {
+  perms <- gtools::permutations(n_items, n_items)
   colnames(perms) <- names
-  context <- ranking_scaling(perms,
+  context <- compute_ranking_scaling(perms,
     remove_full_columns = FALSE,
     complemented = FALSE
   )
-  ans <- calculate_concept_lattice(context = context, compute_extents = FALSE)
-  ans <- ans$intents[-nrow(ans$intents), ]
+  fc <- fcaR::FormalContext$new(context)
+  fc$find_concepts()
+  ans <- t(as.matrix(fc$concepts$intents()))
+  ## delete all-relation
+  index <- which(rowSums(ans) == ncol(ans))
+  ans <- ans[-index, ]
   colnames(ans) <- colnames(context)
-  ans_list <- context_to_list(ans, complemented = FALSE)
+  ans_list <- convert_context_to_list(ans, complemented = FALSE)
   if (list) {
     if (complemented) {
-      for (k in (1:nrow(ans))) {
+      for (k in seq_len(nrow(ans))) {
         ans_list[[k]] <- cbind(ans_list[[k]], 1 - ans_list[[k]])
       }
     }
@@ -499,32 +674,37 @@ compute_all_partial_orders <- function(q, names = (1:q), complemented, list) {
 # other depth functions
 
 #' Simple localized depth function based on betweenness w.r.t.a prespecified
-#'  mode
+#' modus
 #'
 #' @description 'compute_betweenness_depth' computes a simple depth function
 #' by counting how many points are between the envisaged point and a
-#' center (index_modus). This depth function is not quasiconcave but
+#' center (modus). This depth function is not quasiconcave but
 #' it is star-shaped.
-#' @param intent intent of the envisage object
+#' @param intent represents the envisaged object given by all its attributes
+#' given as a 0-1 vector. It is also possible to compute depth values for
+#' more objects. In this case the objects should be given as a matrix where
+#' each row corresponds to one
+#' object.
 #'
-#' @param context the underlying context
+#' @param context the underlying context.
 #'
-#' @param index_modus the index of the object within the context that represents
-#' the center
+#' @param modus the object that represents the center given by the corresponding
+#' intent of the center.
 #'
+#' @return the depth value(s) of the intent(s).
 #'
 #' @export
-compute_betweenness_depth <- function(intent, context, index_modus) {
+compute_betweenness_depth <- function(intent, context, modus) {
   if (is.vector(intent)) {
     m <- nrow(context)
-    extent <- calculate_phi(pmin(context[index_modus, ], intent), context)
+    extent <- calculate_phi(pmin(modus, intent), context)
     ans <- sum(extent)
-    return(m - ans)
+    return((m - ans) / m)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
-    for (k in (1:nrow(intent))) {
-      ans[k] <- compute_betweenness_depth(intent[k, ], context, index_modus)
+    for (k in seq_len(nrow(intent))) {
+      ans[k] <- compute_betweenness_depth(intent[k, ], context, modus)
     }
     return(ans)
   }
@@ -534,52 +714,58 @@ compute_betweenness_depth <- function(intent, context, index_modus) {
 # other depth functions
 
 #' Simple simplicial-type localized depth function based on betweenness w.r.t.
-#' a prespecified mode
+#' a prespecified modus
 #'
 #' @description 'compute_one_simplicial_depth' # computes another simple depth
 #' function that adds for every point of the data clous to allenvisaged points
 #' between this point and the center a one. This depth function is
 # not quasiconcave but star-shaped
 #'
-#' @param intent intent of the envisage object
+#' @param intent represents the envisaged object given by all its attributes
+#' given as a 0-1 vector. It is also possible to compute depth values for
+#' more objects. In this case the objects should be given as a matrix where
+#' each row corresponds to one
+#' object.
 #'
 #' @param context the underlying context
 #'
-#' @param index_modus the index of the object within the context that represents
-#' the center
+#' @param modus the modus that represents the center (given as the
+#' corresponding intent)
 #'
+#' @return the depth value(s) of the intent(s).
 #'
 #' @export
-compute_one_simplicial_depth <- function(intent, context, index_modus) {
-  #
-  if (is.matrix(intent)) {
-    m <- nrow(context)
+compute_one_simplicial_depth <- function(intent, context, modus) {
+  n_rows <- nrow(context)
+  if (is.vector(intent)) {
     ans <- 0
-    for (k in (1:m)) {
-      extent <- rep(0, m)
-      extent[index_modus] <- 1
-      extent[k] <- 1
-      if (all(calculate_psi(extent, context) <= intent)) {
+    for (k in (1:n_rows)) {
+      if (all(pmin(modus, context[k, ]) <= intent)) {
         ans <- ans + 1
       }
     }
-    return(ans)
+    return(ans / n_rows)
   }
   if (is.matrix(intent)) {
     ans <- rep(0, nrow(intent))
-    for (k in (1:nrow(intent))) {
-      ans[k] <- compute_one_simplicial_depth(intent[k, ], context, index_modus)
+    for (k in (1:n_rows)) {
+      temp <- pmin(modus, context[k, ])
+      extent <- calculate_phi(temp, intent)
+      ans <- ans + extent
     }
-    return(ans)
+    return(ans / n_rows)
   }
 }
 
+# zu ueberarbeiten:
+# exportieren?
+compute_ranking_scaling <- function(x,
+                                    remove_full_columns = FALSE,
+                                    complemented = FALSE) {
 
-## zu ueberarbeiten:
-## exportieren?
-ranking_scaling <- function(x,
-                            remove_full_columns = FALSE,
-                            complemented = FALSE) {
+  # given a matrix x where every row is one data point, computes for every data
+  # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
+
   m <- dim(x)[1]
   n <- dim(x)[2]
   names <- rep("", n^2)
@@ -623,7 +809,7 @@ ranking_scaling <- function(x,
   return(ans)
 }
 
-## evtl noch mit package fcaR zu harmnisieren...:
+## TODO noch mit package fcaR zu harmnisieren...:
 
 operator_closure_obj_input <- function(subset_object, context) {
   # Defines the closure operator for computing all extends (objects)
@@ -683,10 +869,24 @@ calculate_phi <- function(subset_attributes, context) {
 
 
 
-random_context <- function(nrow = 20,
-                           ncol = 10,
-                           prob = 0.5) {
-  matrix(stats::runif(nrow * ncol) <= prob, nrow = nrow, ncol = ncol) * 1
+compute_random_context <- function(nrow = 20,
+                                   ncol = 10,
+                                   prob = 0.5, seed = 1234567) {
+  if (!is.null(seed)) {
+    withr::with_seed(
+      seed = seed,
+      result <- matrix(stats::runif(nrow * ncol) <= prob,
+        nrow = nrow,
+        ncol = ncol
+      ) * 1
+    )
+  } else {
+    result <- matrix(stats::runif(nrow * ncol) <= prob,
+      nrow = nrow,
+      ncol = ncol
+    ) * 1
+  }
+  return(result)
 }
 
 calculate_psi <- function(subset_objects, context) {
@@ -919,5 +1119,127 @@ compare_closures_lower_i <- function(old_closure, new_closure, element) {
     temp[(1:(element - 1))] <- 1
     return(new_closure[element] == 1 & old_closure[element] == 0 &
       all(pmin(old_closure, temp) == pmin(new_closure, temp)))
+  }
+}
+
+
+# functions from paper Blocher et al. 2022
+#
+# computes the value delta_mu(p,q) defined in Blocher et al. p. 26,
+# for the element p with index index_p and element q with index index_q,
+# where p_order is the underlying order.
+compute_delta_mu_p_q <- function(index_p, index_q, p_order) {
+  upper_bounds <- (p_order[index_p, ] == 1 & p_order[index_q, ] == 1)
+  lower_bounds <- (p_order[, index_p] == 1 & p_order[, index_q] == 1)
+  set_1 <- calculate_phi(upper_bounds, p_order)
+  set_2 <- calculate_psi(lower_bounds, p_order)
+  cardinality <- sum(pmin(set_1, set_2)) - 1
+  return(cardinality)
+}
+
+# computes the matrix with the delta_mu values defined in
+# Blocher et al. 2022, p. 26
+compute_delta_mu <- function(p_order) {
+  n_rows <- nrow(p_order)
+  n_cols <- ncol(p_order)
+  if (n_rows != n_cols) {
+    print("Warning: Relation matrix p_order is not a square
+                             matrix!")
+  }
+  delta_mu <- array(0, c(n_rows, n_cols))
+  for (l in (1:n_cols)) {
+    for (k in (1:n_rows)) {
+      delta_mu[k, l] <- compute_delta_mu_p_q(k, l, p_order)
+    }
+  }
+  return(delta_mu)
+}
+
+#' Compute the special weighted Tukeys type depth developed in Blocher et al.
+#'  2022
+#' @description 'compute_weighted_tukeys_depth' computes the weighted Tukeys
+#' depth for the special case of the set of all partialorders depth introduced
+#' in Blocher et al. 2022
+#'
+#' @references Hanah Blocher, Georg Schollmeyer, Christoph Jansen:
+#' Statistical Models for Partial Orders Based on Data Depth and Formal
+#' Concept Analysis. In: Information Processing and Management of Uncertainty
+#' in Knowledge-Based Systems. Ed. by D. Clucci et al. Springer, pp. 17-30.
+#'
+#' @param intent represents the envisaged object given by all its attributes
+#' given as a 0-1 vector. It is also possible to compute depth values for
+#' more objects. In this case the objects should be given as a matrix where
+#' each row corresponds to one
+#' object.
+#'
+#' @param context is a formal context whose objects represent the data cloud
+#' w.r.t. which Tukeys depth is computed.
+#'
+#' @param modus is the location parameter mu for the depth function, cf. Blocher
+#' et al. 2022, equation (2) and the definition of T^mu at p. 25
+#' @param complemented specifies if the partial orders should be treated
+#' with a complemented conceptual scaling
+#'
+#' @param parameters is a list whith entry alpha_weight and beta_weight which
+#' specify the coefficients of proportionality for the alpha_p,q's and
+#' beta_p,q's of the weighhs in the weighted Tukeys depth, see
+#' Blocher et al. 2022 p. 26
+#'
+#' @return returns the depth value(s) of the object(s) w.r.t. the data cloud.
+#' @export
+compute_weighted_tukeys_depth <- function(intent, context, modus, complemented,
+                                          parameters = list(
+                                            alpha_weight = NULL,
+                                            beta_weight = NULL
+                                          )) {
+  if (!complemented) {
+    dim(modus) <- rep(sqrt(length(modus)), 2)
+    delta_mu <- compute_delta_mu(modus)
+    delta_mu <- as.vector(delta_mu)
+    if (is.vector(intent)) {
+      if (all(as.vector(modus) == as.vector(intent))) {
+        return(1)
+      }
+      index_1 <- which(as.vector(modus) == 1 & as.vector(intent) == 0)
+      max_1 <- parameters$alpha_weight * reg_max(delta_mu[index_1])
+      index_2 <- which(as.vector(modus) == 0 & as.vector(intent) == 1)
+      max_2 <- parameters$beta_weight * reg_max(delta_mu[index_2])
+      return(1 - max(max_1, max_2))
+    }
+    if (is.matrix(intent)) {
+      n_rows <- nrow(intent)
+      result <- rep(0, n_rows)
+      for (k in (1:n_rows)) {
+        result[k] <- compute_weighted_tukeys_depth(intent[k, ], context, modus,
+          complemented = FALSE,
+          parameters = parameters
+        )
+      }
+      return(result)
+    }
+  }
+
+  if (complemented) {
+    n_items <- sqrt(length(modus) / 2)
+    dim(modus) <- c(n_items, 2 * n_items)
+
+
+
+    if (is.vector(intent)) {
+      return(compute_weighted_tukeys_depth(intent[(1:n_items^2)],
+        context[, (1:n_items^2)],
+        modus[, (1:n_items)],
+        complemented = FALSE,
+        parameters = parameters
+      ))
+    }
+    if (is.matrix(intent)) {
+      return(compute_weighted_tukeys_depth(intent[, (1:n_items^2)],
+        context[, (1:n_items^2)],
+        modus[, (1:n_items)],
+        complemented = FALSE,
+        parameters = parameters
+      ))
+    }
   }
 }

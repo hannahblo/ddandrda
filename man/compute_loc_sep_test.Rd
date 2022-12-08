@@ -4,16 +4,16 @@
 \alias{compute_loc_sep_test}
 \title{Location-Separation type test based on Tukeys depth}
 \usage{
-compute_loc_sep_test(corders1, corders2, lambda, nrep)
+compute_loc_sep_test(c_orders1, c_orders2, lambda, n_rep)
 }
 \arguments{
-\item{corders1}{complemented orders of distribution 1}
+\item{c_orders1}{complemented orders of distribution 1}
 
-\item{corders2}{complemented orders of distribution 2}
+\item{c_orders2}{complemented orders of distribution 2}
 
 \item{lambda}{parameter for setting the threhold c, see above}
 
-\item{nrep}{Number of repetions in the permutation sceme}
+\item{n_rep}{Number of repetions in the permutation sceme}
 }
 \value{
 a list with the value of the test statistic, the value of the test
@@ -22,7 +22,7 @@ identical distributions
 }
 \description{
 'compute_loc_sep_statistic' computes a test that is based on
-the function 'compute_loc_sep_statistic' that is senstivive for
+the function 'compute_loc_sep_statistic' that is sensitvive for
 differences in location or separation of two distributions of order data
 based on Tukeys depth: One maximizes the depth of a partial order w.r.t.
 distribution 1 under the constraint that the depth w.r.t. distribution 2
@@ -31,11 +31,11 @@ lambda * 100 percent of the observed depth values. For a very small value of
 lambda, the test statistic is more or less similar to a generalization of
 the M-based#' test, wheres for very high values of lambda one gets
 essentially a test that is similar to a generalization of the T-based test
-defined in
-
-Jun Li and Regina Y. Liu: New Nonparametric Tests of Multivariate Locations
-and Scales Using Data Depth.
-Statistical Science , Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
-
-The test is performed as a simple observation-randomization test
+defined in Li et al. 2004. The test is performed as a simple
+observation-randomization test.
+}
+\references{
+Jun Li and Regina Y. Liu: New Nonparametric Tests of
+Multivariate Locations and Scales Using Data Depth. Statistical Science,
+Nov., 2004, Vol. 19, No. 4 (Nov., 2004), pp. 686-696
 }
