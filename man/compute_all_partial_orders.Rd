@@ -22,9 +22,5 @@ returns the set of all partial orders on a space of q elements
 }
 \description{
 'compute_all_partial_orders' returns the set of all partial
-<<<<<<< HEAD
-orders on a set of $q$ elements
-=======
 orders on a set of n_items elements
->>>>>>> main
 }

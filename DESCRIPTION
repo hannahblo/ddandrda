@@ -18,10 +18,6 @@ Imports:
     gtools,
     PearsonDS,
     relations,
-<<<<<<< HEAD
     Rfast,
-    stats
-=======
     stats,
     withr
->>>>>>> main
