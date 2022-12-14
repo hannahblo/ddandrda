@@ -95,7 +95,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #' names
 #'
 #' @return dataframe representing the crosstable/formal context
-compute_dual_ordinal_scaling_vec <- function(data_values,
+compute_dual_ordinal_scaling <- function(data_values,
                                              add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
@@ -183,6 +183,98 @@ compute_number_columns_attr <- function(data_matrix) {
 
 
 
+
+
+
+
+
+#' Help Function of compute_conceptual_scaling()
+#' Test if all input variables are valid
+check_input_ccs_1 <- function(input_factor = NULL,
+                            input_ordinal_numeric = NULL,
+                            input_spatial = NULL,
+                            input_porder = NULL,
+                            scaling_methods = NULL) {
+
+
+  if (all(
+    is.null(input_factor),
+    is.null(input_ordinal_numeric),
+    is.null(input_spatial),
+    is.null(input_porder)
+  )) {
+    stop("Data input is empty.")
+  }
+
+ # bool input_vaild = FALSE;
+  # input_valid &= is.null(input_factor);
+
+  i# f(input_valid){
+#
+  # } Nicco c beispiel
+
+  length_values <- unique(c(
+    length(input_factor),
+    length(input_ordinal_numeric),
+    length(input_spatial),
+    length(input_porder)
+  ))
+  number_obj <- setdiff(length_values, c(0))
+  if (length(number_obj) > 1) {
+    stop("Data inputs must have same length or be NULL.")
+  }
+
+  if (!is.null(input_spatial)) {
+    stop("Is not implemented yet.")
+  }
+}
+
+
+#' Help Function of compute_conceptual_scaling()
+#' Test if all input variables are valid
+check_input_ccs_2 <- function(input_factor = NULL,
+                              input_ordinal_numeric = NULL,
+                              input_spatial = NULL,
+                              input_porder = NULL,
+                              scaling_methods = NULL) {
+  if (!is.null(input_porder) &&
+      (!is.list(input_porder) || !is.matrix(input_porder[[1]]))) {
+    stop("input_spatial must either be NULL or a list of matrices.")
+  }
+
+  if (!is.null(input_factor) &&
+      (!(class(input_factor)[1] == "factor"))) {
+    stop("input_factor must either be NULL or a vector of factors.")
+  }
+
+  # TODO
+  # check scaling methods used
+
+  # TODO
+  # when input rows have names --> check if the order is everywhere the same
+
+}
+
+
+#' Help Function of compute_conceptual_scaling()
+#' Test if all input variables are valid
+check_input_ccs_3 <- function(input_factor = NULL,
+                              input_ordinal_numeric = NULL,
+                              input_spatial = NULL,
+                              input_porder = NULL,
+                              scaling_methods = NULL) {
+
+
+  if (!is.null(input_ordinal_numeric) &&
+      (!(class(input_ordinal_numeric)[1] == "ordered" ||
+         class(input_ordinal_numeric)[1] == "numeric" ||
+         class(input_ordinal_numeric)[1] == "integer"))) {
+    stop("input_ordinal_numeric must either be null or of class ordered,
+           numeric or integer.")
+  }
+}
+
+
 #' Computes the formal context for ordinal data by the use of dual ordinal
 #' scaling
 #'
@@ -211,18 +303,33 @@ compute_conceptual_scaling <- function(input_factor = NULL,
                                        input_spatial = NULL,
                                        input_porder = NULL,
                                        scaling_methods = NULL,
-                                       suppress_messages = FALSE) {
+                                       input_check = TRUE) {
+
 
   # Input check
-  if (all(
-    is.null(input_factor),
-    is.null(input_ordinal_numeric),
-    is.null(input_spatial),
-    is.null(input_porder)
-  )) {
-    stop("Data input is empty.")
+  if (!is.logical(input_check)) {
+    stop("input_check should be logical")
+  }
+  if (input_check) {
+    check_input_ccs_1(input_factor = input_factor,
+                      input_ordinal_numeric = input_ordinal_numeric,
+                      input_spatial = input_spatial,
+                      input_porder = input_porder,
+                      scaling_methods = scaling_methods)
+    check_input_ccs_2(input_factor = input_factor,
+                      input_ordinal_numeric = input_ordinal_numeric,
+                      input_spatial = input_spatial,
+                      input_porder = input_porder,
+                      scaling_methods = scaling_methods)
+    check_input_ccs_3(input_factor = input_factor,
+                      input_ordinal_numeric = input_ordinal_numeric,
+                      input_spatial = input_spatial,
+                      input_porder = input_porder,
+                      scaling_methods = scaling_methods)
   }
 
+
+  # Set up / Basic information
   length_values <- unique(c(
     length(input_factor),
     length(input_ordinal_numeric),
@@ -230,21 +337,6 @@ compute_conceptual_scaling <- function(input_factor = NULL,
     length(input_porder)
   ))
   number_obj <- setdiff(length_values, c(0))
-  if (length(number_obj) > 1) {
-    stop("Data inputs must have same length or be NULL.")
-  }
-
-  if (!is.null(input_spatial)) {
-    stop("Is not implemented yet.")
-  }
-
-  # TODO
-  # check scaling methods used
-
-  # TODO
-  # when input rows have names --> check if the order is everywhere the same
-
-
 
   f_context <- matrix(NA, nrow = number_obj, ncol = 0)
   # TODO
@@ -252,9 +344,6 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of partial orders
   if (!is.null(input_porder)) {
-    if (!is.list(input_porder) || !is.matrix(input_porder[[1]])) {
-      stop("input_spatial must either be NULL or a list of matrices.")
-    }
 
     # TODO
     # add the names of columns
@@ -263,7 +352,7 @@ compute_conceptual_scaling <- function(input_factor = NULL,
         ncol = length(input_porder[[1]]) * 2,
         nrow = length(input_porder)
       )
-      for (i in 1:length(input_porder)) {
+      for (i in seq_along(input_porder)) {
         porder_context[i, ] <- c(input_porder[[i]], !input_porder[[i]])
       }
     }
@@ -274,12 +363,12 @@ compute_conceptual_scaling <- function(input_factor = NULL,
         ncol = length(input_porder[[1]]),
         nrow = length(input_porder)
       )
-      for (i in 1:length(input_porder)) {
+      for (i in seq_along(input_porder)) {
         porder_context[i, ] <- c(input_porder[[i]])
       }
     }
 
-    cbind(f_context, porder_context)
+    f_context <- cbind(f_context, porder_context)
   }
 
   # Scaling of spatial data
@@ -287,9 +376,6 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of nominal data
   if (!is.null(input_factor)) {
-    if (!(class(input_factor)[1] == "factor")) {
-      stop("input_factor must either be NULL or a vector of factors.")
-    }
 
     nominal_context <- compute_nominal_scaling_vec(input_factor)
     # TODO
@@ -300,13 +386,6 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of ordinal, numeric data
   if (!is.null(input_ordinal_numeric)) {
-    if (!(class(input_ordinal_numeric)[1] == "ordered" ||
-      class(input_ordinal_numeric)[1] == "numeric" ||
-      class(input_ordinal_numeric)[1] == "integer")) {
-      stop("input_ordinal_numeric must either be null or of class ordered,
-           numeric or integer.")
-    }
-
     # TODO
     # Name of Rows
     ordinal_context <- compute_ordinal_scaling_vec(
@@ -314,7 +393,7 @@ compute_conceptual_scaling <- function(input_factor = NULL,
     )
     f_context <- cbind(f_context, ordinal_context)
     if (!("ordinal" %in% scaling_methods)) {
-      dual_context <- compute_dual_ordinal_scaling_vec(
+      dual_context <- compute_dual_ordinal_scaling(
         as.numeric(input_ordinal_numeric)
       )
       f_context <- cbind(f_context, dual_context)
