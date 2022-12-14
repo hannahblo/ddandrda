@@ -3,17 +3,24 @@
 \name{compute_one_simplicial_depth}
 \alias{compute_one_simplicial_depth}
 \title{Simple simplicial-type localized depth function based on betweenness w.r.t.
-a prespecified mode}
+a prespecified modus}
 \usage{
-compute_one_simplicial_depth(intent, context, index_modus)
+compute_one_simplicial_depth(intent, context, modus)
 }
 \arguments{
-\item{intent}{intent of the envisage object}
+\item{intent}{represents the envisaged object given by all its attributes
+given as a 0-1 vector. It is also possible to compute depth values for
+more objects. In this case the objects should be given as a matrix where
+each row corresponds to one
+object.}
 
 \item{context}{the underlying context}
 
-\item{index_modus}{the index of the object within the context that represents
-the center}
+\item{modus}{the modus that represents the center (given as the
+corresponding intent)}
+}
+\value{
+the depth value(s) of the intent(s).
 }
 \description{
 'compute_one_simplicial_depth' # computes another simple depth

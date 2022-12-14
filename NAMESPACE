@@ -2,16 +2,31 @@
 
 export(compute_all_partial_orders)
 export(compute_betweenness_depth)
+<<<<<<< HEAD
 export(compute_conceptual_scaling)
 export(compute_context_all_porders)
+=======
+export(compute_context_all_p_orders)
+export(compute_geodetic_median)
+>>>>>>> main
 export(compute_loc_sep_statistic)
 export(compute_loc_sep_test)
+export(compute_local_tukeys_depth)
 export(compute_one_simplicial_depth)
+export(compute_probs_depth_model)
 export(compute_transitive_hull)
 export(compute_tukeys_depth)
 export(compute_tukeys_median_order)
-export(list_to_context)
-export(plot_order)
+export(compute_weighted_tukeys_depth)
+export(convert_context_to_list)
+export(convert_list_to_context)
+export(plot_relation)
 export(return_eins)
 export(sample_concept)
+<<<<<<< HEAD
 export(test_if_porder)
+=======
+export(sample_from_betweenness_model)
+export(sample_from_expl_depth_model)
+export(test_if_extendable_to_p_order)
+>>>>>>> main

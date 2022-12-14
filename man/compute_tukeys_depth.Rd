@@ -19,16 +19,16 @@ each row corresponds to one
 object.}
 
 \item{context}{is a formal context whose objects represent the data cloud
-w.r.t. which Tukeys depth is computed}
+w.r.t. which Tukeys depth is computed.}
 
 \item{row_weights}{it is possible to give every object a weight (with the
-interpretation that object with e.g. weight $2$ appear twice as often in the
-data set as objects with weight 1)}
+interpretation that objects with e.g. weight $2$ appear twice as often in the
+data set as objects with weight 1).}
 
 \item{col_weights}{it is possible to give every attribute a weight (with the
 interpretation that a weighted maximum (minimum) is calculated for
 Tukeys outlyingness (depth) such that attributes with higher weights get
-more important)}
+more important).}
 }
 \value{
 returns the depth value(s) of the object(s) w.r.t. the data cloud.
