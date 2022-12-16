@@ -238,3 +238,39 @@ test_ordinal_in_conclusion_newobj <- function(subset, obj_ordinal_obs,
   subset_attr <- info_list[["data_values"]][index_subset]
   return(obj_ordinal_obs %in% subset_attr)
 }
+
+
+#' Test if new observation lies in conclusion based on nominal scaling
+#'
+#' @description Based on nominal scaling this function tests if a further
+#' object lies in the conclusion of a premise
+#'
+#' @param subset (vector of (0,1)): 1 represents that the point is within the
+#' subset
+#' @param obj_porder_obs (nominal): observation to test if lies in conclusion
+#' @param info_list (containing data_values): nominal attribute of each
+#' observation  (same length as premise)
+#'
+#' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
+#' FALSE is returened
+test_porder_in_conclusion_newobjs <- function(subset, obj_porder_obs,
+                                             info_list = NULL) {
+
+  number_item <- dim(subset[[1]])[[1]]
+  subset_intersect <- 1 * Reduce("&", subset,
+                                 init = matrix(1, nrow = number_item,
+                                               ncol = number_item))
+  subset_union <- 1 * Reduce("|", subset,
+                             init = matrix(0, nrow = number_item,
+                                           ncol = number_item))
+
+  in_conclusion <- rep(FALSE, length(obj_porder_obs))
+
+  for (index_obj_porder in 1:length(obj_porder_obs)) {
+    if (all(subset_intersect <= obj_porder_obs[[index_obj_porder]]) &&
+        all(obj_porder_obs[[index_obj_porder]] <= subset_union)) {
+      in_conclusion[index_obj_porder] <- TRUE
+    }
+  }
+  return(in_conclusion)
+}

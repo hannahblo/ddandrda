@@ -103,6 +103,9 @@ compute_transitive_hull <- function(relation_mat) {
 }
 
 
+
+
+
 #' Test if matrix represents a partial order
 #'
 #' @description Checks if the matrix represents a partial order (thus it
@@ -110,6 +113,8 @@ compute_transitive_hull <- function(relation_mat) {
 #'
 #' @param po_candidate 0-1- Matrix. If entry (i,j)is zero, then i is  smaller or
 #' equal to j. If entry is zero, then this does not hold.
+#' @param omit_reflexivity (logical) if reflexivity should be omited, so
+#' diagonal entry do not matter
 #'
 #' @return logical TRUE if po_candidate represents a partial order
 #'
@@ -120,24 +125,13 @@ compute_transitive_hull <- function(relation_mat) {
 #' mat_1[4, 3] <- 1
 #' mat_1[2, 3] <- 1
 #' test_if_porder(mat_1)
-#' [1] FALSE
 #' test_if_porder(mat_1, omit_reflexivity = TRUE)
-#' [1] TRUE
 #'
 #' @export
 test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
 
   # Input check
-  if (!is.matrix(po_candidate) || !all(po_candidate %in% c(0, 1))) {
-    stop("po_candidate must be matrix.")
-  }
-  if (!all(po_candidate %in% c(0, 1))) {
-    stop("po_candidate must be matrix containing only 0's or 1's.")
-  }
-
-  if (nrow(po_candidate) != ncol(po_candidate)) {
-    stop("po_candidate must be squared matrix.")
-  }
+  check_input_tipo(po_candidate, omit_reflexivity)
 
   # Step 0: Check the simple cases, depending on omit_relfexivity
   if (all(po_candidate == diag(nrow(po_candidate)))) {

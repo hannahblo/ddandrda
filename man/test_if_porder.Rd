@@ -9,6 +9,9 @@ test_if_porder(po_candidate, omit_reflexivity = FALSE)
 \arguments{
 \item{po_candidate}{0-1- Matrix. If entry (i,j)is zero, then i is  smaller or
 equal to j. If entry is zero, then this does not hold.}
+
+\item{omit_reflexivity}{(logical) if reflexivity should be omited, so
+diagonal entry do not matter}
 }
 \value{
 logical TRUE if po_candidate represents a partial order
@@ -24,8 +27,6 @@ mat_1[2, 1] <- 1
 mat_1[4, 3] <- 1
 mat_1[2, 3] <- 1
 test_if_porder(mat_1)
-[1] FALSE
 test_if_porder(mat_1, omit_reflexivity = TRUE)
-[1] TRUE
 
 }

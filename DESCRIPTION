@@ -20,4 +20,5 @@ Imports:
     relations,
     Rfast,
     stats,
+    utils,
     withr
