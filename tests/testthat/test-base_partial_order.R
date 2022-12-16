@@ -64,5 +64,6 @@ test_that("test_if_porder works", {
   expect_equal(test_if_porder(mat_8, omit_reflexivity = TRUE), FALSE)
   expect_equal(test_if_porder(mat_9, omit_reflexivity = TRUE), TRUE)
   expect_equal(test_if_porder(matrix(0, nrow = 6, ncol = 6),
-    omit_reflexivity = TRUE), TRUE)
+    omit_reflexivity = TRUE
+  ), TRUE)
 })

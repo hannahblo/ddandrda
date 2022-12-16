@@ -30,6 +30,8 @@ list_porder_5 <- list(relation_2, relation_3) # ist ufg
 list_porder_6 <- list(relation_3, relation_5) # ist ufg
 list_porder_7 <- list(relation_2, relation_5, relation_4) # ist keine ufg
 
+
+
 test_that("test_ufg_porder works", {
   expect_error(test_ufg_porder(c(1,2,3)))
   expect_error(test_ufg_porder(list(1,"b",4)))
@@ -40,4 +42,41 @@ test_that("test_ufg_porder works", {
   expect_equal(test_ufg_porder(list_porder_5), TRUE)
   expect_equal(test_ufg_porder(list_porder_6), TRUE)
   expect_equal(test_ufg_porder(list_porder_7), FALSE)
+})
+
+test_that("compute_ufg_porder_index works", {
+  expect_error(compute_ufg_porder_index(c(1,2,3)))
+  expect_error(compute_ufg_porder_index(list(1,"b",4)))
+  expect_equal(compute_ufg_porder_index(list_porder_1), list(c(1, 2), c(1, 3),
+                                                       c(2, 3)))
+  expect_equal(compute_ufg_porder_index(list_porder_2), list(c(1, 2)))
+  expect_equal(compute_ufg_porder_index(list_porder_3), list())
+  expect_equal(compute_ufg_porder_index(list_porder_4), list(c(1, 2), c(1, 3),
+                                                       c(2, 3), c(1, 2, 3)))
+  expect_equal(compute_ufg_porder_index(list_porder_5), list(c(1, 2)))
+  expect_equal(compute_ufg_porder_index(list_porder_6),  list(c(1, 2)))
+  expect_equal(compute_ufg_porder_index(list_porder_7), list(c(1, 2), c(1, 3),
+                                                       c(2, 3)))
+
+})
+
+
+test_that("compute_ufg_depth works", {
+
+  expect_error(compute_ufg_depth(c(1,2,3)))
+  expect_error(compute_ufg_depth(list(1,"b",4)))
+
+  expect_equal(compute_ufg_depth(list_porder_1, list_porder_1),
+               c(0.6666667, 0.6666667, 1.0000000),
+               tolerance = 1e-7)
+  expect_equal(compute_ufg_depth(list_porder_2, list_porder_1),
+               c(0.6666667, 0.6666667),
+               tolerance = 1e-7)
+  expect_equal(compute_ufg_depth(list_porder_1, list_porder_2),
+               c(1, 1, 1),
+               tolerance = 1e-7)
+  expect_equal(compute_ufg_depth(list_porder_3, list_porder_1),
+               c(0.6666667),
+               tolerance = 1e-7)
+
 })
