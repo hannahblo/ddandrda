@@ -1,14 +1,20 @@
+#' Compute the relation product
+#'
+#' @description Computing the reltion product of two squared, same sized
+#' matrices.
+#'
+#' @param x Represents a relation matrix. Note that has to be a squared matrix.
+#' @param y Represents a relation matrix. Note that has to be a squared matrix.
+#'
+#' @return 0-1-Matrix: Represents a graph after two steps which are defined by
+#'         x and y
 compute_relation_product <- function(x, y) {
-
-  # @X (matrix): Represents a graph with edges (weight one) and knots
-  # @Y (matrix): Represents a graph with edges (weight one)and knots
-  # Return (matrix): Represents a graph after two steps which are defined by
-  #                 X and Y
-
   # Input check
+  if (!is.matrix(x) || !is.matrix(y)) {
+    stop("Input must be matrix")
+  }
   if (dim(y)[1] != dim(x)[1]) {
-    print("dimension missmatch!")
-    stop
+    stop("Dimension missmatch!")
   }
 
   number_row_x <- dim(x)[1]
@@ -50,6 +56,17 @@ compute_relation_product <- function(x, y) {
 #'
 #' @export
 compute_transitive_hull <- function(relation_mat) {
+  # Input check
+  if (!is.matrix(relation_mat)) {
+    stop("relation_mat must be matrix.")
+  }
+  if (!all(relation_mat %in% c(0, 1))) {
+    stop("relation_mat must be matrix containing only 0's or 1's.")
+  }
+
+  if (nrow(relation_mat) != ncol(relation_mat)) {
+    stop("relation_mat must be squared matrix.")
+  }
 
   # @relation_mat (sqared matrix): represents a relation matrix
   # Return (squared matrix): the transitive hull of the relation matrix
@@ -81,4 +98,64 @@ compute_transitive_hull <- function(relation_mat) {
   transitive_hull[index_non_zero] <- 1
 
   return(transitive_hull)
+}
+
+
+
+
+
+#' Test if matrix represents a partial order
+#'
+#' @description Checks if the matrix represents a partial order (thus it
+#' is reflexiv, transitive and anti-symmetric)
+#'
+#' @param po_candidate 0-1- Matrix. If entry (i,j)is zero, then i is  smaller or
+#' equal to j. If entry is zero, then this does not hold.
+#' @param omit_reflexivity (logical) if reflexivity should be omited, so
+#' diagonal entry do not matter
+#'
+#' @return logical TRUE if po_candidate represents a partial order
+#'
+#' @examples
+#' mat_1 <- matrix(0, nrow = 5, ncol = 5)
+#' mat_1[1, 3] <- 1
+#' mat_1[2, 1] <- 1
+#' mat_1[4, 3] <- 1
+#' mat_1[2, 3] <- 1
+#' test_if_porder(mat_1)
+#' test_if_porder(mat_1, omit_reflexivity = TRUE)
+#'
+#' @export
+test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
+  # Input check
+  check_input_tipo(po_candidate, omit_reflexivity)
+
+  # Step 0: Check the simple cases, depending on omit_relfexivity
+  if (all(po_candidate == diag(nrow(po_candidate)))) {
+    return(TRUE)
+  }
+
+  if (omit_reflexivity && all(po_candidate ==
+    matrix(0, nrow = nrow(po_candidate), ncol = ncol(po_candidate)))) {
+    return(TRUE)
+  }
+  if (!omit_reflexivity && any(diag(po_candidate) != 1)) {
+    return(FALSE)
+  }
+
+  # Step 1: check if cycle exists
+  diag(po_candidate) <- 0
+  if (any(is.na(Rfast::topological_sort(po_candidate)))) {
+    return(FALSE)
+  }
+
+  # Step 2 Check if the transitivity holds (i.e. a<b and b<c but also a and c
+  # are not comparable is not allowed)
+  # Here, we use that each pair is
+  # thus if the transitive hull is unequal to the relation itself, then it is
+  # not a transitive
+  # We use the function in fca_ufg_partial_order.r
+
+  return(all(compute_transitive_hull(po_candidate) == po_candidate))
+  # this tolerance is sufficient since only 0 or 1 exists
 }
