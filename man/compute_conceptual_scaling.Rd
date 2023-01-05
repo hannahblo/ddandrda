@@ -57,20 +57,26 @@ relation exits part is computed.
 }
 \examples{
 attr_numeric_4 <- as.numeric(c(1.2, 1, 1.6, 2))
-attr_nominal_4 <- as.factor(c("factor_1", "factor_2",
-                               "factor_2", "factor_1"))
-compute_conceptual_scaling(input_factor = attr_nominal_4,
-                           input_ordinal_numeric = attr_numeric_4)
+attr_nominal_4 <- as.factor(c(
+  "factor_1", "factor_2",
+  "factor_2", "factor_1"
+))
+compute_conceptual_scaling(
+  input_factor = attr_nominal_4,
+  input_ordinal_numeric = attr_numeric_4
+)
 
 relation_1 <- matrix(0, ncol = 4, nrow = 4)
 diag(relation_1) <- 1
 relation_2 <- relation_1
-relation_2[1, c(2,3,4)] <- 1
-relation_2[2, c(3,4)] <- 1
+relation_2[1, c(2, 3, 4)] <- 1
+relation_2[2, c(3, 4)] <- 1
 relation_2[3, 4] <- 1
 list_porder_1 <- list(relation_1, relation_2)
 compute_conceptual_scaling(input_porder = list_porder_1)
-compute_conceptual_scaling(input_porder = list_porder_1,
-                           scaling_methods = c("porder_edge"))
+compute_conceptual_scaling(
+  input_porder = list_porder_1,
+  scaling_methods = c("porder_edge")
+)
 
 }

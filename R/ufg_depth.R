@@ -8,11 +8,10 @@
 #' @param fc_sub (matrix) Formal context describing a subset of partial orders
 #' using the "edge_non_edge_porder" scaling method
 #' @param cardinality_ufg (integer) number of partial orders, must be same
-#' length as dim(fc_sub)[1]
+#' length as dim(fc_sub)
 #'
 #' @return logical value stating wether fc_sub is a generic premise
 test_generic_porder <- function(fc_sub, cardinality_ufg) {
-
   attr_distinguish <- which(colSums(fc_sub) == (cardinality_ufg - 1))
 
   # If cardinality of attr_distinguish is 1, what follows produces an error thus
@@ -23,7 +22,7 @@ test_generic_porder <- function(fc_sub, cardinality_ufg) {
 
   fc_sub_attr_dist <- fc_sub[, attr_distinguish]
   has_obj_distinguish_attr <- which(rowSums(fc_sub_attr_dist) <
-                                      length(attr_distinguish))
+    length(attr_distinguish))
 
   if (!(length(has_obj_distinguish_attr) == cardinality_ufg)) {
     return(FALSE)
@@ -44,7 +43,7 @@ test_generic_porder <- function(fc_sub, cardinality_ufg) {
 #' @param ufg_candidate (list of matrices) a list of partial orders given by
 #' indices matrices (based on the same items) which should be checked weatther
 #' they define a union-free premise. Note that length of ufg_candidate must
-#' equl dim(fc_sub)[1]
+#' equl dim(fc_sub)
 #'
 #' @return logical value stating wether fc_sub is a  union-free premise
 test_ufree_porder <- function(fc_sub, ufg_candidate) {
@@ -75,7 +74,8 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   # together is not possible
 
   test_candidate <- matrix(rep(0, number_item * number_item),
-                           ncol = number_item)
+    ncol = number_item
+  )
   diag(test_candidate) <- rep(1, number_item)
   intent_edge <- intent[which(intent <= number_item * number_item)]
 
@@ -88,7 +88,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
 
     for (index_intent in possibl_constr_disting[index_disting, ]) {
       if (!is.na(index_intent)) {
-          test_candidate_inner[index_intent] <- 1
+        test_candidate_inner[index_intent] <- 1
       }
     }
 
@@ -122,8 +122,8 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
 #' diag(relation_1) <- 1
 #'
 #' relation_2 <- relation_1
-#' relation_2[1, c(2,3,4)] <- 1
-#' relation_2[2, c(3,4)] <- 1
+#' relation_2[1, c(2, 3, 4)] <- 1
+#' relation_2[2, c(3, 4)] <- 1
 #' relation_2[3, 4] <- 1
 #'
 #' list_porder_2 <- list(relation_1, relation_2)
@@ -132,7 +132,6 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
 #'
 #' @export
 test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
-
   # Input check
   if (!is.logical(input_check)) {
     stop("input_check must be logical.")
@@ -157,8 +156,10 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
   fc_sub <- compute_conceptual_scaling(input_porder = ufg_candidate)
 
   # check if generator (means minimal premise)
-  if (!test_generic_porder(fc_sub = fc_sub,
-                           cardinality_ufg = cardinality_ufg)) {
+  if (!test_generic_porder(
+    fc_sub = fc_sub,
+    cardinality_ufg = cardinality_ufg
+  )) {
     return(FALSE)
   }
 
@@ -205,8 +206,10 @@ compute_ufg_porder_index <- function(porder_list,
 
   ufg_index_list <- list()
 
-  max_card <- min((item_numbers * item_numbers) / 2,
-                  max_card_ufg, obs_numbers)
+  max_card <- min(
+    (item_numbers * item_numbers) / 2,
+    max_card_ufg, obs_numbers
+  )
 
   index_list <- 1
   for (card_sub in 2:max_card) {
@@ -236,45 +239,72 @@ compute_ufg_porder_index <- function(porder_list,
 #' @param porder_list (list of square matrixes) list of matrices representing
 #' partial orders of the same item dimension, computation of the ufg value of
 #' these partial orders
-#' @param max_card_ufg (integer or NULL) maximal cardinalty of the ufg premise
+#' @param max_card_ufg (integer or NULL) maximal cardinality of the ufg premise
 #' cardinality
+#' @param min_card_ufg (integer or NULL) minimal cardinality of the ufg premise
 #' @param input_check (logical) TRUE when input check sould be done, else set to
 #' FALSE
+#' @param print_progress_text (logical) TRUE when information about computation
+#' progress should be added
 #'
 #' @return returns all ufg premises by indicating the one in porder_list
 #'
 #' @export
-compute_ufg_depth <- function(porder_value,
-                              porder_list,
-                              max_card_ufg = NULL,
-                              input_check = TRUE) {
+compute_ufg_depth_porder <- function(porder_value,
+                                     porder_list,
+                                     min_card_ufg = NULL,
+                                     max_card_ufg = NULL,
+                                     input_check = TRUE,
+                                     print_progress_text = TRUE) {
   # Input check
   if (input_check) {
     check_input_porder_list(unlist(list(porder_list, porder_value),
-                                   recursive = FALSE))
+      recursive = FALSE
+    ))
     if (!is.null(max_card_ufg) && !is.integer(max_card_ufg)) {
       stop("max_card_ufg needs to be either NULL or an integer.")
     }
   }
 
+
+  po_as_df <- as.data.frame(t(matrix(unlist(porder_list),
+    ncol = length(porder_list)
+  )))
+  po_duplicated <- dplyr::count(dplyr::group_by_all(po_as_df))
+  porder_list_nodupl <- unique(porder_list)
+  number_dupl <- po_duplicated$n
+
+
   item_numbers <- dim(porder_list[[1]])[1]
-  obs_numbers <- length(porder_list)
+  obs_numbers <- length(porder_list_nodupl)
 
-  ufg_index_list <- list()
+  max_card <- min(
+    (item_numbers * item_numbers) / 2,
+    max_card_ufg, obs_numbers
+  )
+  min_card <- max(min_card_ufg, 2)
 
-  max_card <- min((item_numbers * item_numbers) / 2,
-                  max_card_ufg, obs_numbers)
+  # TODO
+  # Test if min_card and max_card matches is missing
 
   proportion <- rep(0, length(porder_value))
+
+  # Missing if porder_value is equal to a value in porder_list, which is
+  # also duplicated in porder_list --> then there is a further ufg depth.
   total_number <- 0
-  for (card_sub in 2:max_card) {
+
+  for (card_sub in min_card:max_card) {
+    if (print_progress_text) {
+      print(paste0("Next ufg cardinality"))
+    }
     all_subsets <- utils::combn(1:obs_numbers, card_sub, simplify = FALSE)
     for (sub in all_subsets) {
-      if (test_ufg_porder(porder_list[sub], input_check = FALSE)) {
+      if (test_ufg_porder(porder_list_nodupl[sub], input_check = FALSE)) {
         total_number <- total_number + 1
         proportion <- proportion +
-          1 * test_porder_in_conclusion_newobjs(porder_list[sub], porder_value)
-
+          1 *
+          test_porder_in_concl(porder_list[sub], porder_value) *
+          prod(number_dupl[sub])
       }
     }
   }

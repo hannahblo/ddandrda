@@ -61,22 +61,38 @@ test_that("compute_ufg_porder_index works", {
 })
 
 
-test_that("compute_ufg_depth works", {
+test_that("compute_ufg_depth_porder works", {
 
-  expect_error(compute_ufg_depth(c(1,2,3)))
-  expect_error(compute_ufg_depth(list(1,"b",4)))
+  expect_error(compute_ufg_depth_porder(c(1,2,3)))
+  expect_error(compute_ufg_depth_porder(list(1,"b",4)))
+  expect_error(compute_ufg_depth_porder(list(matrix(c(1,2,3,4,5,6), ncol = 2)),
+                                        list(matrix(c(1,2,3,4,5,6), ncol = 2))))
 
-  expect_equal(compute_ufg_depth(list_porder_1, list_porder_1),
+  expect_equal(compute_ufg_depth_porder(list_porder_1, list_porder_1,
+                                        print_progress_text = FALSE),
                c(0.6666667, 0.6666667, 1.0000000),
                tolerance = 1e-7)
-  expect_equal(compute_ufg_depth(list_porder_2, list_porder_1),
+  expect_equal(compute_ufg_depth_porder(list_porder_2, list_porder_1,
+                                        print_progress_text = FALSE),
                c(0.6666667, 0.6666667),
                tolerance = 1e-7)
-  expect_equal(compute_ufg_depth(list_porder_1, list_porder_2),
+  expect_equal(compute_ufg_depth_porder(list_porder_1, list_porder_2,
+                                        print_progress_text = FALSE),
                c(1, 1, 1),
                tolerance = 1e-7)
-  expect_equal(compute_ufg_depth(list_porder_3, list_porder_1),
+  expect_equal(compute_ufg_depth_porder(list_porder_3, list_porder_1,
+                                        print_progress_text = FALSE),
                c(0.6666667),
                tolerance = 1e-7)
+  expect_equal(compute_ufg_depth_porder(list_porder_3, list_porder_4,
+                                        print_progress_text = FALSE),
+               c(0.75),
+               tolerance = 1e-7)
+  # expect_equal(compute_ufg_depth_porder(list_porder_4, list_porder_5), # stimmt nicht
+  #              c(0.6666667),
+  #              tolerance = 1e-7)
+  # expect_equal(compute_ufg_depth_porder(list_porder_4, list_porder_7),# stimmt nicht?
+  #              c(0.6666667),
+  #              tolerance = 1e-7)
 
 })

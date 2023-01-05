@@ -12,7 +12,7 @@
 #'
 #' @return (list): the premise input and the conclusion, two vectors with
 #' elements  in 0 and 1, with 1 representing that the observation is in the set
-compute_interordinal_conclusion <- function(premise, list_info) {
+compute_interordinal_concl <- function(premise, list_info) {
   data_values <- list_info$data_values
   index_premise <- which(premise == 1)
 
@@ -195,7 +195,7 @@ compute_generator_nominal <- function(subset, list_info) {
 #'
 #' @return logical value. TRUE if obj_numeric_obs lies in the conclusion, else
 #' FALSE is returened
-test_interordinal_in_conclusion_newobj <- function(subset, obj_numeric_obs,
+test_interordinal_in_concl <- function(subset, obj_numeric_obs,
                                                    info_list) {
   index_subset <- which(subset == 1)
 
@@ -227,7 +227,7 @@ test_interordinal_in_conclusion_newobj <- function(subset, obj_numeric_obs,
 #'
 #' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
 #' FALSE is returened
-test_ordinal_in_conclusion_newobj <- function(subset, obj_ordinal_obs,
+test_ordinal_in_concl <- function(subset, obj_ordinal_obs,
                                               info_list) {
   index_subset <- which(subset == 1)
 
@@ -253,22 +253,29 @@ test_ordinal_in_conclusion_newobj <- function(subset, obj_ordinal_obs,
 #'
 #' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
 #' FALSE is returened
-test_porder_in_conclusion_newobjs <- function(subset, obj_porder_obs,
-                                             info_list = NULL) {
-
+test_porder_in_concl <- function(subset, obj_porder_obs,
+                                              info_list = NULL) {
   number_item <- dim(subset[[1]])[[1]]
   subset_intersect <- 1 * Reduce("&", subset,
-                                 init = matrix(1, nrow = number_item,
-                                               ncol = number_item))
+    init = matrix(1,
+      nrow = number_item,
+      ncol = number_item
+    )
+  )
   subset_union <- 1 * Reduce("|", subset,
-                             init = matrix(0, nrow = number_item,
-                                           ncol = number_item))
+    init = matrix(0,
+      nrow = number_item,
+      ncol = number_item
+    )
+  )
+
+  number_obj_porder <- length(obj_porder_obs)
 
   in_conclusion <- rep(FALSE, length(obj_porder_obs))
 
-  for (index_obj_porder in 1:length(obj_porder_obs)) {
+  for (index_obj_porder in seq_along(1:number_obj_porder)) {
     if (all(subset_intersect <= obj_porder_obs[[index_obj_porder]]) &&
-        all(obj_porder_obs[[index_obj_porder]] <= subset_union)) {
+      all(obj_porder_obs[[index_obj_porder]] <= subset_union)) {
       in_conclusion[index_obj_porder] <- TRUE
     }
   }

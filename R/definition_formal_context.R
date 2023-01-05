@@ -84,7 +84,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #' Computes the formal context for ordinal data by the use of dual ordinal
 #' scaling
 #'
-#' @description 'compute_dual_ordinal_scaling_vec' computes for a set of dual
+#' @description 'compute_dualordinal_scal_vec' computes for a set of dual
 #' ordinal data points the formal concept based on ordinal scaling. Here,
 #' the scaling method used is (n,n, >=) of page 42 of
 #' Ganter, B., Will, R. (2008): Formale Begriffsanalyse,
@@ -95,7 +95,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #' names
 #'
 #' @return dataframe representing the crosstable/formal context
-compute_dual_ordinal_scaling_vec <- function(data_values,
+compute_dualordinal_scal_vec <- function(data_values,
                                              add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
@@ -168,21 +168,27 @@ compute_dual_ordinal_scaling_vec <- function(data_values,
 #'
 #' @examples
 #' attr_numeric_4 <- as.numeric(c(1.2, 1, 1.6, 2))
-#' attr_nominal_4 <- as.factor(c("factor_1", "factor_2",
-#'                                "factor_2", "factor_1"))
-#' compute_conceptual_scaling(input_factor = attr_nominal_4,
-#'                            input_ordinal_numeric = attr_numeric_4)
+#' attr_nominal_4 <- as.factor(c(
+#'   "factor_1", "factor_2",
+#'   "factor_2", "factor_1"
+#' ))
+#' compute_conceptual_scaling(
+#'   input_factor = attr_nominal_4,
+#'   input_ordinal_numeric = attr_numeric_4
+#' )
 #'
 #' relation_1 <- matrix(0, ncol = 4, nrow = 4)
 #' diag(relation_1) <- 1
 #' relation_2 <- relation_1
-#' relation_2[1, c(2,3,4)] <- 1
-#' relation_2[2, c(3,4)] <- 1
+#' relation_2[1, c(2, 3, 4)] <- 1
+#' relation_2[2, c(3, 4)] <- 1
 #' relation_2[3, 4] <- 1
 #' list_porder_1 <- list(relation_1, relation_2)
 #' compute_conceptual_scaling(input_porder = list_porder_1)
-#' compute_conceptual_scaling(input_porder = list_porder_1,
-#'                            scaling_methods = c("porder_edge"))
+#' compute_conceptual_scaling(
+#'   input_porder = list_porder_1,
+#'   scaling_methods = c("porder_edge")
+#' )
 #'
 #' @export
 compute_conceptual_scaling <- function(input_factor = NULL,
@@ -191,28 +197,32 @@ compute_conceptual_scaling <- function(input_factor = NULL,
                                        input_porder = NULL,
                                        scaling_methods = NULL,
                                        input_check = TRUE) {
-
-
   # Input check
   if (!is.logical(input_check)) {
     stop("input_check should be logical")
   }
   if (input_check) {
-    check_input_ccs_1(input_factor = input_factor,
-                      input_ordinal_numeric = input_ordinal_numeric,
-                      input_spatial = input_spatial,
-                      input_porder = input_porder,
-                      scaling_methods = scaling_methods)
-    check_input_ccs_2(input_factor = input_factor,
-                      input_ordinal_numeric = input_ordinal_numeric,
-                      input_spatial = input_spatial,
-                      input_porder = input_porder,
-                      scaling_methods = scaling_methods)
-    check_input_ccs_3(input_factor = input_factor,
-                      input_ordinal_numeric = input_ordinal_numeric,
-                      input_spatial = input_spatial,
-                      input_porder = input_porder,
-                      scaling_methods = scaling_methods)
+    check_input_ccs_1(
+      input_factor = input_factor,
+      input_ordinal_numeric = input_ordinal_numeric,
+      input_spatial = input_spatial,
+      input_porder = input_porder,
+      scaling_methods = scaling_methods
+    )
+    check_input_ccs_2(
+      input_factor = input_factor,
+      input_ordinal_numeric = input_ordinal_numeric,
+      input_spatial = input_spatial,
+      input_porder = input_porder,
+      scaling_methods = scaling_methods
+    )
+    check_input_ccs_3(
+      input_factor = input_factor,
+      input_ordinal_numeric = input_ordinal_numeric,
+      input_spatial = input_spatial,
+      input_porder = input_porder,
+      scaling_methods = scaling_methods
+    )
   }
 
 
@@ -232,10 +242,10 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of partial orders
   if (!is.null(input_porder)) {
-
     porder_context <- t(matrix(unlist(input_porder),
-                             ncol = length(input_porder),
-                             nrow = length(input_porder[[1]])))
+      ncol = length(input_porder),
+      nrow = length(input_porder[[1]])
+    ))
 
     # TODO
     # add the names of columns
@@ -254,7 +264,6 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of nominal data
   if (!is.null(input_factor)) {
-
     nominal_context <- compute_nominal_scaling_vec(input_factor, "nominal")
     # TODO
     # add names of columns
@@ -271,7 +280,7 @@ compute_conceptual_scaling <- function(input_factor = NULL,
     )
     f_context <- cbind(f_context, ordinal_context)
     if (!("ordinal" %in% scaling_methods)) {
-      dual_context <- compute_dual_ordinal_scaling_vec(
+      dual_context <- compute_dualordinal_scal_vec(
         as.numeric(input_ordinal_numeric), "numeric"
       )
       f_context <- cbind(f_context, dual_context)

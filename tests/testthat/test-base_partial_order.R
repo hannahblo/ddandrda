@@ -32,15 +32,18 @@ mat_10 <- matrix(0, nrow = 6, ncol = 6)
 
 
 test_that("compute_transitive_hull works", {
-  expect_error(test_if_porder(c(1, 0, 0)))
-  expect_error(test_if_porder(mat_4))
-  expect_error(test_if_porder(mat_5))
+  expect_error(compute_transitive_hull(c(1, 0, 0)))
+  expect_error(compute_transitive_hull(mat_4))
+  expect_error(compute_transitive_hull(mat_5))
+  expect_error(compute_transitive_hull(matrix(c(1,2,a,b), nrow = 2)))
   expect_equal(compute_transitive_hull(mat_1), mat_2)
   expect_equal(compute_transitive_hull(mat_2), mat_2)
   expect_equal(compute_transitive_hull(mat_3), mat_3)
 })
 
 test_that("compute_relation_product works", {
+  expect_error(compute_relation_product(c(2,3,4), mat_1))
+  expect_error(compute_relation_product(mat_1, mat_7))
   expect_equal(compute_relation_product(mat_1, mat_3), mat_1)
   expect_equal(compute_relation_product(mat_3, mat_3), mat_3)
 })
@@ -48,7 +51,9 @@ test_that("compute_relation_product works", {
 test_that("test_if_porder works", {
   expect_error(test_if_porder(c(1, 0, 0)))
   expect_error(test_if_porder(mat_4))
+  expect_error(test_if_porder(mat_6, omit_reflexivity = 5))
   expect_error(test_if_porder(mat_5))
+  expect_error(test_if_porder(matrix(c(1,2,a,v), ncol = 2)))
   expect_equal(test_if_porder(mat_1), FALSE)
   expect_equal(test_if_porder(mat_2), FALSE)
   expect_equal(test_if_porder(mat_6), FALSE)

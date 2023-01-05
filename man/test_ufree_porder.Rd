@@ -14,7 +14,7 @@ using the "edge_non_edge_porder" scaling method}
 \item{ufg_candidate}{(list of matrices) a list of partial orders given by
 indices matrices (based on the same items) which should be checked weatther
 they define a union-free premise. Note that length of ufg_candidate must
-equl dim(fc_sub)\link{1}}
+equl dim(fc_sub)}
 }
 \value{
 logical value stating wether fc_sub is a  union-free premise

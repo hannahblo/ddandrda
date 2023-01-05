@@ -99,9 +99,9 @@ testthat::test_that("calculate_ordinal_scaling_vec works", {
   )
 })
 
-testthat::test_that("calculate_dual_ordinal_scaling_vec works", {
+testthat::test_that("calculate_dualordinal_scal_vec works", {
   testthat::expect_equal(
-    compute_dual_ordinal_scaling_vec(
+    compute_dualordinal_scal_vec(
       attr_numeric_4,
       "numeric"
     ),
@@ -113,7 +113,12 @@ testthat::test_that("calculate_dual_ordinal_scaling_vec works", {
 
 testthat::test_that("compute_conceptual_scaling works", {
   expect_error(compute_conceptual_scaling())
-  expect_error(compute_conceptual_scaling())
+  expect_error(compute_conceptual_scaling(input_factor = attr_nominal_4,
+                                          input_ordinal_numeric = attr_nominal_5))
+  expect_error(compute_conceptual_scaling(input_spatial = list(c(1,2), c(2,3))))
+  expect_error(compute_conceptual_scaling(input_porder = list(1,b,c)))
+  expect_error(compute_conceptual_scaling(input_factor = c(ab,d,e, 1,2)))
+  expect_error(compute_conceptual_scaling(input_ordinal_numeric = list(c,1,3,5)))
   expect_equal(compute_conceptual_scaling(input_factor = attr_nominal_4,
                                           input_ordinal_numeric = attr_numeric_4),
                cbind(nominal_context, ordinal_context, dual_ordinal_context))

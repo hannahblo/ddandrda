@@ -12,7 +12,7 @@ test_generic_porder(fc_sub, cardinality_ufg)
 using the "edge_non_edge_porder" scaling method}
 
 \item{cardinality_ufg}{(integer) number of partial orders, must be same
-length as dim(fc_sub)\link{1}}
+length as dim(fc_sub)}
 }
 \value{
 logical value stating wether fc_sub is a generic premise

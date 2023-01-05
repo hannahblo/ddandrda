@@ -25,8 +25,8 @@ relation_1 <- matrix(0, ncol = 4, nrow = 4)
 diag(relation_1) <- 1
 
 relation_2 <- relation_1
-relation_2[1, c(2,3,4)] <- 1
-relation_2[2, c(3,4)] <- 1
+relation_2[1, c(2, 3, 4)] <- 1
+relation_2[2, c(3, 4)] <- 1
 relation_2[3, 4] <- 1
 
 list_porder_2 <- list(relation_1, relation_2)

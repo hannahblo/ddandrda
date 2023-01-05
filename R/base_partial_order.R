@@ -9,7 +9,6 @@
 #' @return 0-1-Matrix: Represents a graph after two steps which are defined by
 #'         x and y
 compute_relation_product <- function(x, y) {
-
   # Input check
   if (!is.matrix(x) || !is.matrix(y)) {
     stop("Input must be matrix")
@@ -57,7 +56,6 @@ compute_relation_product <- function(x, y) {
 #'
 #' @export
 compute_transitive_hull <- function(relation_mat) {
-
   # Input check
   if (!is.matrix(relation_mat)) {
     stop("relation_mat must be matrix.")
@@ -129,7 +127,6 @@ compute_transitive_hull <- function(relation_mat) {
 #'
 #' @export
 test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
-
   # Input check
   check_input_tipo(po_candidate, omit_reflexivity)
 
@@ -139,7 +136,7 @@ test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
   }
 
   if (omit_reflexivity && all(po_candidate ==
-      matrix(0, nrow = nrow(po_candidate), ncol = ncol(po_candidate)))) {
+    matrix(0, nrow = nrow(po_candidate), ncol = ncol(po_candidate)))) {
     return(TRUE)
   }
   if (!omit_reflexivity && any(diag(po_candidate) != 1)) {

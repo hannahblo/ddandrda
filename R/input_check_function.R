@@ -9,15 +9,11 @@
 #' @param omit_reflexivity (logical) if reflexivity should be omited, so
 #' diagonal entry do not matter
 check_input_tipo <- function(po_candidate, omit_reflexivity) {
-
   if (!is.logical(omit_reflexivity)) {
     stop("omit_reflexivity must be logical.")
   }
 
   if (!is.matrix(po_candidate) || !all(po_candidate %in% c(0, 1))) {
-    stop("po_candidate must be matrix.")
-  }
-  if (!all(po_candidate %in% c(0, 1))) {
     stop("po_candidate must be matrix containing only 0's or 1's.")
   }
 
@@ -46,8 +42,6 @@ check_input_ccs_1 <- function(input_factor = NULL,
                               input_spatial = NULL,
                               input_porder = NULL,
                               scaling_methods = NULL) {
-
-
   if (all(
     is.null(input_factor),
     is.null(input_ordinal_numeric),
@@ -62,7 +56,7 @@ check_input_ccs_1 <- function(input_factor = NULL,
 
   # f(input_valid){
   #
-  # } Nicco c beispiel
+  # }
 
   length_values <- unique(c(
     length(input_factor),
@@ -98,12 +92,12 @@ check_input_ccs_2 <- function(input_factor = NULL,
                               input_porder = NULL,
                               scaling_methods = NULL) {
   if (!is.null(input_porder) &&
-      (!is.list(input_porder) || !is.matrix(input_porder[[1]]))) {
-    stop("input_spatial must either be NULL or a list of matrices.")
+    (!is.list(input_porder) && !is.matrix(input_porder[[1]]))) {
+    stop("input_porder must either be NULL or a list of matrices.")
   }
 
   if (!is.null(input_factor) &&
-      (!(class(input_factor)[1] == "factor"))) {
+    (!(class(input_factor)[1] == "factor"))) {
     stop("input_factor must either be NULL or a vector of factors.")
   }
 
@@ -112,7 +106,6 @@ check_input_ccs_2 <- function(input_factor = NULL,
 
   # TODO
   # when input rows have names --> check if the order is everywhere the same
-
 }
 
 
@@ -134,12 +127,10 @@ check_input_ccs_3 <- function(input_factor = NULL,
                               input_spatial = NULL,
                               input_porder = NULL,
                               scaling_methods = NULL) {
-
-
   if (!is.null(input_ordinal_numeric) &&
-      (!(class(input_ordinal_numeric)[1] == "ordered" ||
-         class(input_ordinal_numeric)[1] == "numeric" ||
-         class(input_ordinal_numeric)[1] == "integer"))) {
+    (!(class(input_ordinal_numeric)[1] == "ordered" ||
+      class(input_ordinal_numeric)[1] == "numeric" ||
+      class(input_ordinal_numeric)[1] == "integer"))) {
     stop("input_ordinal_numeric must either be null or of class ordered,
            numeric or integer.")
   }
@@ -175,4 +166,3 @@ check_input_porder_list <- function(list_porder) {
   # TODO
   # Input check ausladen
 }
-
