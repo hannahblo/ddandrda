@@ -5,8 +5,8 @@
 \title{Computes the ufg premises of a list of partial orders}
 \usage{
 compute_ufg_depth_porder(
-  porder_value,
-  porder_list,
+  porder_observed,
+  porder_depth = NULL,
   min_card_ufg = NULL,
   max_card_ufg = NULL,
   input_check = TRUE,
@@ -14,11 +14,11 @@ compute_ufg_depth_porder(
 )
 }
 \arguments{
-\item{porder_value}{(list of square matrix) list of matrices representing
+\item{porder_observed}{(list of square matrix) list of matrices representing
 partial orders of the same item dimension, based on these relations the ufg
 is computed}
 
-\item{porder_list}{(list of square matrixes) list of matrices representing
+\item{porder_depth}{(list of square matrixes) list of matrices representing
 partial orders of the same item dimension, computation of the ufg value of
 these partial orders}
 
@@ -34,7 +34,7 @@ FALSE}
 progress should be added}
 }
 \value{
-returns all ufg premises by indicating the one in porder_list
+returns the ufg depth
 }
 \description{
 This function computes all ufg depth of the partial orders given
