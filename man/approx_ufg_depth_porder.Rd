@@ -22,7 +22,6 @@ one is not allowed to be infinity. The list must contain a value for
 \item number_premises (eiter Inf or an integer value)
 \item max time (eiter Inf or an numeric value strict larger than 0.1, the unit is
 here minutes)
-Note that max_time is not clear yet how it is computed TODO!!!!!!
 }}
 
 \item{porder_observed}{(list of square matrix) list of matrices representing

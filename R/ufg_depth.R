@@ -56,27 +56,6 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   number_item <- dim(ufg_candidate[[1]])[1]
 
 
-  # when ufg_candidate consists only of two elements the following code does not
-  # work due to colSums function. Thus, we compute this bevor
-  if (dim(fc_sub)[1] == 2) {
-    # If the transitive reduction of these two ufg_candidates differ for at
-    # least two elements, then they are a ufg_premise, else they are not.
-    intersection <- ufg_candidate[[1]] & ufg_candidate[[2]]
-    index_not_intersect <- which(!unlist(lapply(ufg_candidate, function(x) {
-      all(x == intersection)})))
-    # other one is the same as intersection, thus this one is a superset
-    if (length(index_not_intersect) == 1) {
-      reduc_upper <- compute_transitive_reduction(ufg_candidate[[index_not_intersect]])
-      reduc_intersect <- compute_transitive_reduction(intersection)
-      # if only one edge is needed (of the transitive reduction) to obtain the
-      # other candidate, than this is not a ufg premise
-      return(!(sum(reduc_intersect < reduc_upper) == 1))
-    } else {
-      return(TRUE)
-    }
-  }
-
-
   # Now use that we are only checking if a partial order exists in particular we
   # check if the "smallest" holding all these conditions exists.
   # Thus we use that a partial order must either have an pair or not, but both
@@ -84,25 +63,17 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   # We do not need to compute the transitive hull as the intersection of partial
   # orders always is a partial order
 
-  test_candidate <- matrix(rep(0, number_item * number_item),
-    ncol = number_item
-  )
-  diag(test_candidate) <- rep(1, number_item)
-  intent_edge <- intent[which(intent <= number_item * number_item)]
+  test_candidate <- Reduce("&", ufg_candidate,
+                           matrix(rep(1, number_item * number_item),
+                                  ncol = number_item)) * 1
+
 
   # check if this is already a valid candidate, in the sense that if every
   # partial order of ufg_candidate is needed to obtain this intersection.
   needed_for_intersection <- rep(TRUE, dim(fc_sub)[1])
   for (not_index in seq(1, dim(fc_sub)[1])) {
-    test_candidate_inner <- matrix(rep(0, number_item * number_item),
-                                   ncol = number_item
-    )
-    diag(test_candidate_inner) <- rep(1, number_item)
-    intent_inner <- which(colSums(fc_sub[-not_index, ]) ==
-                            dim(fc_sub[-not_index, ])[1])
-    intent_edge_inner <- intent_inner[which(intent_inner <=
-                                              number_item * number_item)]
-    test_candidate_inner[intent_edge_inner] <- 1
+    test_candidate_inner <- Reduce("&", ufg_candidate[-not_index],
+           matrix(rep(1, number_item * number_item), ncol = number_item)) * 1
     if (all(test_candidate == test_candidate_inner)) {
       needed_for_intersection[not_index] <- FALSE
     }
@@ -113,7 +84,27 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
     return(TRUE)
   }
 
-  # else we compute the edges which are only given by one ufg_candidate.
+  # now we compute every intersection variants for those elements which have an
+  # impact in the intersection
+  # note that at least one needed_for_intersection must be FALSE, else we would
+  # have duplicates and then the ufg_candidate wouldn't be generic.
+  # see comment in the description
+  if (any(needed_for_intersection)) {
+    index_needed_intersect <- which(needed_for_intersection)
+
+    candidate_wo_intersect <- list()
+    for (i in 1:length(index_needed_intersect)) {
+      candidate_wo_intersect[[i]] <- Reduce("&", ufg_candidate[-index_needed_intersect[[i]]],
+                                            matrix(rep(1, number_item * number_item),
+                                                   ncol = number_item)) * 1
+    }
+  } else {
+    index_needed_intersect <- NULL
+    candidate_wo_intersect <- NULL
+  }
+
+
+  # We compute the edges which are only given by one ufg_candidate.
   # This is done via the formal subcontext
   edge_unique <- as.list(rep(NA, dim(fc_sub)[1]))
   index_edge_unique_all <- intersect(
@@ -121,9 +112,22 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
     seq(1, number_item * number_item)
   )
 
+  # adding NA for those which are needed for the intersection. These candidates
+  # can either have a uique edge which leads to the candidate or they delete an
+  # edge which is needed for the ufg candidate --> therefore NA
   for (index_fc in seq(1, dim(fc_sub)[1])) {
-    edge_unique[[index_fc]] <- intersect(which(fc_sub[index_fc, ] == 1),
-                                         index_edge_unique_all)
+    if (needed_for_intersection[index_fc]) {
+      edge_unique_index_fc <- intersect(which(fc_sub[index_fc, ] == 1),
+                                        index_edge_unique_all)
+      if (length(edge_unique_index_fc) == 0) {
+        edge_unique[[index_fc]] <- NA
+      } else {
+        edge_unique[[index_fc]] <- c(edge_unique_index_fc , NA)
+      }
+    } else {
+      edge_unique[[index_fc]] <- intersect(which(fc_sub[index_fc, ] == 1),
+                                             index_edge_unique_all)
+    }
   }
 
 
@@ -132,42 +136,29 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   # including this partial order.
   # Thus for these partial orders the edge_unique part is not allowed to be
   # empty. If yes, then this is not a ufg as one can delete this one
-  if (any(edge_unique[!needed_for_intersection] %in% list(integer(0)))) {
+  if (any(is.na(edge_unique[!needed_for_intersection]))) {
     return(FALSE)
   }
 
-  # Now, we delete all the NA values of edge_unique. This can only be one
-  # partial order. Else we would have duplicates and then this function would
-  # not be generic.
-  # see comment in description of this function.
-  is_intersect <- edge_unique[!needed_for_intersection] %in% list(integer(0))
-  edge_unique <- edge_unique[!is_intersect]
-  candidate_wo_intersect <- Reduce("&",
-                                   ufg_candidate[!is_intersect],
-                                   init = matrix(1, ncol = number_item,
-                                                 nrow = number_item)) * 1
-
-  # Further including the edge of an partial order which is not part of the
-  # intersection must lead to an order which is a subset of the union.
-  # Note that this edge cannot be given by an other partial order as it is an
-  # unique edge.
-  # If I obtain now a test_candidate while for every ufg_candidate where an edge
-  # is added it is clear that this ufg_candidate is needed, this does not hold
-  # for those with is.na(distingish_obj) being true. Here, we have to check if
-  # the test_candidate is different when not including the partial order. If
-  # yes, then this is not a valid candidate.
+  # Now, we go through every possible candidate combinations and check weather
+  # it is a candidate or not
   possible_add_edge <- expand.grid(edge_unique)
   union_ufg_candidate <- Reduce("|", ufg_candidate,
                                 init =  matrix(0, nrow = number_item,
                                                ncol = number_item)) * 1
 
   for (index_add in seq(1:dim(possible_add_edge)[1])) {
-    test_candidate_inner <- test_candidate
-    test_candidate_inner[as.numeric(possible_add_edge[index_add, ])] <- 1
-    candidate_wo_intersect_inner <- candidate_wo_intersect
-    candidate_wo_intersect[as.numeric(possible_add_edge[index_add, ])] <- 1
+    intersect_part <- which(is.na(possible_add_edge[index_add, ]))
+    edge_part <- which(!is.na(possible_add_edge[index_add, ]))
 
+    # edge_part must be at least length 2. In all other cases we would have already
+    # delt with it
+    test_candidate_inner <- test_candidate
+    test_candidate_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
     test_candidate_inner <- compute_transitive_hull(test_candidate_inner)
+
+
+
     # check if test_candidate is a subset of the union. If not, this is not
     # a candidate
     if (all(test_candidate_inner <= union_ufg_candidate)) {
@@ -176,10 +167,28 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
       if (test_if_porder(test_candidate_inner)) {
         # when the intersection_candidate exists, then check if it is needed to
         # obtain the test_candidate. If not, then one can delete this candidate
-        candidate_wo_intersect_inner <-
-          compute_transitive_hull(candidate_wo_intersect_inner)
-        if (!all(candidate_wo_intersect_inner == test_candidate_inner)) {
+
+        if (length(intersect_part) == 0) {
           return(TRUE)
+        } else {
+
+          # this can only be one index
+          index_wo_intersect <- which(index_needed_intersect %in% intersect_part)
+
+          is_needed_inner <- rep(FALSE, length(index_wo_intersect))
+          for (i in 1:length(index_wo_intersect)) {
+            candidate_wo_intersect_inner <- candidate_wo_intersect[[index_wo_intersect[i]]]
+            candidate_wo_intersect_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
+            candidate_wo_intersect_inner <- compute_transitive_hull(candidate_wo_intersect_inner)
+            if (!all(candidate_wo_intersect_inner == test_candidate_inner)) {
+              is_needed_inner[[i]] <- TRUE
+            } else {
+              break
+            }
+          }
+          if (all(is_needed_inner)) {
+            return(TRUE)
+          }
         }
       }
     }
@@ -306,7 +315,11 @@ compute_ufg_depth_porder <- function(porder_observed,
   observed_as_df <- as.data.frame(t(matrix(unlist(porder_observed),
                                            ncol = length(porder_observed))))
   observed_dup <- dplyr::count(dplyr::group_by_all(observed_as_df))
-  observed_list_unique <- unique(porder_observed)
+  # dplyr::count() changes the order, thus we cannot use unique(porder_observed)
+  observed_list_unique <-
+    unlist(apply(observed_dup[, seq(1, item_numbers * item_numbers)], 1,
+                 function(x) {list(matrix(x, ncol = item_numbers))}),
+           recursive = FALSE)
   number_dupl <- observed_dup$n
   number_unique_obs <- length(observed_list_unique)
 
@@ -328,27 +341,46 @@ compute_ufg_depth_porder <- function(porder_observed,
   count_porder_depth <- rep(0, length(porder_depth))
   total_number <- 0
   for (card_sub in min_card:max_card) {
-    all_subsets <- utils::combn(1:number_unique_obs, card_sub,
-                                simplify = FALSE)
-    number_subsets <- length(all_subsets)
+    # we are going through all subsets of size card_sub.
+    # We use  Gosper's Hack therefore
+    # see: http://programmingforinsomniacs.blogspot.com/2018/03/gospers-hack-explained.html
+    number_subsets <- choose(number_unique_obs, card_sub)
     number_iteration <- 1
-    for (sub in all_subsets) {
+    subset_binary <- c(rep(0, (number_unique_obs - card_sub)), rep(1, card_sub))
+    while (TRUE) {
       if (print_progress_text) {
-        number_iteration <- number_iteration + 1
         print(paste0("Testing subset number ", number_iteration,
                      " of total ", number_subsets, " with cardinality ",
                      card_sub))
+        number_iteration <- number_iteration + 1
       }
-      if (test_ufg_porder(observed_list_unique[sub], input_check = FALSE)) {
-        total_number <- total_number + 1 * prod(number_dupl[sub])
-        lies_in_concl <- test_porder_in_concl(observed_list_unique[sub],
-                                              porder_depth) * 1
+      if (test_ufg_porder(observed_list_unique[as.logical(subset_binary)], input_check = FALSE)) {
+        total_number <- total_number +
+          1 * prod(number_dupl[as.logical(subset_binary)])
+        lies_in_concl <- test_porder_in_concl(
+          observed_list_unique[as.logical(subset_binary)], porder_depth) * 1
         count_porder_depth <- count_porder_depth + lies_in_concl *
-          prod(number_dupl[sub])
+          prod(number_dupl[as.logical(subset_binary)])
+      }
+      # switch to next subset or breake while loop
+      if (all(subset_binary[seq(1, card_sub)] == rep(1, card_sub))) {
+        break
+      }
+      index_one <- which(subset_binary == 1)
+      max_one <- max(index_one)
+      max_zero_s_max_one <- max(
+        which(subset_binary == 0)[which(subset_binary == 0) < max_one])
+      subset_binary[c(max_zero_s_max_one, max_zero_s_max_one + 1)] <- c(1,0)
+      ones_larger <- index_one[index_one > max_zero_s_max_one + 1]
+      if (length(ones_larger) != 0) {
+        subset_binary[seq(min(ones_larger), number_unique_obs)] <- 0
+        subset_binary[seq(number_unique_obs - length(ones_larger) + 1,
+                          number_unique_obs)] <- rep(1, length(ones_larger))
       }
     }
   }
-  return(count_porder_depth/total_number)
+  return(list(ufg_depth = count_porder_depth/total_number,
+              total_number_premises = total_number))
 }
 
 
@@ -367,7 +399,6 @@ compute_ufg_depth_porder <- function(porder_observed,
 #' - number_premises (eiter Inf or an integer value)
 #' - max time (eiter Inf or an numeric value strict larger than 0.1, the unit is
 #'     here minutes)
-#' Note that max_time is not clear yet how it is computed TODO!!!!!!
 #' @param porder_observed (list of square matrix) list of matrices representing
 #' partial orders of the same item dimension, based on these relations the ufg
 #' is computed
@@ -415,8 +446,6 @@ approx_ufg_depth_porder <- function(stop_criteria = list(
     valid_stopping <- (is.infinite(stop_criteria$number_iterations) &&
                           is.infinite(stop_criteria$number_premises) &&
                           is.infinite(stop_criteria$max_time))
-    # TODO
-    # see note in @param stop_criteria
 
     if (valid_stopping) {
       stop("stoping_criteria value not valid.")

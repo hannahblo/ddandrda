@@ -37,6 +37,27 @@ relation_9[1,3] <- 1
 relation_9[2,3] <- 1
 
 
+relation_10 <- relation_1
+relation_10[4,] <- 1
+relation_10[1,3] <- 1
+relation_10[2,3] <- 1
+
+relation_11 <- relation_1
+relation_11[2,3] <- 1
+relation_11[3,1] <- 1
+relation_11[2,1] <- 1
+
+relation_12 <- relation_1
+relation_12[1,4] <- 1
+relation_12[3,2] <- 1
+
+relation_13 <- relation_1
+relation_13[2,1] <- 1
+relation_13[2,4] <- 1
+relation_13[2,3] <- 1
+relation_13[4,3] <- 1
+
+
 list_porder_1 <- list(relation_1, relation_2, relation_4) # keine ufg
 list_porder_2 <- list(relation_1, relation_2) # ist ufg
 list_porder_3 <- list(relation_1) # keine ufg
@@ -52,7 +73,7 @@ list_porder_11 <- list(relation_1, relation_1, relation_1, relation_2)
 list_porder_12 <- list(relation_1, relation_4, relation_4, relation_4,
                        relation_5, relation_5)
 list_porder_13 <- list(relation_2, relation_4) # keine ufg
-
+list_porder_14 <- list(relation_10, relation_11, relation_12, relation_13)
 
 
 test_that("test_ufg_porder works", {
@@ -61,7 +82,7 @@ test_that("test_ufg_porder works", {
   expect_equal(test_ufg_porder(list_porder_1), FALSE)
   expect_equal(test_ufg_porder(list_porder_2), TRUE)
   expect_equal(test_ufg_porder(list_porder_3), FALSE)
-  expect_equal(test_ufg_porder(list_porder_4), FALSE)
+  expect_equal(test_ufg_porder(list_porder_4), TRUE)
   expect_equal(test_ufg_porder(list_porder_5), TRUE)
   expect_equal(test_ufg_porder(list_porder_6), TRUE)
   expect_equal(test_ufg_porder(list_porder_7), FALSE)
@@ -69,6 +90,7 @@ test_that("test_ufg_porder works", {
   expect_equal(test_ufg_porder(list_porder_9), TRUE)
   expect_equal(test_ufg_porder(list_porder_13), FALSE)
   expect_equal(test_ufg_porder(list(relation_4, relation_5)), TRUE)
+  expect_equal(test_ufg_porder(list_porder_14), TRUE)
 })
 
 
@@ -81,44 +103,54 @@ test_that("compute_ufg_depth_porder works", {
 
   expect_equal(compute_ufg_depth_porder(list_porder_1,
                                         print_progress_text = FALSE),
-               c(1.0000000, 0.5, 1.0000000),
+               list(ufg_depth = c(1.0000000, 0.5, 1.0000000),
+                    total_number_premises = 2),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_1, list_porder_2,
                                         print_progress_text = FALSE),
-               c(1.0000000, 0.5),
+               list(ufg_depth = c(1.0000000, 0.5),
+                    total_number_premises = 2),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_2, list_porder_1,
                                         print_progress_text = FALSE),
-               c(1, 1, 1),
+               list(ufg_depth = c(1, 1, 1),
+                    total_number_premises = 1),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_1, list_porder_3,
                                         print_progress_text = FALSE),
-               c(1),
+               list(ufg_depth = c(1),
+                    total_number_premises = 2),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_4, list_porder_3,
                                         print_progress_text = FALSE),
-               c(0.6666667),
+               list(ufg_depth = c(0.75),
+                    total_number_premises = 4),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_4, list_porder_5,
                                         print_progress_text = FALSE),
-               c(0.33333333, 0),
+               list(ufg_depth = c(0.5, 0),
+                    total_number_premises = 4),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_8,
                                         print_progress_text = FALSE),
-               c(0.5, 0.625, 0.625, 0.5),
+               list(ufg_depth = c(0.5, 0.625, 0.625, 0.5),
+                    total_number_premises = 8),
                tolerance = 1e-7)
   # Duplications
   expect_equal(compute_ufg_depth_porder(list_porder_10, list_porder_1,
                                         print_progress_text = FALSE),
-               c(1, 0.33333333, 1),
+               list(ufg_depth = c(1, 0.666666667, 1),
+                    total_number_premises = 3),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_11, list_porder_2,
                                         print_progress_text = FALSE),
-               c(1,1),
+               list(ufg_depth = c(1,1),
+                    total_number_premises = 3),
                tolerance = 1e-7)
   expect_equal(compute_ufg_depth_porder(list_porder_12, list_porder_4,
                                         print_progress_text = FALSE),
-               c(0.4545455, 0.7272727, 0.8181818),
+               list(ufg_depth = c(11/17, 15/17, 14/17),
+                    total_number_premises = 17),
                tolerance = 1e-7)
 
 })
@@ -126,7 +158,7 @@ test_that("compute_ufg_depth_porder works", {
 
 
 test_that("approx_ufg_depth_porder works", {
-  set.seed(24)
+  set.seed(34)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
     number_iterations = as.integer(1000),
     number_premises = Inf,
@@ -135,18 +167,18 @@ test_that("approx_ufg_depth_porder works", {
                c(1.0000000, 0.5, 1.0000000),
                tolerance = 1e-1)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
-    number_iterations = as.integer(1000),
+    number_iterations = as.integer(5000),
     number_premises = Inf,
     max_time = Inf),
     porder_observed = list_porder_4, list_porder_5)$ufg_depth,
-               c(0.33333333, 0),
+               c(0.5, 0),
                tolerance = 1e-1)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
     number_iterations = as.integer(10000),
     number_premises = Inf,
     max_time = Inf),
     porder_observed = list_porder_12, list_porder_4)$ufg_depth,
-               c(0.4545455, 0.7272727, 0.8181818),
+               c(11/17, 15/17, 14/17),
                tolerance = 1e-1)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
     number_iterations = as.integer(1000),
@@ -164,12 +196,12 @@ test_that("approx_ufg_depth_porder works", {
     c(1.0000000, 0.5),
     tolerance = 1e-1)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
-    number_iterations = 1000,
+    number_iterations = 5000,
     number_premises = 100,
     max_time = Inf),
     porder_observed = list_porder_4,
     porder_depth = list_porder_3)$ufg_depth,
-    c(0.6666667),
+    c(0.75),
     tolerance = 1e-1)
   expect_equal(approx_ufg_depth_porder(stop_criteria = list(
     number_iterations = Inf,
