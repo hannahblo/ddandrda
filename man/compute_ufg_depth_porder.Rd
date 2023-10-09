@@ -2,7 +2,7 @@
 % Please edit documentation in R/ufg_depth.R
 \name{compute_ufg_depth_porder}
 \alias{compute_ufg_depth_porder}
-\title{Computes the ufg premises of a list of partial orders}
+\title{Computes the ufg depth of posets}
 \usage{
 compute_ufg_depth_porder(
   porder_observed,
@@ -10,7 +10,8 @@ compute_ufg_depth_porder(
   min_card_ufg = NULL,
   max_card_ufg = NULL,
   input_check = TRUE,
-  print_progress_text = TRUE
+  print_progress_text = TRUE,
+  save_ufg_premises = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ FALSE}
 
 \item{print_progress_text}{(logical) TRUE when information about computation
 progress should be added}
+
+\item{save_ufg_premises}{(logical) TRUE when ufg premises stored and returned}
 }
 \value{
 returns the ufg depth
@@ -41,4 +44,12 @@ This function computes all ufg depth of the partial orders given
 by porder_values based on porder_list. Hereby the partial orders are given as
 a list ofindice matrices. Further one can add a upper cardinality boundary
 for the cardinality of the ufg premsies
+}
+\details{
+This is based on ufg depth introduced in:
+Hannah Blocher, Georg Schollmeyer, Christoph Jansen and Malte Nalenz (2023):
+Depth Functions for Partial Orders with a Descriptive Analysis of Machine
+Learning Algorithms. In: Proceedings of the Thirteenth International Symposium
+on Imprecise Probabilities: Theories and Applications (ISIPTA '23).
+Proceedings of Machine Learning Research, vol. 215. PMLR.
 }

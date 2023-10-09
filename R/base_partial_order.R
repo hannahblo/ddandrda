@@ -135,7 +135,7 @@ compute_transitive_reduction <- function(relation_mat) {
   }
 
   reduction_mat <- relation_mat
-  for (i in seq(1:dim(relation_mat)[1])) {
+  for (i in seq_len(dim(relation_mat)[1])) {
     edge_i <- setdiff(which(relation_mat[i, ] == 1), i)
     for (j in edge_i) {
       edge_j <- setdiff(which(relation_mat[j, ] == 1), j)

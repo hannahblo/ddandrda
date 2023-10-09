@@ -52,7 +52,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   # must fulfill that the corresponding intent holds and for each partial order
   # in ufg_candidate at least one distinguishable element must hold.
 
-  intent <- which(colSums(fc_sub) == dim(fc_sub)[1])
+  # intent <- which(colSums(fc_sub) == dim(fc_sub)[1])
   number_item <- dim(ufg_candidate[[1]])[1]
 
 
@@ -93,7 +93,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
     index_needed_intersect <- which(needed_for_intersection)
 
     candidate_wo_intersect <- list()
-    for (i in 1:length(index_needed_intersect)) {
+    for (i in seq_len(length(index_needed_intersect))) {
       candidate_wo_intersect[[i]] <- Reduce("&", ufg_candidate[-index_needed_intersect[[i]]],
                                             matrix(rep(1, number_item * number_item),
                                                    ncol = number_item)) * 1
@@ -122,11 +122,11 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
       if (length(edge_unique_index_fc) == 0) {
         edge_unique[[index_fc]] <- NA
       } else {
-        edge_unique[[index_fc]] <- c(edge_unique_index_fc , NA)
+        edge_unique[[index_fc]] <- c(edge_unique_index_fc, NA)
       }
     } else {
       edge_unique[[index_fc]] <- intersect(which(fc_sub[index_fc, ] == 1),
-                                             index_edge_unique_all)
+                                           index_edge_unique_all)
     }
   }
 
@@ -266,7 +266,14 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
 
 
 
-#' Computes the ufg premises of a list of partial orders
+#' Computes the ufg depth of posets
+#'
+#' This is based on ufg depth introduced in:
+#' Hannah Blocher, Georg Schollmeyer, Christoph Jansen and Malte Nalenz (2023):
+#' Depth Functions for Partial Orders with a Descriptive Analysis of Machine
+#' Learning Algorithms. In: Proceedings of the Thirteenth International Symposium
+#' on Imprecise Probabilities: Theories and Applications (ISIPTA '23).
+#' Proceedings of Machine Learning Research, vol. 215. PMLR.
 #'
 #' @description This function computes all ufg depth of the partial orders given
 #' by porder_values based on porder_list. Hereby the partial orders are given as
@@ -286,6 +293,7 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
 #' FALSE
 #' @param print_progress_text (logical) TRUE when information about computation
 #' progress should be added
+#' @param save_ufg_premises (logical) TRUE when ufg premises stored and returned
 #'
 #' @return returns the ufg depth
 #'
@@ -295,7 +303,8 @@ compute_ufg_depth_porder <- function(porder_observed,
                                      min_card_ufg = NULL,
                                      max_card_ufg = NULL,
                                      input_check = TRUE,
-                                     print_progress_text = TRUE) {
+                                     print_progress_text = TRUE,
+                                     save_ufg_premises = FALSE) {
   # Input check
   if (input_check) {
     check_input_porder_list(porder_observed)
@@ -308,7 +317,12 @@ compute_ufg_depth_porder <- function(porder_observed,
     if (!is.null(max_card_ufg) && !is.integer(max_card_ufg)) {
       stop("max_card_ufg needs to be either NULL or an integer.")
     }
+    if (!is.logical(save_ufg_premises)) {
+      stop("save_ufg_premise must be logical")
+    }
   }
+
+
 
   # Deleting the duplicates and saving how often every element is observed
   item_numbers <- dim(porder_observed[[1]])[1]
@@ -322,6 +336,9 @@ compute_ufg_depth_porder <- function(porder_observed,
            recursive = FALSE)
   number_dupl <- observed_dup$n
   number_unique_obs <- length(observed_list_unique)
+
+  # Compute the empirical distribution
+  emp_prob <- number_dupl / sum(number_dupl)
 
   # Computing min_card and max_card
   max_card <- min((item_numbers * item_numbers)/2, max_card_ufg,
@@ -338,8 +355,13 @@ compute_ufg_depth_porder <- function(porder_observed,
   # porder_depth value lies in the conclusion.
   # For those which lie in the conclusion, add (include also the duplications)
   # the count_porder_depth value.
-  count_porder_depth <- rep(0, length(porder_depth))
-  total_number <- 0
+  ufg_premises <- list()
+
+  # count_porder_depth <- rep(0, length(porder_depth)) -> kommt weg !!!!!!!!!!!!
+  total_number_premises <- 0
+
+  depth_ufg <- rep(0, length(porder_depth))
+  constant_cn <- 0
   for (card_sub in min_card:max_card) {
     # we are going through all subsets of size card_sub.
     # We use  Gosper's Hack therefore
@@ -355,14 +377,25 @@ compute_ufg_depth_porder <- function(porder_observed,
         number_iteration <- number_iteration + 1
       }
       if (test_ufg_porder(observed_list_unique[as.logical(subset_binary)], input_check = FALSE)) {
-        total_number <- total_number +
+        total_number_premises <- total_number_premises +
           1 * prod(number_dupl[as.logical(subset_binary)])
+
         lies_in_concl <- test_porder_in_concl(
           observed_list_unique[as.logical(subset_binary)], porder_depth) * 1
-        count_porder_depth <- count_porder_depth + lies_in_concl *
-          prod(number_dupl[as.logical(subset_binary)])
+        # count_porder_depth <- count_porder_depth + lies_in_concl *
+        #   prod(number_dupl[as.logical(subset_binary)]) -> kommt weg!!!!!!!!!!!!!
+
+        prob_obs_emp <-  prod(emp_prob[as.logical(subset_binary)])
+        depth_ufg <- depth_ufg + lies_in_concl * prob_obs_emp
+        constant_cn <- constant_cn + prob_obs_emp
+
+        if (save_ufg_premises) {
+          ufg_premises <- append(ufg_premises, list(observed_list_unique[as.logical(subset_binary)]))
+        }
+
       }
-      # switch to next subset or breake while loop
+
+      # switch to next subset or break while loop
       if (all(subset_binary[seq(1, card_sub)] == rep(1, card_sub))) {
         break
       }
@@ -379,8 +412,11 @@ compute_ufg_depth_porder <- function(porder_observed,
       }
     }
   }
-  return(list(ufg_depth = count_porder_depth/total_number,
-              total_number_premises = total_number))
+  return(list(# ufg_depth = count_porder_depth/total_number, -> kommt weg!!!!!!!!!
+              depth_ufg = depth_ufg / constant_cn,
+              constant_cn = constant_cn,
+              total_number_premises = total_number_premises,
+              ufg_premises = ufg_premises))
 }
 
 
@@ -424,6 +460,8 @@ approx_ufg_depth_porder <- function(stop_criteria = list(
                                     min_card_ufg = NULL,
                                     max_card_ufg = NULL,
                                     input_check = TRUE) {
+
+  print("ACHTUNG: IST DAS DIE RICHTIGE DEFINITION ODER NOCH DIE ALTE?")
   # Input check
   if (input_check) {
     check_input_porder_list(porder_observed)
