@@ -36,7 +36,8 @@ test_generic_porder <- function(fc_sub, cardinality_ufg) {
 #' "edge_non_edge_porder" is a union-free premise
 #'
 #' @description This function test if a premise of partial orders is  union-free
-#' based on containing
+#' based on containing. This function should not be executed without executing
+#' test_generic_porder bevor and getting a TRUE value
 #'
 #' @param fc_sub (matrix) Formal context describing a subset of partial orders
 #' using the "edge_non_edge_porder" scaling method
@@ -51,50 +52,145 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
   # must fulfill that the corresponding intent holds and for each partial order
   # in ufg_candidate at least one distinguishable element must hold.
 
-  intent <- which(colSums(fc_sub) == dim(fc_sub)[1])
-
-  # this is done via the formal subcontext
+  # intent <- which(colSums(fc_sub) == dim(fc_sub)[1])
   number_item <- dim(ufg_candidate[[1]])[1]
-  distingish_obj <- as.list(rep(NA, dim(fc_sub)[1]))
-  index_disting_general <- which(colSums(fc_sub) == dim(fc_sub)[1] - 1)
 
-  for (index_fc in seq(1, dim(fc_sub)[1])) {
-    distingish_obj_inner <-
-      index_disting_general[which(fc_sub[index_fc, index_disting_general] == 0)]
-    edge_exists_part <- which(distingish_obj_inner <= number_item * number_item)
-
-    if (any(edge_exists_part)) {
-      distingish_obj[[index_fc]] <- index_disting_general[edge_exists_part]
-    }
-  }
 
   # Now use that we are only checking if a partial order exists in particular we
   # check if the "smallest" holding all these conditions exists.
   # Thus we use that a partial order must either have an pair or not, but both
   # together is not possible
+  # We do not need to compute the transitive hull as the intersection of partial
+  # orders always is a partial order
 
-  test_candidate <- matrix(rep(0, number_item * number_item),
-    ncol = number_item
-  )
-  diag(test_candidate) <- rep(1, number_item)
-  intent_edge <- intent[which(intent <= number_item * number_item)]
+  test_candidate <- Reduce("&", ufg_candidate,
+                           matrix(rep(1, number_item * number_item),
+                                  ncol = number_item)) * 1
 
-  test_candidate[intent_edge] <- 1
 
-  possibl_constr_disting <- expand.grid(distingish_obj)
-
-  for (index_disting in seq(1, dim(possibl_constr_disting)[1])) {
-    test_candidate_inner <- test_candidate
-
-    for (index_intent in possibl_constr_disting[index_disting, ]) {
-      if (!is.na(index_intent)) {
-        test_candidate_inner[index_intent] <- 1
-      }
+  # check if this is already a valid candidate, in the sense that if every
+  # partial order of ufg_candidate is needed to obtain this intersection.
+  needed_for_intersection <- rep(TRUE, dim(fc_sub)[1])
+  for (not_index in seq(1, dim(fc_sub)[1])) {
+    test_candidate_inner <- Reduce("&", ufg_candidate[-not_index],
+           matrix(rep(1, number_item * number_item), ncol = number_item)) * 1
+    if (all(test_candidate == test_candidate_inner)) {
+      needed_for_intersection[not_index] <- FALSE
     }
+  }
 
+  # if every partial order is needed, then we already found our candidate
+  if (all(needed_for_intersection)) {
+    return(TRUE)
+  }
+
+  # now we compute every intersection variants for those elements which have an
+  # impact in the intersection
+  # note that at least one needed_for_intersection must be FALSE, else we would
+  # have duplicates and then the ufg_candidate wouldn't be generic.
+  # see comment in the description
+  if (any(needed_for_intersection)) {
+    index_needed_intersect <- which(needed_for_intersection)
+
+    candidate_wo_intersect <- list()
+    for (i in seq_len(length(index_needed_intersect))) {
+      candidate_wo_intersect[[i]] <- Reduce("&", ufg_candidate[-index_needed_intersect[[i]]],
+                                            matrix(rep(1, number_item * number_item),
+                                                   ncol = number_item)) * 1
+    }
+  } else {
+    index_needed_intersect <- NULL
+    candidate_wo_intersect <- NULL
+  }
+
+
+  # We compute the edges which are only given by one ufg_candidate.
+  # This is done via the formal subcontext
+  edge_unique <- as.list(rep(NA, dim(fc_sub)[1]))
+  index_edge_unique_all <- intersect(
+    which(colSums(fc_sub) == 1),
+    seq(1, number_item * number_item)
+  )
+
+  # adding NA for those which are needed for the intersection. These candidates
+  # can either have a uique edge which leads to the candidate or they delete an
+  # edge which is needed for the ufg candidate --> therefore NA
+  for (index_fc in seq(1, dim(fc_sub)[1])) {
+    if (needed_for_intersection[index_fc]) {
+      edge_unique_index_fc <- intersect(which(fc_sub[index_fc, ] == 1),
+                                        index_edge_unique_all)
+      if (length(edge_unique_index_fc) == 0) {
+        edge_unique[[index_fc]] <- NA
+      } else {
+        edge_unique[[index_fc]] <- c(edge_unique_index_fc, NA)
+      }
+    } else {
+      edge_unique[[index_fc]] <- intersect(which(fc_sub[index_fc, ] == 1),
+                                           index_edge_unique_all)
+    }
+  }
+
+
+  # If there exists a partial order which is not needed to obtain the inter-
+  # section, then this partial order must have an edge which only is obtained by
+  # including this partial order.
+  # Thus for these partial orders the edge_unique part is not allowed to be
+  # empty. If yes, then this is not a ufg as one can delete this one
+  if (any(is.na(edge_unique[!needed_for_intersection]))) {
+    return(FALSE)
+  }
+
+  # Now, we go through every possible candidate combinations and check weather
+  # it is a candidate or not
+  possible_add_edge <- expand.grid(edge_unique)
+  union_ufg_candidate <- Reduce("|", ufg_candidate,
+                                init =  matrix(0, nrow = number_item,
+                                               ncol = number_item)) * 1
+
+  for (index_add in seq(1:dim(possible_add_edge)[1])) {
+    intersect_part <- which(is.na(possible_add_edge[index_add, ]))
+    edge_part <- which(!is.na(possible_add_edge[index_add, ]))
+
+    # edge_part must be at least length 2. In all other cases we would have already
+    # delt with it
+    test_candidate_inner <- test_candidate
+    test_candidate_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
     test_candidate_inner <- compute_transitive_hull(test_candidate_inner)
-    if (test_if_porder(test_candidate_inner)) {
-      return(TRUE)
+
+
+
+    # check if test_candidate is a subset of the union. If not, this is not
+    # a candidate
+    if (all(test_candidate_inner <= union_ufg_candidate)) {
+      # check if test_candidate is a valid partial order (e.g. circles could
+      # exists)
+      if (test_if_porder(test_candidate_inner)) {
+        # when the intersection_candidate exists, then check if it is needed to
+        # obtain the test_candidate. If not, then one can delete this candidate
+
+        if (length(intersect_part) == 0) {
+          return(TRUE)
+        } else {
+
+          # this can only be one index
+          index_wo_intersect <- which(index_needed_intersect %in% intersect_part)
+
+          is_needed_inner <- rep(FALSE, length(index_wo_intersect))
+          for (i in 1:length(index_wo_intersect)) {
+            candidate_wo_intersect_inner <- candidate_wo_intersect[[index_wo_intersect[i]]]
+            candidate_wo_intersect_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
+            candidate_wo_intersect_inner <- compute_transitive_hull(candidate_wo_intersect_inner)
+            if (!all(candidate_wo_intersect_inner == test_candidate_inner)) {
+              is_needed_inner[[i]] <- TRUE
+            } else {
+              break
+            }
+          }
+          if (all(is_needed_inner)) {
+            return(TRUE)
+          }
+        }
+      }
     }
   }
 
@@ -169,74 +265,25 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
 
 
 
-#' Computes the ufg premises of a list of partial orders
+
+#' Computes the ufg depth of posets
 #'
-#' @description This function computes all union-free generic premises of the
-#' a subset of partial orders. Hereby the partial orders are given as a list of
-#' indice matrices. Further one can add a upper cardinality boundary for the
-#' cardinality of the ufg premsies
-#'
-#' @param porder_list (list of square matrix) list of matrices representing
-#' partial orders of the same item dimension
-#' @param max_card_ufg (integer or NULL) maximal cardinalty of the ufg premise
-#' cardinality
-#' @param input_check (logical) TRUE when input check sould be done, else set to
-#' FALSE
-#'
-#' @return returns all ufg premises by indicating the one in porder_list
-#'
-#' @export
-compute_ufg_porder_index <- function(porder_list,
-                                     max_card_ufg = NULL,
-                                     input_check = TRUE) {
-  # Input check
-  if (input_check) {
-    check_input_porder_list(porder_list)
-    if (!is.null(max_card_ufg) && !is.integer(max_card_ufg)) {
-      stop("max_card_ufg needs to be either NULL or an integer.")
-    }
-  }
-
-  if (length(porder_list) <= 1) {
-    return(list())
-  }
-
-  item_numbers <- dim(porder_list[[1]])[1]
-  obs_numbers <- length(porder_list)
-
-  ufg_index_list <- list()
-
-  max_card <- min(
-    (item_numbers * item_numbers) / 2,
-    max_card_ufg, obs_numbers
-  )
-
-  index_list <- 1
-  for (card_sub in 2:max_card) {
-    all_subsets <- utils::combn(1:obs_numbers, card_sub, simplify = FALSE)
-    for (sub in all_subsets) {
-      if (test_ufg_porder(porder_list[sub], input_check = FALSE)) {
-        ufg_index_list[[index_list]] <- sub
-        index_list <- index_list + 1
-      }
-    }
-  }
-
-  return(ufg_index_list)
-}
-
-
-#' Computes the ufg premises of a list of partial orders
+#' This is based on ufg depth introduced in:
+#' Hannah Blocher, Georg Schollmeyer, Christoph Jansen and Malte Nalenz (2023):
+#' Depth Functions for Partial Orders with a Descriptive Analysis of Machine
+#' Learning Algorithms. In: Proceedings of the Thirteenth International Symposium
+#' on Imprecise Probabilities: Theories and Applications (ISIPTA '23).
+#' Proceedings of Machine Learning Research, vol. 215. PMLR.
 #'
 #' @description This function computes all ufg depth of the partial orders given
 #' by porder_values based on porder_list. Hereby the partial orders are given as
 #' a list ofindice matrices. Further one can add a upper cardinality boundary
 #' for the cardinality of the ufg premsies
 #'
-#' @param porder_value (list of square matrix) list of matrices representing
+#' @param porder_observed (list of square matrix) list of matrices representing
 #' partial orders of the same item dimension, based on these relations the ufg
 #' is computed
-#' @param porder_list (list of square matrixes) list of matrices representing
+#' @param porder_depth (list of square matrixes) list of matrices representing
 #' partial orders of the same item dimension, computation of the ufg value of
 #' these partial orders
 #' @param max_card_ufg (integer or NULL) maximal cardinality of the ufg premise
@@ -246,67 +293,273 @@ compute_ufg_porder_index <- function(porder_list,
 #' FALSE
 #' @param print_progress_text (logical) TRUE when information about computation
 #' progress should be added
+#' @param save_ufg_premises (logical) TRUE when ufg premises stored and returned
 #'
-#' @return returns all ufg premises by indicating the one in porder_list
+#' @return returns the ufg depth
 #'
 #' @export
-compute_ufg_depth_porder <- function(porder_value,
-                                     porder_list,
+compute_ufg_depth_porder <- function(porder_observed,
+                                     porder_depth = NULL,
                                      min_card_ufg = NULL,
                                      max_card_ufg = NULL,
                                      input_check = TRUE,
-                                     print_progress_text = TRUE) {
+                                     print_progress_text = TRUE,
+                                     save_ufg_premises = FALSE) {
   # Input check
   if (input_check) {
-    check_input_porder_list(unlist(list(porder_list, porder_value),
-      recursive = FALSE
-    ))
+    check_input_porder_list(porder_observed)
+    if (!is.null(porder_depth)) {
+      check_input_porder_list(porder_depth)
+    }
+    else {
+      porder_depth <- porder_observed
+    }
     if (!is.null(max_card_ufg) && !is.integer(max_card_ufg)) {
       stop("max_card_ufg needs to be either NULL or an integer.")
     }
+    if (!is.logical(save_ufg_premises)) {
+      stop("save_ufg_premise must be logical")
+    }
   }
 
 
-  po_as_df <- as.data.frame(t(matrix(unlist(porder_list),
-    ncol = length(porder_list)
-  )))
-  po_duplicated <- dplyr::count(dplyr::group_by_all(po_as_df))
-  porder_list_nodupl <- unique(porder_list)
-  number_dupl <- po_duplicated$n
 
+  # Deleting the duplicates and saving how often every element is observed
+  item_numbers <- dim(porder_observed[[1]])[1]
+  observed_as_df <- as.data.frame(t(matrix(unlist(porder_observed),
+                                           ncol = length(porder_observed))))
+  observed_dup <- dplyr::count(dplyr::group_by_all(observed_as_df))
+  # dplyr::count() changes the order, thus we cannot use unique(porder_observed)
+  observed_list_unique <-
+    unlist(apply(observed_dup[, seq(1, item_numbers * item_numbers)], 1,
+                 function(x) {list(matrix(x, ncol = item_numbers))}),
+           recursive = FALSE)
+  number_dupl <- observed_dup$n
+  number_unique_obs <- length(observed_list_unique)
 
-  item_numbers <- dim(porder_list[[1]])[1]
-  obs_numbers <- length(porder_list_nodupl)
+  # Compute the empirical distribution
+  emp_prob <- number_dupl / sum(number_dupl)
 
-  max_card <- min(
-    (item_numbers * item_numbers) / 2,
-    max_card_ufg, obs_numbers
-  )
+  # Computing min_card and max_card
+  max_card <- min((item_numbers * item_numbers)/2, max_card_ufg,
+                  number_unique_obs)
   min_card <- max(min_card_ufg, 2)
+  if (min_card > max_card) {
+    stop("max_card_ufg and min_card_ufg do not match to the item values or to\n
+         each other.")
+  }
 
-  # TODO
-  # Test if min_card and max_card matches is missing
+  # Going through all possible subset of cardinality between min_card and
+  # max_card. Check if this subset is a ufg premise. If yes, add (include also
+  # the duplications) those ufg premise to total_number and check which
+  # porder_depth value lies in the conclusion.
+  # For those which lie in the conclusion, add (include also the duplications)
+  # the count_porder_depth value.
+  ufg_premises <- list()
 
-  proportion <- rep(0, length(porder_value))
+  # count_porder_depth <- rep(0, length(porder_depth)) -> kommt weg !!!!!!!!!!!!
+  total_number_premises <- 0
 
-  # Missing if porder_value is equal to a value in porder_list, which is
-  # also duplicated in porder_list --> then there is a further ufg depth.
-  total_number <- 0
-
+  depth_ufg <- rep(0, length(porder_depth))
+  constant_cn <- 0
   for (card_sub in min_card:max_card) {
-    if (print_progress_text) {
-      print(paste0("Next ufg cardinality"))
-    }
-    all_subsets <- utils::combn(1:obs_numbers, card_sub, simplify = FALSE)
-    for (sub in all_subsets) {
-      if (test_ufg_porder(porder_list_nodupl[sub], input_check = FALSE)) {
-        total_number <- total_number + 1
-        proportion <- proportion +
-          1 *
-          test_porder_in_concl(porder_list[sub], porder_value) *
-          prod(number_dupl[sub])
+    # we are going through all subsets of size card_sub.
+    # We use  Gosper's Hack therefore
+    # see: http://programmingforinsomniacs.blogspot.com/2018/03/gospers-hack-explained.html
+    number_subsets <- choose(number_unique_obs, card_sub)
+    number_iteration <- 1
+    subset_binary <- c(rep(0, (number_unique_obs - card_sub)), rep(1, card_sub))
+    while (TRUE) {
+      if (print_progress_text) {
+        print(paste0("Testing subset number ", number_iteration,
+                     " of total ", number_subsets, " with cardinality ",
+                     card_sub))
+        number_iteration <- number_iteration + 1
+      }
+      if (test_ufg_porder(observed_list_unique[as.logical(subset_binary)], input_check = FALSE)) {
+        total_number_premises <- total_number_premises +
+          1 * prod(number_dupl[as.logical(subset_binary)])
+
+        lies_in_concl <- test_porder_in_concl(
+          observed_list_unique[as.logical(subset_binary)], porder_depth) * 1
+        # count_porder_depth <- count_porder_depth + lies_in_concl *
+        #   prod(number_dupl[as.logical(subset_binary)]) -> kommt weg!!!!!!!!!!!!!
+
+        prob_obs_emp <-  prod(emp_prob[as.logical(subset_binary)])
+        depth_ufg <- depth_ufg + lies_in_concl * prob_obs_emp
+        constant_cn <- constant_cn + prob_obs_emp
+
+        if (save_ufg_premises) {
+          ufg_premises <- append(ufg_premises, list(observed_list_unique[as.logical(subset_binary)]))
+        }
+
+      }
+
+      # switch to next subset or break while loop
+      if (all(subset_binary[seq(1, card_sub)] == rep(1, card_sub))) {
+        break
+      }
+      index_one <- which(subset_binary == 1)
+      max_one <- max(index_one)
+      max_zero_s_max_one <- max(
+        which(subset_binary == 0)[which(subset_binary == 0) < max_one])
+      subset_binary[c(max_zero_s_max_one, max_zero_s_max_one + 1)] <- c(1,0)
+      ones_larger <- index_one[index_one > max_zero_s_max_one + 1]
+      if (length(ones_larger) != 0) {
+        subset_binary[seq(min(ones_larger), number_unique_obs)] <- 0
+        subset_binary[seq(number_unique_obs - length(ones_larger) + 1,
+                          number_unique_obs)] <- rep(1, length(ones_larger))
       }
     }
   }
-  return(proportion / total_number)
+  return(list(# ufg_depth = count_porder_depth/total_number, -> kommt weg!!!!!!!!!
+              depth_ufg = depth_ufg / constant_cn,
+              constant_cn = constant_cn,
+              total_number_premises = total_number_premises,
+              ufg_premises = ufg_premises))
 }
+
+
+
+
+#' Approximates the ufg premises of a list of partial orders
+#'
+#' @description This function approximates the ufg depth of the partial orders
+#' porder_depth based on porder_observed. Hereby the partial orders are given as
+#' a list of indice matrices. Further one can add a upper and lower cardinality
+#' boundary for the cardinality of the ufg premsies.
+#'
+#' @param stop_criteria (list): list of different stopping criteria. At least
+#' one is not allowed to be infinity. The list must contain a value for
+#' - number_iterations (eiter Inf or an integer value)
+#' - number_premises (eiter Inf or an integer value)
+#' - max time (eiter Inf or an numeric value strict larger than 0.1, the unit is
+#'     here minutes)
+#' @param porder_observed (list of square matrix) list of matrices representing
+#' partial orders of the same item dimension, based on these relations the ufg
+#' is computed
+#' @param porder_depth (list of square matrixes) list of matrices representing
+#' partial orders of the same item dimension, computation of the ufg value of
+#' these partial orders
+#' @param max_card_ufg (integer or NULL) maximal cardinality of the ufg premise
+#' cardinality
+#' @param min_card_ufg (integer or NULL) minimal cardinality of the ufg premise
+#' @param input_check (logical) TRUE when input check sould be done, else set to
+#' FALSE
+#'
+#' @return returns an approximation of the ufg depth and the total number of
+#' found ufg premises
+#'
+#' @export
+approx_ufg_depth_porder <- function(stop_criteria = list(
+  number_iterations = as.integer(1000),
+  number_premises = Inf,
+  max_time = Inf),
+                                    porder_observed,
+                                    porder_depth = NULL,
+                                    min_card_ufg = NULL,
+                                    max_card_ufg = NULL,
+                                    input_check = TRUE) {
+
+  print("ACHTUNG: IST DAS DIE RICHTIGE DEFINITION ODER NOCH DIE ALTE?")
+  # Input check
+  if (input_check) {
+    check_input_porder_list(porder_observed)
+    if (!is.null(porder_depth)) {
+      check_input_porder_list(porder_depth)
+    }
+    else {
+      porder_depth <- porder_observed
+    }
+    if (!is.null(max_card_ufg) && !is.integer(max_card_ufg) &&
+        !is.null(min_card_ufg) && !is.integer(min_card_ufg)) {
+      stop("max_card_ufg and min_card_ufg need to be either NULL or an integer.")
+    }
+    valid_stopping <- !is.infinite(stop_criteria$number_iterations) &&
+      !is.integer(stop_criteria$number_iterations) &&
+      !is.infinite(stop_criteria$number_premises) &&
+      !is.integer(stop_criteria$number_premises) &&
+      !is.infinite(stop_criteria$max_time) &&
+      !(stop_criteria$max_time < 0.1)
+    valid_stopping <- (is.infinite(stop_criteria$number_iterations) &&
+                          is.infinite(stop_criteria$number_premises) &&
+                          is.infinite(stop_criteria$max_time))
+
+    if (valid_stopping) {
+      stop("stoping_criteria value not valid.")
+    }
+  }
+
+  item_numbers <- dim(porder_observed[[1]])[1]
+  number_obs <- length(porder_observed)
+
+
+
+  # Computing min_card and max_card
+  max_card <- min((item_numbers * item_numbers)/2, max_card_ufg,
+                  number_obs)
+  min_card <- max(min_card_ufg, 2)
+  if (min_card > max_card) {
+    stop("max_card_ufg and min_card_ufg do not match to the item values or to\n
+         each other.")
+  }
+
+  # Saving the number of ufg premises and the number of conclusion each
+  # porder_depth lies in
+  count_porder_depth <- rep(0, length(porder_depth))
+  total_number <- 0
+
+  # Randomly sample a subset of cardinality between min_card and max_card. Each
+  # subset has the same probability to be sampled. Check if this subset is a
+  # ufg premise.
+  # If yes, add (include also the duplications) those ufg premise to
+  # total_number and check which porder_depth value lies in the conclusion.
+  # For those which lie in the conclusion, add (include also the duplications)
+  # the count_porder_depth value.
+
+  # randomly sample a subset cardinality. Note that this we have to adjust for
+  # existance of subsets differs based on the subset cardinalty.
+  bin_coefficients <- choose(number_obs, seq(min_card, max_card))
+  prob_cardinality <- bin_coefficients / sum(bin_coefficients)
+  not_stopping <- TRUE
+  time_start <- Sys.time()
+  iteration_count <- 0
+
+  while (not_stopping) {
+    # sampled cardinality
+    sample_card <- sample(seq(min_card, max_card),
+                          size = 1,
+                          prob = prob_cardinality)
+
+    # sampled subset
+    index_sample <- sample(seq(1, number_obs),
+                           size = sample_card,
+                           replace = FALSE)
+
+    # test if this is a ufg premise
+    if (test_ufg_porder(porder_observed[index_sample], input_check = FALSE)) {
+      total_number <- total_number + 1
+      lies_in_concl <- test_porder_in_concl(porder_observed[index_sample],
+                                            porder_depth) * 1
+      count_porder_depth <- count_porder_depth + lies_in_concl
+    }
+    iteration_count <- iteration_count + 1
+    not_stopping <- (stop_criteria$number_iterations > iteration_count) &&
+                     (stop_criteria$number_premises > total_number) &&
+                     (stop_criteria$max_time > difftime(Sys.time(),
+                                                        time_start,
+                                                        units = "mins"))
+  }
+
+  # The ufg depth is now the proportion
+  ufg_depth <- count_porder_depth / total_number
+  return(list(ufg_depth = ufg_depth,
+              total_number_ufgs = total_number,
+              number_iterations = iteration_count,
+              duration = Sys.time() - time_start))
+}
+
+
+
+
+

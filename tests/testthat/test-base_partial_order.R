@@ -30,6 +30,28 @@ diag(mat_9) <- 1
 # this is not a partial order (only if reflexiv ommitted)
 mat_10 <- matrix(0, nrow = 6, ncol = 6)
 
+mat_11 <- diag(5)
+mat_11[1, ] <- 1
+mat_11[2, seq(2,5)] <- 1
+mat_11[3, seq(3,5)] <- 1
+mat_11[4, seq(4,5)] <- 1
+mat_11[5, seq(5,5)] <- 1
+
+mat_12 <- diag(5)
+mat_12[1, c(1,2)] <- 1
+mat_12[2, c(2,3)] <- 1
+mat_12[3, c(3,4)] <- 1
+mat_12[4, c(4,5)] <- 1
+
+mat_13 <- diag(4)
+mat_13[1, c(2,3,4)] <- 1
+mat_13[2, c(3,4)] <- 1
+mat_13[4, 3] <- 1
+
+mat_14 <- diag(4)
+diag(mat_14) <- 1
+mat_14[1,2] <- mat_14[2,4] <- mat_14[4,3] <- 1
+
 
 test_that("compute_transitive_hull works", {
   expect_error(compute_transitive_hull(c(1, 0, 0)))
@@ -39,6 +61,16 @@ test_that("compute_transitive_hull works", {
   expect_equal(compute_transitive_hull(mat_1), mat_2)
   expect_equal(compute_transitive_hull(mat_2), mat_2)
   expect_equal(compute_transitive_hull(mat_3), mat_3)
+})
+
+test_that("compute_transitive_reduction works", {
+  expect_error(compute_transitive_reduction(c(1, 0, 0)))
+  expect_error(compute_transitive_reduction(mat_4))
+  expect_error(compute_transitive_reduction(mat_5))
+  expect_error(compute_transitive_reduction(matrix(c(1,2,a,b), nrow = 2)))
+  expect_equal(compute_transitive_reduction(mat_2), mat_1)
+  expect_equal(compute_transitive_reduction(mat_11), mat_12)
+  expect_equal(compute_transitive_reduction(mat_13), mat_14)
 })
 
 test_that("compute_relation_product works", {

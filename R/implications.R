@@ -253,6 +253,8 @@ test_ordinal_in_concl <- function(subset, obj_ordinal_obs,
 #'
 #' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
 #' FALSE is returened
+#'
+#' @export
 test_porder_in_concl <- function(subset, obj_porder_obs,
                                               info_list = NULL) {
   number_item <- dim(subset[[1]])[[1]]

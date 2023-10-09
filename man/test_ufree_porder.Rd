@@ -21,5 +21,6 @@ logical value stating wether fc_sub is a  union-free premise
 }
 \description{
 This function test if a premise of partial orders is  union-free
-based on containing
+based on containing. This function should not be executed without executing
+test_generic_porder bevor and getting a TRUE value
 }

@@ -2,23 +2,24 @@
 % Please edit documentation in R/ufg_depth.R
 \name{compute_ufg_depth_porder}
 \alias{compute_ufg_depth_porder}
-\title{Computes the ufg premises of a list of partial orders}
+\title{Computes the ufg depth of posets}
 \usage{
 compute_ufg_depth_porder(
-  porder_value,
-  porder_list,
+  porder_observed,
+  porder_depth = NULL,
   min_card_ufg = NULL,
   max_card_ufg = NULL,
   input_check = TRUE,
-  print_progress_text = TRUE
+  print_progress_text = TRUE,
+  save_ufg_premises = FALSE
 )
 }
 \arguments{
-\item{porder_value}{(list of square matrix) list of matrices representing
+\item{porder_observed}{(list of square matrix) list of matrices representing
 partial orders of the same item dimension, based on these relations the ufg
 is computed}
 
-\item{porder_list}{(list of square matrixes) list of matrices representing
+\item{porder_depth}{(list of square matrixes) list of matrices representing
 partial orders of the same item dimension, computation of the ufg value of
 these partial orders}
 
@@ -32,13 +33,23 @@ FALSE}
 
 \item{print_progress_text}{(logical) TRUE when information about computation
 progress should be added}
+
+\item{save_ufg_premises}{(logical) TRUE when ufg premises stored and returned}
 }
 \value{
-returns all ufg premises by indicating the one in porder_list
+returns the ufg depth
 }
 \description{
 This function computes all ufg depth of the partial orders given
 by porder_values based on porder_list. Hereby the partial orders are given as
 a list ofindice matrices. Further one can add a upper cardinality boundary
 for the cardinality of the ufg premsies
+}
+\details{
+This is based on ufg depth introduced in:
+Hannah Blocher, Georg Schollmeyer, Christoph Jansen and Malte Nalenz (2023):
+Depth Functions for Partial Orders with a Descriptive Analysis of Machine
+Learning Algorithms. In: Proceedings of the Thirteenth International Symposium
+on Imprecise Probabilities: Theories and Applications (ISIPTA '23).
+Proceedings of Machine Learning Research, vol. 215. PMLR.
 }

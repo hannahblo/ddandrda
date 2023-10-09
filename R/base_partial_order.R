@@ -101,7 +101,49 @@ compute_transitive_hull <- function(relation_mat) {
 }
 
 
+#' Compute the transitive reduction of a partial order
+#'
+#' @description
+#' 'compute_transitive_reduction' returns a 0-1-matrix which represents the
+#' order-pairs given reducing all pairs given by the transitivty
+#'
+#' @param relation_mat represents a relation matrix. Note that
+#' has to be a squared matrix.
+#'
+#' @return The transitive reduction of the relation matrix relation_mat
+#'
+#' @examples
+#' mat <- matrix(0, ncol = 4, nrow = 4)
+#' diag(mat) <- 1
+#' mat[1, c(2,3,4)] <- 1
+#' mat[2, c(3,4)] <- 1
+#' mat[4, 3] <- 1
+#' compute_transitive_reduction(mat)
+#'
+#' @export
+compute_transitive_reduction <- function(relation_mat) {
+  # Input check
+  if (!is.matrix(relation_mat)) {
+    stop("relation_mat must be matrix.")
+  }
+  if (!all(relation_mat %in% c(0, 1))) {
+    stop("relation_mat must be matrix containing only 0's or 1's.")
+  }
 
+  if (nrow(relation_mat) != ncol(relation_mat)) {
+    stop("relation_mat must be squared matrix.")
+  }
+
+  reduction_mat <- relation_mat
+  for (i in seq_len(dim(relation_mat)[1])) {
+    edge_i <- setdiff(which(relation_mat[i, ] == 1), i)
+    for (j in edge_i) {
+      edge_j <- setdiff(which(relation_mat[j, ] == 1), j)
+      reduction_mat[i, edge_j] <- 0
+    }
+  }
+  return(reduction_mat)
+}
 
 
 #' Test if matrix represents a partial order
