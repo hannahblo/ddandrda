@@ -96,7 +96,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #'
 #' @return dataframe representing the crosstable/formal context
 compute_dualordinal_scal_vec <- function(data_values,
-                                             add_column_name = NULL) {
+                                         add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
   attr <- sort(unique(data_values))
@@ -124,8 +124,112 @@ compute_dualordinal_scal_vec <- function(data_values,
 }
 
 
+#' Computes the formal context of spatial observation
+#'
+#' @description Defining the formal concept of the geometrical formal concept
+#' analysis with object points in R^2 and attributes closed half-spaces and
+#' relation: point is in relation to half-space if and only if point is an
+#' element of this half-space.
+#' Since we want to define a redundant formal-context. It is sufficient to
+#' consider only the half-spaces which bounds goes throw two different points
+#' (objects)
+#' REMARK: This function does NOT work when all point given by point_matrix are
+#' defined upon one line (are collinear)
+#' In particular we assume that all points differ
+#'
+#' @param point_matrix (nx2 matrix):  represents the considered points (objects)
+#' @param add_column_name (logical): if column names are added
+#'
+#' @return  (list): context (formal context, columns: half_spaces,
+#'                                           row: if point within halfspace)
+#'                  indexes (describes the index of two points corresponding
+#'                              to the half-space)
+#'                  point_matrix (input matrix)
+compute_spatial_scaling_mat <- function(point_matrix,
+                                        add_column_name = TRUE) {
 
 
+  number_points <- dim(point_matrix)[1]
+
+  # Calculation of the number of half-spaces divided by two
+  # We divide, because with this we can reduce the number of needed for-loops
+  number_halfsp_divided_2 <- number_points * (number_points - 1) / 2
+  # is always integer
+  context_first_part <- array(0, c(number_points, number_halfsp_divided_2))
+  context_second_part <- context_first_part
+
+  # Memory space for index and the designations filled within the for-loops
+  points_def_boundary <- array(0, c(number_halfsp_divided_2, 2))
+  names_first_part <- rep("", number_halfsp_divided_2)
+  names_second_part <- rep("", number_halfsp_divided_2)
+
+  # Functioning of the three loops:
+  # Each half-space is defined by its bound, which goes through two points.
+  # Remark that one bound defines two half-spaces. Therefore we have defined two
+  # context memories.
+  # The first two loops go through all bounds. The third loop considers each
+  # point and calculates (using the scalar product) if it is within one of the
+  # two half-space.
+
+  # Counting how many half-spaces we already went trough
+  i <- 1
+  for (k in 1:(number_points - 1)) {
+    for (l in (k + 1):number_points) {
+
+      # Saving the names of the half-spaces
+      names_first_part[i] <- paste(rownames(point_matrix)[k],
+                                   rownames(point_matrix)[l],
+                                   "_>=0",
+                                   sep = "")
+      names_second_part[i] <- paste(rownames(point_matrix)[k],
+                                    rownames(point_matrix)[l],
+                                    "_<=0",
+                                    sep = "")
+      for (m in 1:number_points) {
+        # Calculation of the scalar product
+        v1 <- point_matrix[k, ] - point_matrix[l, ]
+        v2 <- point_matrix[m, ] - point_matrix[l, ]
+        s <- v1[1] * v2[2] - v1[2] * v2[1]
+        # Assignment to the half-spaces
+        if (s > 0) {
+          context_first_part[m, i] <- 1
+        }
+        if (s < 0) {
+          context_second_part[m, i] <- 1
+        }
+        if (s == 0) {
+          context_second_part[m, i] <- 1
+          context_first_part[m, i] <- 1
+        }
+      }
+
+      # Saving for each half-space the two spaces which define the boundary
+      # in an index way
+      points_def_boundary[i, ] <- c(k, l)
+
+      # Next half-space memory space
+      i <- i + 1
+    }
+  }
+
+  if (add_column_name == TRUE) {
+    # Naming the rows and columns
+    colnames(context_first_part) <- names_first_part
+    colnames(context_second_part) <- names_second_part
+    rownames(context_first_part) <- rownames(point_matrix)
+    rownames(context_second_part) <- rownames(point_matrix)
+  }
+
+
+
+  result <- list(context = (cbind(context_first_part, context_second_part)),
+                 points_def_spatial_boundary = rbind(points_def_boundary,
+                                                     points_def_boundary),
+                 point_matrix = point_matrix)
+
+  return(result)
+
+}
 
 
 
@@ -231,7 +335,7 @@ compute_conceptual_scaling <- function(input_factor = NULL,
   length_values <- unique(c(
     length(input_factor),
     length(input_ordinal_numeric),
-    length(input_spatial),
+    dim(input_spatial)[1],
     length(input_porder)
   ))
   number_obj <- setdiff(length_values, c(0))
@@ -242,31 +346,54 @@ compute_conceptual_scaling <- function(input_factor = NULL,
 
   # Scaling of partial orders
   if (!is.null(input_porder)) {
-    porder_context <- t(matrix(unlist(input_porder),
-      ncol = length(input_porder),
-      nrow = length(input_porder[[1]])
+  porder_context <- t(matrix(unlist(input_porder),
+    ncol = length(input_porder),
+    nrow = length(input_porder[[1]])
+  ))
+
+  if (is.null(colnames(input_porder[[1]]))) {
+    colnames(input_porder[[1]]) <- rownames(input_porder[[1]]) <-
+      seq(1, dim(input_porder[[1]])[1])
+  }
+  colnames(porder_context) <-
+    unlist(lapply(rownames(input_porder[[1]]),
+      FUN = function(y) {
+        lapply(colnames(input_porder[[1]]),
+          FUN = function(x) {
+            paste0(y, "<=", x)
+          }
+        )
+      }
     ))
 
-    # TODO
-    # add the names of columns
 
-    if (!("porder_edge" %in% scaling_methods)) {
-      porder_context_dual <- 1 - porder_context
+  if (!("porder_edge" %in% scaling_methods)) {
+    porder_context_dual <- 1 - porder_context
+    colnames(porder_context_dual) <- unlist(
+      lapply(rownames(input_porder[[1]]), FUN = function(y) {
+        lapply(colnames(input_porder[[1]]), FUN = function(x) {
+          paste0(y, " neq<=", x)
+        })
+      })
+    )
 
-      porder_context <- cbind(porder_context, porder_context_dual)
-    }
-
-    f_context <- cbind(f_context, porder_context)
+    porder_context <- cbind(porder_context, porder_context_dual)
   }
 
-  # Scaling of spatial data
-  # TODO
+  f_context <- cbind(f_context, porder_context)
+}
+# Scaling of spatial data
+if (!is.null(input_spatial)) {
+  spatial_context <- compute_spatial_scaling_mat(input_spatial,
+    add_column_name = TRUE
+  )$context
+
+  f_context <- cbind(f_context, spatial_context)
+}
 
   # Scaling of nominal data
   if (!is.null(input_factor)) {
     nominal_context <- compute_nominal_scaling_vec(input_factor, "nominal")
-    # TODO
-    # add names of columns
     f_context <- cbind(f_context, nominal_context)
   }
 

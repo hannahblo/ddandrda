@@ -26,6 +26,9 @@ check_input_tipo <- function(po_candidate, omit_reflexivity) {
 
 # Input check to functions of file definition_formal_context.R------------------
 
+
+
+
 #' Help Function of compute_conceptual_scaling()
 #' Test if all input variables are valid
 #'
@@ -61,7 +64,7 @@ check_input_ccs_1 <- function(input_factor = NULL,
   length_values <- unique(c(
     length(input_factor),
     length(input_ordinal_numeric),
-    length(input_spatial),
+    dim(input_spatial)[1],
     length(input_porder)
   ))
   number_obj <- setdiff(length_values, c(0))
@@ -69,9 +72,6 @@ check_input_ccs_1 <- function(input_factor = NULL,
     stop("Data inputs must have same length or be NULL.")
   }
 
-  if (!is.null(input_spatial)) {
-    stop("Is not implemented yet.")
-  }
 }
 
 
@@ -134,8 +134,21 @@ check_input_ccs_3 <- function(input_factor = NULL,
     stop("input_ordinal_numeric must either be null or of class ordered,
            numeric or integer.")
   }
-}
 
+  if (!is.null(input_spatial)) {
+    if (any(duplicated.matrix(input_spatial))) {
+      stop("At least two points are duplicates.")
+    }
+
+    # Testing if points in point_matrix are collinear
+    slope <- (input_spatial[1,2] - input_spatial[2,2]) / (input_spatial[1,1] - input_spatial[2,1])
+    further_slopes_compare <- apply(input_spatial, 1, FUN = function(x) {
+      identical(unname((input_spatial[1,2] - x[2]) / (input_spatial[1,1] - x[1])), slope) })
+    if (all(further_slopes_compare[-1])) {
+      stop("Points are collinear.")
+    }
+  }
+}
 
 
 # Input check to functions of file ufg_depth.R----------------------------------
