@@ -1,0 +1,199 @@
+# @Georg:
+
+# zu ueberarbeiten:
+# exportieren?
+compute_ranking_scaling <- function(x,
+                                    remove_full_columns = FALSE,
+                                    complemented = FALSE) {
+
+  # given a matrix x where every row is one data point, computes for every data
+  # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
+
+  m <- dim(x)[1]
+  n <- dim(x)[2]
+  names <- rep("", n^2)
+  neg_names <- rep("", n^2)
+  ans <- array(0, c(m, n^2))
+  for (k in (1:m)) {
+    temp <- array(0, c(n, n))
+    for (l1 in (1:n)) {
+      for (l2 in (1:n)) {
+        temp[l1, l2] <- ((x[k, l1] <= x[k, l2])) * 1
+      }
+    }
+    ans[k, ] <- as.vector(temp)
+  }
+  t <- 1
+  for (l1 in (1:n)) {
+    for (l2 in (1:n)) {
+      names[t] <- paste(c(
+        colnames(x)[l1], " <= ",
+        colnames(x)[l2]
+      ), collapse = "")
+
+      neg_names[t] <- paste(c(" NOT(", colnames(ans)[t], ") "),
+                            collapse = ""
+      )
+
+      t <- t + 1
+    }
+  }
+  colnames(ans) <- names
+
+  if (complemented) {
+    ans <- cbind(ans, 1 - ans)
+    colnames(ans)[-(1:n^2)] <- neg_names
+  }
+
+  if (remove_full_columns) {
+    i <- which(colSums(ans) == m)
+    ans <- ans[, -i]
+  }
+  return(ans)
+}
+
+
+
+
+#' Convert a context into a list
+#'
+#' @description 'convert_context_to_list' converts a context that represents
+#' a partial order (or an arbitrary homogeneous relation, possibly complemented)
+#' into a list
+#'
+#' @param context The formal context that should be converted
+#' @param complemented should be true if a complemented context is given (then,
+#' a list of complemented incidence matrices is returned)
+#' @param col_names Names of the columns of the context
+#' @param row_names Names of the rows of the context
+#' @export
+convert_context_to_list <- function(context, complemented = FALSE,
+                                    col_names = NULL, row_names = NULL) {
+  n_rows <- nrow(context)
+  if (complemented) {
+    n_items <- sqrt(ncol(context) / 2)
+  } else {
+    n_items <- sqrt(ncol(context))
+  }
+  n_cols <- n_items
+  if (complemented) {
+    n_cols <- 2 * n_items
+  }
+  list <- list()
+  for (k in (1:n_rows)) {
+    temp <- context[k, ]
+    dim(temp) <- c(n_items, n_cols)
+    colnames(temp) <- col_names
+    rownames(temp) <- row_names
+    list[[k]] <- temp
+  }
+
+  return(list)
+}
+
+
+#' Context with all partial orders as intents
+#'
+#' @description 'compute_context_all_p_orders' computes a formal context whose
+#' intents are all partial orders on a set of n_items elements
+#' (PLUS the ALL-relation!): Since every partial order is an intersection
+#' of a set of linear orders (more concretely the set of all linear
+#' extensions), one can can compute the set of all partial orders as the
+#' intents of a formal context where every object is a linear order L and
+#' every attribute is a pair (a,b) and L I (a,b) iff (a,b) in L.
+#' Note that the empty intersection of objects gives the all relation,
+#' and the all relation is not a partial order
+#'
+#'
+#' @param n_items is the number of elements of the basic space
+#' @param names are the names of the n_items elements
+#'
+#' @examples
+#' n_items <- 5
+#' steps <- 10000
+#' context_for_n_items_p_orders <- compute_context_all_p_orders(
+#'   n_items =
+#'     n_items
+#' )
+#' c_orders <- compute_all_partial_orders(
+#'   n_items = n_items, complemented = TRUE,
+#'   list = TRUE
+#' )
+#' context <- convert_list_to_context(c_orders, complemented = TRUE)
+#' index <- sample((1:nrow(context)), size = 3)
+#' sampled_context <- context[index, ]
+#' g <- function(intent, context) {
+#'   0.00001 + compute_tukeys_depth(
+#'     c(intent, 1 - intent),
+#'     sampled_context
+#'   )
+#' }
+#' tukeys_true_median <- compute_tukeys_median_order(c_orders[index])
+#' tukeys_median_based_on_mc_heuristic <- sample_concept(
+#'   context_for_n_items_p_orders,
+#'   steps = steps, g
+#' )
+#' par(mfrow = c(2, 1))
+#' plot_relation(tukeys_true_median$median)
+#' dim(tukeys_median_based_on_mc_heuristic) <- c(n_items, n_items)
+#' plot_relation(tukeys_median_based_on_mc_heuristic)
+#'
+#' @export
+compute_context_all_p_orders <- function(n_items, names = (1:n_items)) {
+  perms <- gtools::permutations(n_items, n_items)
+  colnames(perms) <- names
+  context <- compute_ranking_scaling(perms,
+                                     remove_full_columns = FALSE,
+                                     complemented = FALSE
+  )
+
+  return(context)
+}
+
+
+
+
+#' Test if new observation lies in conclusion based on nominal scaling
+#'
+#' @description Based on nominal scaling this function tests if a further
+#' object lies in the conclusion of a premise
+#'
+#' @param subset (vector of (0,1)): 1 represents that the point is within the
+#' subset
+#' @param obj_porder_obs (nominal): observation to test if lies in conclusion
+#' @param info_list (containing data_values): nominal attribute of each
+#' observation  (same length as premise)
+#'
+#' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
+#' FALSE is returened
+#'
+#' @export
+test_porder_in_concl <- function(subset, obj_porder_obs,
+                                 info_list = NULL) {
+  number_item <- dim(subset[[1]])[[1]]
+  subset_intersect <- 1 * Reduce("&", subset,
+                                 init = matrix(1,
+                                               nrow = number_item,
+                                               ncol = number_item
+                                 )
+  )
+  subset_union <- 1 * Reduce("|", subset,
+                             init = matrix(0,
+                                           nrow = number_item,
+                                           ncol = number_item
+                             )
+  )
+
+  number_obj_porder <- length(obj_porder_obs)
+
+  in_conclusion <- rep(FALSE, length(obj_porder_obs))
+
+  for (index_obj_porder in seq_along(1:number_obj_porder)) {
+    if (all(subset_intersect <= obj_porder_obs[[index_obj_porder]]) &&
+        all(obj_porder_obs[[index_obj_porder]] <= subset_union)) {
+      in_conclusion[index_obj_porder] <- TRUE
+    }
+  }
+  return(in_conclusion)
+}
+
