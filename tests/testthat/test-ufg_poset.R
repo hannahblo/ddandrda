@@ -208,4 +208,8 @@ test_that("test_ufg_poset works", {
   expect_equal(test_ufg_poset(list_porder_14), TRUE)
 })
 
-
+test_that("enumerate_ufg_premises works", {
+  expect_equal(enumerate_ufg_premises_poset(compute_context_all_poset(3),
+                                            n_row_context = 4),
+               list(c(1, 3), c(2, 3), c(3, 4)))
+})

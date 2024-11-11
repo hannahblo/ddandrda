@@ -4,7 +4,8 @@
 prepare_ufgpremises_poset <- function(list_mat_poset_ml,
                                       number_items) {
 
-  fc_ml_porder <- compute_conceptual_scaling(input_porder = list_mat_poset_ml)
+  fc_ml_porder <-
+    compute_conceptual_scaling(input_porder = list_mat_poset_ml)
   porder_all <- compute_all_poset(number_items, list = FALSE, complemented = TRUE)
 
   data_context <- get_weighted_representation(fc_ml_porder) # duplication
@@ -471,3 +472,211 @@ test_ufg_poset <- function(ufg_candidate, input_check = TRUE) {
 }
 
 
+
+
+#' Enumerate all ufg premises of a complemented poset context
+#'
+#' @description 'enumerate_ufg_premises' enumerates all ufg premises for a set
+#' of partial orders given as a complemented context
+#'
+#'
+#' @param whole_context is the whole context that describes the whole space of
+#' complemented partial orders.
+#'
+#' For the implementation with 'test_ufg_porder' as a test function for checking
+#' ufg-candidates it is not needed to supply the whole context of all partial
+#' orders, instead it is enough to supply only the orders obtained in the data
+#' sample. Currently the implementation uses 'test_ufg_porder'
+#'
+#' For the implementation with 'test_explicitly_ufg_p_order' as a test function
+#' for checking ufg-candidates it is needed to supply the context of all
+#' partial orders. The current implementation does not use the function
+#' 'test_explicitly_ufg_p_order'
+#'
+#'
+#'
+#' @param n_row_context is the number of objects in the observed data sample.
+#' It is assumed that the first 'n_row_context' rows of the context
+#' 'whole_context' represent the observed partial orders.
+#'
+#'
+#' @param print_progress If TRUE, the progress of the enumeration will printed.
+#'
+#'
+#' @return A list of all ufg premises given as a vector of indices (w.r.t. the
+#' first 'n_row_context' rows of the context 'whole_context').
+#'
+#' @export
+enumerate_ufg_premises_poset <- function(whole_context, n_row_context,
+                                         print_progress = TRUE) {
+  # compute list of porders (this is only needed for the function
+  # test_ufg_porder)
+  data_list <- convert_fc_to_list_poset(
+    whole_context[
+      seq_len(n_row_context),
+      seq_len(ncol(whole_context) / 2)
+    ],
+    complemented = FALSE
+  )
+
+  # fast version for checking if ufg set is in the list of already enumerated
+  # ufg sets
+  "%fin%" <- fastmatch::"%fin%"
+
+  n_items <- sqrt(ncol(whole_context) / 2)
+  ## currently nowhere used
+  upper_bound_ufg_dimension <- n_items * (n_items - 1) / 2
+
+  # list of of sets is stored in the list 'result'
+  result <- list()
+
+  # counter for countinf currently enumerated ufg premise, important for
+  # the look-up list 'sets'
+  counter <- 1
+
+  # 0-1 vector specifying ufg premise (entries with higher index than
+  # n_row_context will always be 0)
+  subset <- rep(0, n_row_context)
+
+  # The list 'sets' serves as a look-up list. and the following function
+  # 'enum_ufg_premises_recursive' stops if an ufg-premise was already visited.
+  sets <- list()
+
+
+  # For ease of enumeration, premises of size 1 are also enumerated but in the
+  # end they are excluded
+  simple_ufg_index <- NULL
+
+
+
+
+
+  # This function recursively enumerates all ufg-premises and stores them in the
+  # list 'result'. The list sets serves as a look up list and the function stops
+  # if an ufg-premise was already visited.
+  enum_ufg_premises_recursive <- function(subset, whole_context,
+                                          n_row_context) {
+    if (paste(which(subset == 1), collapse = ";") %fin% sets[seq_len(counter)]) {
+      stop
+    }
+
+    # The objects in the hull of a current ufg-premise can not be used
+    # to enlarge the ufg. Therefore they are later excluded beforehand
+    # (see line ''index <- which(extent==0 & mask==1)''
+    extent <- operator_closure_obj_input(
+      subset,
+      whole_context[seq_len(n_row_context), ]
+    )
+
+    if (all(extent == 1)) {
+      stop
+    }
+
+    # every order p of the current ufg set genuinely removes some attributes
+    # from the intent. If another order p2 (outside the current ufg set)
+    # does also remove these attributes (and possibly more), then p would
+    # become redundant. Therefore, such orders p2 are excluded by mask ,
+    # cf. line ''index <- which(extent==0 & mask==1)''
+
+    mask <- rep(1, n_row_context)
+    for (k in which(subset == 1)) {
+      subset_new <- subset
+      subset_new[k] <- 0
+
+      intent <- calculate_psi(subset_new, whole_context[seq_len(n_row_context), ])
+      idx <- which(whole_context[k, ] == 0 & intent == 1)
+      if (length(idx) >= 2) {
+        idx2 <- which(rowSums(whole_context[seq_len(n_row_context), idx]) == 0)
+        mask[idx2] <- 0
+      }
+      if (length(idx) == 1) {
+        mask[which(whole_context[seq_len(n_row_context), idx] == 0)] <- 0
+      }
+    }
+
+    # index of orders that are worth inspecting if they can be added to enlarge
+    # the ufg set
+    index <- which(extent == 0 & mask == 1)
+    ## Versuch
+    if (sum(subset) >= 2) {
+      i1 <- which(subset[seq_len(n_row_context)] == 1)
+      #print(which(subset==1))
+      #print("i1:")
+      #print(i1)
+      index_dist_attr <- which(colSums(whole_context[i1,]) == length(i1) - 1)
+      #print(index_dist_attr)
+      i2 <- which(rowSums(whole_context[seq_len(n_row_context),index_dist_attr]) >= length(i1))
+      # print(which( ! (index%in%i2)))
+      #index <- setdiff(index,i2)
+    }
+
+    ## Versuch
+
+    # stop if there cannot be added any order
+    if (length(index) == 0) {
+      stop
+    }
+    for (k in index) {
+      subset_new <- subset
+      subset_new[k] <- 1
+      subset_new_whole_context <- c(subset_new, rep(0, nrow(whole_context) -
+                                                      n_row_context))
+
+      # proceed if |ufg|=1 or if subset_new was not already visited
+      subset_new <<- subset_new
+      if (sum(subset_new) == 1 |
+          (!(paste(which(subset_new == 1), collapse = ";") %fin%
+             sets[seq_len(counter)]))) {
+        # This would be the line if one would use the explicit function for
+        # testing
+        # the ufg-property.
+
+        # if(sum(subset_new)==1 |   test_explicitly_ufg_p_order(
+        #  subset_new_whole_context,whole_context)){
+        #
+        # proceed if |ufg|=1 or uf subset_new is an ufg set
+
+
+        # This would be the line if one would use the direct function
+        # test_ufg_porder for testing the ufg-property.
+        if (sum(subset_new) == 1 |
+            test_ufg_poset(data_list[which(subset_new == 1)]) == TRUE) {
+          subset_new_index <- which(subset_new == 1)
+          # store ufg set in list result
+          result[[counter]] <<- subset_new_index
+          # store ufg set also in the look up list (as character)
+          sets[[counter]] <<- paste(subset_new_index, collapse = ";")
+          # if the ufg set is a singleton store this in the index-vector
+          # simple_ufg_index
+          if (length(subset_new_index) == 1) {
+            simple_ufg_index <<- c(
+              simple_ufg_index, counter
+            )
+          }
+
+          # set counter that counts the number of ufg sets to counter + 1
+          counter <<- counter + 1
+          if (print_progress & counter %% 1000 == 0) {
+            print(paste("enumerated ",
+                        counter,
+                        " ufg-premises",
+                        collapse = ""
+            ))
+          }
+          # proceed with the new ufgset subset_new
+          enum_ufg_premises_recursive(subset_new, whole_context, n_row_context)
+        }
+      }
+    }
+    stop
+  }
+
+
+
+  # Now call enum_ufg_premises_recursive and return the results
+  #
+  enum_ufg_premises_recursive(subset, whole_context, n_row_context)
+  result <- result[-counter]
+  result <- result[-simple_ufg_index]
+  return(result)
+}
