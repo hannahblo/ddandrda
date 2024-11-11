@@ -1,5 +1,21 @@
-#' This function computes the closure operator for mixed spatial, numeric, nominal
-#' observations
+#' Computation convex operator for mixed spatial, numeric, categorical data
+#'
+#' This is based on ufg depth introduced in:
+#' Hannah Blocher, Georg Schollmeyer  (2024+): The union-free generic depth
+#' using formal concept analysis.
+#'
+#' @description This function computes the closure operator for mixed spatial,
+#'  numeric, nominal observations
+#'
+#' @param observed (nx2) the observed values
+#' @param observed_in_grid (vector) assignment to the grid
+#' @param sf_spatial (sf-object) converted spatial_grid object to sf-object
+#' @param grid_spatial (Lx2 matrix) the spatial component of the entire grid
+#' (L is the number of grids)
+#' @param grid_numeric (vector) the numeric component of the entire grid
+#' @param grid_nominal (vector) the nominal component of the entire grid
+#'
+#' @return logical value
 compute_hull_inner_cns <- function(observed,
                                observed_in_grid,
                                sf_spatial,

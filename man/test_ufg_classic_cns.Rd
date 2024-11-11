@@ -15,6 +15,20 @@ test_ufg_classic_cns(
   grid_nominal
 )
 }
+\arguments{
+\item{observed}{(nx2) the observed values}
+
+\item{observed_in_grid}{(vector) assignment to the grid}
+
+\item{sf_spatial}{(sf-object) converted spatial_grid object to sf-object}
+
+\item{grid_spatial}{(Lx2 matrix) the spatial component of the entire grid
+(L is the number of grids)}
+
+\item{grid_numeric}{(vector) the numeric component of the entire grid}
+
+\item{grid_nominal}{(vector) the nominal component of the entire grid}
+}
 \description{
 needed in test_ufg_main_cns
 This function tests if the subset is a ufg-premise WITHOUT utilizing that the

@@ -6,6 +6,13 @@
 \usage{
 compute_poset_scaling(x, remove_full_columns = FALSE, complemented = FALSE)
 }
+\arguments{
+\item{x}{(matrix)}
+
+\item{remove_full_columns}{(logical)}
+
+\item{complemented}{(logical)}
+}
 \description{
 testfunktion schreiben und einen kurzen text?
 }

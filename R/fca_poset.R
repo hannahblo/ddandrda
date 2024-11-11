@@ -2,6 +2,10 @@
 
 # @Georg? Hier bin ihc mir unsicher was das genau ist, koenntest du hierfür eine
 #' testfunktion schreiben und einen kurzen text?
+#'
+#' @param x (matrix)
+#' @param remove_full_columns (logical)
+#' @param complemented (logical)
 compute_poset_scaling <- function(x,
                                   remove_full_columns = FALSE,
                                   complemented = FALSE) {

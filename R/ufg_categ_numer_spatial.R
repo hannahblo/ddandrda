@@ -2,6 +2,14 @@
 #' needed in test_ufg_main_cns
 #' This function tests if the subset is a ufg-premise WITHOUT utilizing that the
 #' data are mixed spatial, numeric, nominal
+#'
+#' @param observed (nx2) the observed values
+#' @param observed_in_grid (vector) assignment to the grid
+#' @param sf_spatial (sf-object) converted spatial_grid object to sf-object
+#' @param grid_spatial (Lx2 matrix) the spatial component of the entire grid
+#' (L is the number of grids)
+#' @param grid_numeric (vector) the numeric component of the entire grid
+#' @param grid_nominal (vector) the nominal component of the entire grid
 test_ufg_classic_cns <- function(observed,
                              observed_in_grid,
                              sf_spatial,
@@ -45,6 +53,9 @@ test_ufg_classic_cns <- function(observed,
 #' needed in test_ufg_main_cns
 #' This function checks which point lies in the spatial boundary of the convex
 #' set
+#'
+#' @param observed (nx2) the observed values
+#' @param observed_in_grid (vector) assignment to the grid
 check_boundary_input_cns <- function(observed,
                                  observed_in_grid) {
 
@@ -76,6 +87,10 @@ check_boundary_input_cns <- function(observed,
 #' This function checks if it could be a ufg-premise based on the boundary
 #' values; e.g. if there exists an element that is obviously already given by
 #' the others
+#'
+#' @param is_boundary (list) produced by check_boundary_input_cns
+#' @param grid_numeric (vector) the numeric component of the entire grid
+#' @param grid_nominal (vector) the nominal component of the entire grid
 check_ufg_lies_in_cns <- function(is_boundary,
                               grid_numeric,
                               grid_nominal) {

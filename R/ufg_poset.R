@@ -1,17 +1,17 @@
 
 # Preparation of computing the ufg premises
 # @Hannah todo
-prepare_ufgpremises_poset <- function(list_mat_porders_ml,
-                                 number_items) {
+prepare_ufgpremises_poset <- function(list_mat_poset_ml,
+                                      number_items) {
 
-  fc_ml_porder <- compute_conceptual_scaling(input_porder = list_mat_porders_ml)
+  fc_ml_porder <- compute_conceptual_scaling(input_porder = list_mat_poset_ml)
   porder_all <- compute_all_poset(number_items, list = FALSE, complemented = TRUE)
 
   data_context <- get_weighted_representation(fc_ml_porder) # duplication
   n_row_context <- nrow(data_context$x_weighted)
   count_dup <- data_context$counts
   number_obs <- sum(data_context$counts)
-  list_porder_premises <- convert_fc_to_list_poset(data_context$x_weighted[ ,(1:25)],  complemented = FALSE)
+  list_poset_premises <- convert_fc_to_list_poset(data_context$x_weighted[ ,(1:25)],  complemented = FALSE)
 
   whole_context <- rbind(data_context$x_weighted, porder_all) # context of all posets
   index <- which(!duplicated(whole_context))
@@ -19,7 +19,7 @@ prepare_ufgpremises_poset <- function(list_mat_porders_ml,
   return(list(count_dup = count_dup,
               number_obs = number_obs,
               whole_context = whole_context,
-              list_porder_premises = list_porder_premises,
+              list_poset_premises = list_poset_premises,
               n_row_context = n_row_context))
 }
 
@@ -28,7 +28,7 @@ prepare_ufgpremises_poset <- function(list_mat_porders_ml,
 # Computing the ufg depth based on already computed premises
 # @Hannah todo
 compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
-                                       prep_ufg_premises) {
+                                        prep_ufg_premises) {
 
   emp_prob <- prep_ufg_premises$count_dup / prep_ufg_premises$number_obs
   depth_ufg <- rep(0, length(poset_interest))
@@ -38,7 +38,7 @@ compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
     # print(paste0("Iteration ", i,  " of ", dim(ufg_premises)[1]))
     index_premise <- ufg_premises[[i]]
     prod_emp_ufg <- prod(emp_prob[index_premise])
-    concl_ufg <- test_poset_in_concl(prep_ufg_premises$list_porder_premises[index_premise], poset_interest) * 1
+    concl_ufg <- test_poset_in_concl(prep_ufg_premises$list_poset_premises[index_premise], poset_interest) * 1
 
     depth_ufg <- depth_ufg + concl_ufg * prod_emp_ufg
     constant_c <- constant_c + prod_emp_ufg
@@ -62,14 +62,14 @@ compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
 #' Proceedings of Machine Learning Research, vol. 215. PMLR.
 #'
 #' @description This function computes all ufg depth of the partial orders given
-#' by porder_values based on porder_list. Hereby the partial orders are given as
+#' by poset_values based on poset_list. Hereby the partial orders are given as
 #' a list ofindice matrices. Further one can add a upper cardinality boundary
 #' for the cardinality of the ufg premsies
 #'
-#' @param porder_observed (list of square matrix) list of matrices representing
+#' @param poset_observed (list of square matrix) list of matrices representing
 #' partial orders of the same item dimension, based on these relations the ufg
 #' is computed
-#' @param porder_depth (list of square matrixes) list of matrices representing
+#' @param poset_depth (list of square matrixes) list of matrices representing
 #' partial orders of the same item dimension, computation of the ufg value of
 #' these partial orders
 #' @param max_card_ufg (integer or NULL) maximal cardinality of the ufg premise
@@ -84,8 +84,8 @@ compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
 #' @return returns the ufg depth
 #'
 #' @export
-compute_ufg_depth_poset <- function(porder_observed,
-                                     porder_depth = NULL,
+compute_ufg_depth_poset <- function(poset_observed,
+                                     poset_depth = NULL,
                                      min_card_ufg = NULL,
                                      max_card_ufg = NULL,
                                      input_check = TRUE,
@@ -93,12 +93,12 @@ compute_ufg_depth_poset <- function(porder_observed,
                                      save_ufg_premises = FALSE) {
   # Input check
   if (input_check) {
-    check_input_porder_list(porder_observed)
-    if (!is.null(porder_depth)) {
-      check_input_porder_list(porder_depth)
+    check_input_porder_list(poset_observed)
+    if (!is.null(poset_depth)) {
+      check_input_porder_list(poset_depth)
     }
     else {
-      porder_depth <- porder_observed
+      poset_depth <- poset_observed
     }
     if (!is.null(max_card_ufg) && !is.integer(max_card_ufg)) {
       stop("max_card_ufg needs to be either NULL or an integer.")
@@ -111,11 +111,11 @@ compute_ufg_depth_poset <- function(porder_observed,
 
 
   # Deleting the duplicates and saving how often every element is observed
-  item_numbers <- dim(porder_observed[[1]])[1]
-  observed_as_df <- as.data.frame(t(matrix(unlist(porder_observed),
-                                           ncol = length(porder_observed))))
+  item_numbers <- dim(poset_observed[[1]])[1]
+  observed_as_df <- as.data.frame(t(matrix(unlist(poset_observed),
+                                           ncol = length(poset_observed))))
   observed_dup <- dplyr::count(dplyr::group_by_all(observed_as_df))
-  # dplyr::count() changes the order, thus we cannot use unique(porder_observed)
+  # dplyr::count() changes the order, thus we cannot use unique(poset_observed)
   observed_list_unique <-
     unlist(apply(observed_dup[, seq(1, item_numbers * item_numbers)], 1,
                  function(x) {list(matrix(x, ncol = item_numbers))}),
@@ -138,15 +138,15 @@ compute_ufg_depth_poset <- function(porder_observed,
   # Going through all possible subset of cardinality between min_card and
   # max_card. Check if this subset is a ufg premise. If yes, add (include also
   # the duplications) those ufg premise to total_number and check which
-  # porder_depth value lies in the conclusion.
+  # poset_depth value lies in the conclusion.
   # For those which lie in the conclusion, add (include also the duplications)
-  # the count_porder_depth value.
+  # the count_poset_depth value.
   ufg_premises <- list()
 
-  # count_porder_depth <- rep(0, length(porder_depth)) -> kommt weg !!!!!!!!!!!!
+  # count_poset_depth <- rep(0, length(poset_depth)) -> kommt weg !!!!!!!!!!!!
   total_number_premises <- 0
 
-  depth_ufg <- rep(0, length(porder_depth))
+  depth_ufg <- rep(0, length(poset_depth))
   constant_cn <- 0
   for (card_sub in min_card:max_card) {
     # we are going through all subsets of size card_sub.
@@ -167,8 +167,8 @@ compute_ufg_depth_poset <- function(porder_observed,
           1 * prod(number_dupl[as.logical(subset_binary)])
 
         lies_in_concl <- test_poset_in_concl(
-          observed_list_unique[as.logical(subset_binary)], porder_depth) * 1
-        # count_porder_depth <- count_porder_depth + lies_in_concl *
+          observed_list_unique[as.logical(subset_binary)], poset_depth) * 1
+        # count_poset_depth <- count_poset_depth + lies_in_concl *
         #   prod(number_dupl[as.logical(subset_binary)]) -> kommt weg!!!!!!!!!!!!!
 
         prob_obs_emp <-  prod(emp_prob[as.logical(subset_binary)])
@@ -198,7 +198,7 @@ compute_ufg_depth_poset <- function(porder_observed,
       }
     }
   }
-  return(list(# ufg_depth = count_porder_depth/total_number, -> kommt weg!!!!!!!!!
+  return(list(# ufg_depth = count_poset_depth/total_number, -> kommt weg!!!!!!!!!
     depth_ufg = depth_ufg / constant_cn,
     constant_cn = constant_cn,
     total_number_premises = total_number_premises,

@@ -8,6 +8,11 @@ set}
 \usage{
 check_boundary_input_cns(observed, observed_in_grid)
 }
+\arguments{
+\item{observed}{(nx2) the observed values}
+
+\item{observed_in_grid}{(vector) assignment to the grid}
+}
 \description{
 needed in test_ufg_main_cns
 This function checks which point lies in the spatial boundary of the convex

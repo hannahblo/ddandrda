@@ -5,8 +5,8 @@
 \title{Computes the ufg depth of posets}
 \usage{
 compute_ufg_depth_poset(
-  porder_observed,
-  porder_depth = NULL,
+  poset_observed,
+  poset_depth = NULL,
   min_card_ufg = NULL,
   max_card_ufg = NULL,
   input_check = TRUE,
@@ -15,11 +15,11 @@ compute_ufg_depth_poset(
 )
 }
 \arguments{
-\item{porder_observed}{(list of square matrix) list of matrices representing
+\item{poset_observed}{(list of square matrix) list of matrices representing
 partial orders of the same item dimension, based on these relations the ufg
 is computed}
 
-\item{porder_depth}{(list of square matrixes) list of matrices representing
+\item{poset_depth}{(list of square matrixes) list of matrices representing
 partial orders of the same item dimension, computation of the ufg value of
 these partial orders}
 
@@ -41,7 +41,7 @@ returns the ufg depth
 }
 \description{
 This function computes all ufg depth of the partial orders given
-by porder_values based on porder_list. Hereby the partial orders are given as
+by poset_values based on poset_list. Hereby the partial orders are given as
 a list ofindice matrices. Further one can add a upper cardinality boundary
 for the cardinality of the ufg premsies
 }

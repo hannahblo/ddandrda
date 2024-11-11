@@ -76,7 +76,33 @@ list_porder_13 <- list(relation_2, relation_4) # keine ufg
 list_porder_14 <- list(relation_10, relation_11, relation_12, relation_13)
 
 
+test_that("prepare_ufgpremises_poset works",  {
+  expect_equal(prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
+                                         number_items = 4)$count_dup,
+               c(1, 1, 2))
+  expect_equal(prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
+                                         number_items = 4)$number_obs,
+               4)
+  expect_equal(dim(prepare_ufgpremises_poset(
+    list_mat_poset_ml = list_porder_10,
+    number_items = 4)$whole_context),
+               c(219, 32))
+  expect_equal(prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
+                                         number_items = 4)$n_row_context,
+               3)
+})
 
+
+
+test_that("compute_ufg_existprem_poset works", {
+  # TODO
+  # prep_ufgpremises <- prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
+  #                                               number_items = 4)
+  # expect_equal(compute_ufg_existprem_poset(relation_2,
+  #                                          list(list(1,2)),
+  #                                          prep_ufgpremises),
+  #              )
+})
 
 
 
@@ -87,7 +113,7 @@ test_that("compute_ufg_depth_poset works", {
   expect_error(compute_ufg_depth_poset(list(matrix(c(1,2,3,4,5,6), ncol = 2)),
                                         list(matrix(c(1,2,3,4,5,6), ncol = 2))))
 
-  expect_equal(compute_ufg_depth_poset(porder_observed = list_porder_1,
+  expect_equal(compute_ufg_depth_poset(poset_observed = list_porder_1,
                                         print_progress_text = FALSE,
                                         save_ufg_premises = TRUE),
                list(depth_ufg = c(1.0000000, 0.5, 1.0000000),

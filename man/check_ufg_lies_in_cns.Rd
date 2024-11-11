@@ -9,6 +9,13 @@ the others}
 \usage{
 check_ufg_lies_in_cns(is_boundary, grid_numeric, grid_nominal)
 }
+\arguments{
+\item{is_boundary}{(list) produced by check_boundary_input_cns}
+
+\item{grid_numeric}{(vector) the numeric component of the entire grid}
+
+\item{grid_nominal}{(vector) the nominal component of the entire grid}
+}
 \description{
 needed in test_ufg_main_cns
 This function checks if it could be a ufg-premise based on the boundary
