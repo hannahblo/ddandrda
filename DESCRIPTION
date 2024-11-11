@@ -17,8 +17,6 @@ Imports:
     dplyr,
     fcaR,
     gtools,
-    PearsonDS,
-    relations,
+    plyr,
     Rfast,
-    stats,
-    withr
+    sf

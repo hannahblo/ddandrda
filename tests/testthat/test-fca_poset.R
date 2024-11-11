@@ -27,33 +27,57 @@ list_porder_2 <- list(relation_1, relation_2) # ist ufg
 list_porder_3 <- list(relation_1) # keine ufgg
 
 
-
-test_that("convert_list_to_context works", {
-  list <- list()
-  for (k in (1:20)) {
-    temp <- array(stats::rnorm(100), c(10, 10))
-    list[[k]] <- temp
-  }
-
-  list2 <- convert_context_to_list(convert_list_to_context(
-    list,
-    complemented = FALSE
-  ),
-  complemented = FALSE
-  )
-  expect_equal(list, list2)
-})
+context_3_all <- t(matrix(c(1, 0, 0, 1 , 1, 0, 1, 1, 1,
+                             1, 0, 0, 1, 1, 1, 1, 0, 1,
+                             1, 1, 0, 0, 1, 0, 1, 1, 1,
+                             1, 0, 1, 1, 1, 1, 0, 0, 1,
+                             1, 1, 1, 0, 1, 0, 0, 1, 1,
+                             1, 1, 1, 0, 1, 1, 0, 0, 1),
+                        ncol = 6))
 
 
+# test_that("convert_fc_to_list_poset works", {
+#   list <- list()
+#   for (k in (1:20)) {
+#     temp <- array(stats::rnorm(100), c(10, 10))
+#     list[[k]] <- temp
+#   }
+#
+#   list2 <- convert_fc_to_list_poset(convert_list_to_context(
+#     list,
+#     complemented = FALSE
+#   ),
+#   complemented = FALSE
+#   )
+#   expect_equal(list, list2)
+# })
 
 
-testthat::test_that("test_porder_in_concl works", {
-  expect_equal(test_porder_in_concl(list_porder_1, list_porder_1),
+
+
+testthat::test_that("test_poset_in_concl works", {
+  expect_equal(test_poset_in_concl(list_porder_1, list_porder_1),
                c(TRUE, TRUE, TRUE))
-  expect_equal(test_porder_in_concl(list_porder_2, list_porder_1),
+  expect_equal(test_poset_in_concl(list_porder_2, list_porder_1),
                c(TRUE, TRUE, TRUE))
-  expect_equal(test_porder_in_concl(list_porder_3, list_porder_1),
+  expect_equal(test_poset_in_concl(list_porder_3, list_porder_1),
                c(TRUE, FALSE, FALSE))
 
 })
 
+
+testthat::test_that("compute_context_all_poset works", {
+  expect_equal(unname(compute_context_all_poset(3)),
+               context_3_all)
+  expect_equal(dim(compute_context_all_poset(5)),
+               c(120, 25))
+})
+
+testthat::test_that("convert_fc_to_list_poset works", {
+  expect_equal(as.vector(convert_fc_to_list_poset(
+    compute_context_all_poset(3))[[1]]),
+               unname(compute_context_all_poset(3)[1, ]))
+  expect_equal(as.vector(convert_fc_to_list_poset(
+    compute_context_all_poset(5))[[30]]),
+    unname(compute_context_all_poset(5)[30, ]))
+})

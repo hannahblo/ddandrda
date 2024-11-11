@@ -1,6 +1,6 @@
 #' This function computes the closure operator for mixed spatial, numeric, nominal
 #' observations
-compute_hull_inner <- function(observed,
+compute_hull_inner_cns <- function(observed,
                                observed_in_grid,
                                sf_spatial,
                                grid_spatial,
@@ -11,15 +11,15 @@ compute_hull_inner <- function(observed,
   # spatial hull
   # https://gis.stackexchange.com/questions/360699/most-efficient-way-to-find-points-in-a-polygon-polygon-always-rectangular
   sf_set <- sf::st_multipoint(observed) # matrix(unlist(grid_spatial[set, ]), ncol = 2)
-  hull_obs <- st_convex_hull(sf_set)
+  hull_obs <- sf::st_convex_hull(sf_set)
 
   # simple bounding box --> less to test here
-  bbox <- st_bbox(sf_set)
+  bbox <- sf::st_bbox(sf_set)
   inbbox <- (grid_spatial[,1] >= bbox[1]) & (grid_spatial[,1] <= bbox[3]) &
     (grid_spatial[,2] >= bbox[2]) & (grid_spatial[,2] <= bbox[4])
 
   # computing hull
-  index_ch_bbox <- st_intersects(hull_obs, sf_spatial[inbbox, ])
+  index_ch_bbox <- sf::st_intersects(hull_obs, sf_spatial[inbbox, ])
   in_ch <- rep(FALSE, dim(grid_spatial)[1])
 
   in_ch[which(inbbox)[index_ch_bbox[[1]]]] <- TRUE

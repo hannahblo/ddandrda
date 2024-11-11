@@ -54,56 +54,53 @@ mat_14[1,2] <- mat_14[2,4] <- mat_14[4,3] <- 1
 
 
 
-test_that("compute_all_partial_orders works", {
-  all_4_orders <- compute_all_partial_orders(4,
-                                             complemented = FALSE,
-                                             list = FALSE
-  )
+test_that("compute_all_poset works", {
+  all_4_orders <- compute_all_poset(4, complemented = FALSE, list = FALSE)
   expect_equal(nrow(all_4_orders), 219)
 })
 
 
-test_that("test_if_porder works", {
-  expect_error(test_if_porder(c(1, 0, 0)))
-  expect_error(test_if_porder(mat_4))
-  expect_error(test_if_porder(mat_6, omit_reflexivity = 5))
-  expect_error(test_if_porder(mat_5))
-  expect_error(test_if_porder(matrix(c(1,2,a,v), ncol = 2)))
-  expect_equal(test_if_porder(mat_1), FALSE)
-  expect_equal(test_if_porder(mat_2), FALSE)
-  expect_equal(test_if_porder(mat_6), FALSE)
-  expect_equal(test_if_porder(mat_7), FALSE)
-  expect_equal(test_if_porder(mat_3), TRUE)
-  expect_equal(test_if_porder(mat_8), FALSE)
-  expect_equal(test_if_porder(mat_9), TRUE)
-  expect_equal(test_if_porder(mat_1, omit_reflexivity = TRUE), FALSE)
-  expect_equal(test_if_porder(mat_2, omit_reflexivity = TRUE), TRUE)
-  expect_equal(test_if_porder(mat_3, omit_reflexivity = TRUE), TRUE)
-  expect_equal(test_if_porder(mat_6, omit_reflexivity = TRUE), FALSE)
-  expect_equal(test_if_porder(mat_7, omit_reflexivity = TRUE), FALSE)
-  expect_equal(test_if_porder(mat_8, omit_reflexivity = TRUE), FALSE)
-  expect_equal(test_if_porder(mat_9, omit_reflexivity = TRUE), TRUE)
-  expect_equal(test_if_porder(matrix(0, nrow = 6, ncol = 6),
+test_that("test_if_poset works", {
+  expect_error(test_if_poset(c(1, 0, 0)))
+  expect_error(test_if_poset(mat_4))
+  expect_error(test_if_poset(mat_6, omit_reflexivity = 5))
+  expect_error(test_if_poset(mat_5))
+  expect_error(test_if_poset(matrix(c(1,2,a,v), ncol = 2)))
+  expect_equal(test_if_poset(mat_1), FALSE)
+  expect_equal(test_if_poset(mat_2), FALSE)
+  expect_equal(test_if_poset(mat_6), FALSE)
+  expect_equal(test_if_poset(mat_7), FALSE)
+  expect_equal(test_if_poset(mat_3), TRUE)
+  expect_equal(test_if_poset(mat_8), FALSE)
+  expect_equal(test_if_poset(mat_9), TRUE)
+  expect_equal(test_if_poset(mat_1, omit_reflexivity = TRUE), FALSE)
+  expect_equal(test_if_poset(mat_2, omit_reflexivity = TRUE), TRUE)
+  expect_equal(test_if_poset(mat_3, omit_reflexivity = TRUE), TRUE)
+  expect_equal(test_if_poset(mat_6, omit_reflexivity = TRUE), FALSE)
+  expect_equal(test_if_poset(mat_7, omit_reflexivity = TRUE), FALSE)
+  expect_equal(test_if_poset(mat_8, omit_reflexivity = TRUE), FALSE)
+  expect_equal(test_if_poset(mat_9, omit_reflexivity = TRUE), TRUE)
+  expect_equal(test_if_poset(matrix(0, nrow = 6, ncol = 6),
                               omit_reflexivity = TRUE
   ), TRUE)
 })
 
 
-test_that("compute_transitive_hull works", {
-  expect_error(compute_transitive_hull(c(1, 0, 0)))
-  expect_error(compute_transitive_hull(mat_4))
-  expect_error(compute_transitive_hull(mat_5))
-  expect_error(compute_transitive_hull(matrix(c(1,2,a,b), nrow = 2)))
-  expect_equal(compute_transitive_hull(mat_1), mat_2)
-  expect_equal(compute_transitive_hull(mat_2), mat_2)
-  expect_equal(compute_transitive_hull(mat_3), mat_3)
+test_that("compute_transitive_hull_poset works", {
+  expect_error(compute_transitive_hull_poset(c(1, 0, 0)))
+  expect_error(compute_transitive_hull_poset(mat_4))
+  expect_error(compute_transitive_hull_poset(mat_5))
+  expect_error(compute_transitive_hull_poset(matrix(c(1,2,a,b), nrow = 2)))
+  expect_equal(compute_transitive_hull_poset(mat_1), mat_2)
+  expect_equal(compute_transitive_hull_poset(mat_2), mat_2)
+  expect_equal(compute_transitive_hull_poset(mat_3), mat_3)
 })
 
 
-test_that("compute_relation_product works", {
-  expect_error(compute_relation_product(c(2,3,4), mat_1))
-  expect_error(compute_relation_product(mat_1, mat_7))
-  expect_equal(compute_relation_product(mat_1, mat_3), mat_1)
-  expect_equal(compute_relation_product(mat_3, mat_3), mat_3)
+test_that("compute_relation_product_poset works", {
+  expect_error(compute_relation_product_poset(c(2,3,4), mat_1))
+  expect_error(compute_relation_product_poset(mat_1, mat_7))
+  expect_equal(compute_relation_product_poset(mat_1, mat_3), mat_1)
+  expect_equal(compute_relation_product_poset(mat_3, mat_3), mat_3)
 })
 

@@ -1,4 +1,6 @@
 # Function to compute the weights of the fc
+# @Georg hier meintest du ist ein fehler, koenntest du hier die test function
+# noch schreiben?
 get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
   ## computes weighted representation of a data matrix x with duplicated rows,
   ##  returns unique(x) together with counts: how often appears the column,

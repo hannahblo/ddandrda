@@ -1,16 +1,17 @@
 
 # Preparation of computing the ufg premises
-prepare_ufg_premises <- function(list_mat_porders_ml,
+# @Hannah todo
+prepare_ufgpremises_poset <- function(list_mat_porders_ml,
                                  number_items) {
 
   fc_ml_porder <- compute_conceptual_scaling(input_porder = list_mat_porders_ml)
-  porder_all <- compute_all_partial_orders(number_items, list = FALSE, complemented = TRUE)
+  porder_all <- compute_all_poset(number_items, list = FALSE, complemented = TRUE)
 
   data_context <- get_weighted_representation(fc_ml_porder) # duplication
   n_row_context <- nrow(data_context$x_weighted)
   count_dup <- data_context$counts
   number_obs <- sum(data_context$counts)
-  list_porder_premises <- convert_context_to_list(data_context$x_weighted[ ,(1:25)],  complemented = FALSE)
+  list_porder_premises <- convert_fc_to_list_poset(data_context$x_weighted[ ,(1:25)],  complemented = FALSE)
 
   whole_context <- rbind(data_context$x_weighted, porder_all) # context of all posets
   index <- which(!duplicated(whole_context))
@@ -25,7 +26,8 @@ prepare_ufg_premises <- function(list_mat_porders_ml,
 
 
 # Computing the ufg depth based on already computed premises
-compute_ufg_exist_premises <- function(poset_interest, ufg_premises,
+# @Hannah todo
+compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
                                        prep_ufg_premises) {
 
   emp_prob <- prep_ufg_premises$count_dup / prep_ufg_premises$number_obs
@@ -36,7 +38,7 @@ compute_ufg_exist_premises <- function(poset_interest, ufg_premises,
     # print(paste0("Iteration ", i,  " of ", dim(ufg_premises)[1]))
     index_premise <- ufg_premises[[i]]
     prod_emp_ufg <- prod(emp_prob[index_premise])
-    concl_ufg <- ddandrda::test_porder_in_concl(prep_ufg_premises$list_porder_premises[index_premise], poset_interest) * 1
+    concl_ufg <- test_poset_in_concl(prep_ufg_premises$list_porder_premises[index_premise], poset_interest) * 1
 
     depth_ufg <- depth_ufg + concl_ufg * prod_emp_ufg
     constant_c <- constant_c + prod_emp_ufg
@@ -82,7 +84,7 @@ compute_ufg_exist_premises <- function(poset_interest, ufg_premises,
 #' @return returns the ufg depth
 #'
 #' @export
-compute_ufg_depth_porder <- function(porder_observed,
+compute_ufg_depth_poset <- function(porder_observed,
                                      porder_depth = NULL,
                                      min_card_ufg = NULL,
                                      max_card_ufg = NULL,
@@ -160,11 +162,11 @@ compute_ufg_depth_porder <- function(porder_observed,
                      card_sub))
         number_iteration <- number_iteration + 1
       }
-      if (test_ufg_porder(observed_list_unique[as.logical(subset_binary)], input_check = FALSE)) {
+      if (test_ufg_poset(observed_list_unique[as.logical(subset_binary)], input_check = FALSE)) {
         total_number_premises <- total_number_premises +
           1 * prod(number_dupl[as.logical(subset_binary)])
 
-        lies_in_concl <- test_porder_in_concl(
+        lies_in_concl <- test_poset_in_concl(
           observed_list_unique[as.logical(subset_binary)], porder_depth) * 1
         # count_porder_depth <- count_porder_depth + lies_in_concl *
         #   prod(number_dupl[as.logical(subset_binary)]) -> kommt weg!!!!!!!!!!!!!
@@ -216,7 +218,7 @@ compute_ufg_depth_porder <- function(porder_observed,
 #' length as dim(fc_sub)
 #'
 #' @return logical value stating wether fc_sub is a generic premise
-test_generic_porder <- function(fc_sub, cardinality_ufg) {
+test_generic_poset <- function(fc_sub, cardinality_ufg) {
   attr_distinguish <- which(colSums(fc_sub) == (cardinality_ufg - 1))
 
   # If cardinality of attr_distinguish is 1, what follows produces an error thus
@@ -242,7 +244,7 @@ test_generic_porder <- function(fc_sub, cardinality_ufg) {
 #'
 #' @description This function test if a premise of partial orders is  union-free
 #' based on containing. This function should not be executed without executing
-#' test_generic_porder bevor and getting a TRUE value
+#' test_generic_poset bevor and getting a TRUE value
 #'
 #' @param fc_sub (matrix) Formal context describing a subset of partial orders
 #' using the "edge_non_edge_porder" scaling method
@@ -252,7 +254,7 @@ test_generic_porder <- function(fc_sub, cardinality_ufg) {
 #' equl dim(fc_sub)
 #'
 #' @return logical value stating wether fc_sub is a  union-free premise
-test_ufree_porder <- function(fc_sub, ufg_candidate) {
+test_ufree_poset <- function(fc_sub, ufg_candidate) {
   # Use that an object which does not ly in any proper subset of ufg_candidate
   # must fulfill that the corresponding intent holds and for each partial order
   # in ufg_candidate at least one distinguishable element must hold.
@@ -360,7 +362,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
     # delt with it
     test_candidate_inner <- test_candidate
     test_candidate_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
-    test_candidate_inner <- compute_transitive_hull(test_candidate_inner)
+    test_candidate_inner <- compute_transitive_hull_poset(test_candidate_inner)
 
 
 
@@ -369,7 +371,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
     if (all(test_candidate_inner <= union_ufg_candidate)) {
       # check if test_candidate is a valid partial order (e.g. circles could
       # exists)
-      if (test_if_porder(test_candidate_inner)) {
+      if (test_if_poset(test_candidate_inner)) {
         # when the intersection_candidate exists, then check if it is needed to
         # obtain the test_candidate. If not, then one can delete this candidate
 
@@ -384,7 +386,7 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
           for (i in 1:length(index_wo_intersect)) {
             candidate_wo_intersect_inner <- candidate_wo_intersect[[index_wo_intersect[i]]]
             candidate_wo_intersect_inner[as.numeric(possible_add_edge[index_add, edge_part])] <- 1
-            candidate_wo_intersect_inner <- compute_transitive_hull(candidate_wo_intersect_inner)
+            candidate_wo_intersect_inner <- compute_transitive_hull_poset(candidate_wo_intersect_inner)
             if (!all(candidate_wo_intersect_inner == test_candidate_inner)) {
               is_needed_inner[[i]] <- TRUE
             } else {
@@ -429,10 +431,10 @@ test_ufree_porder <- function(fc_sub, ufg_candidate) {
 #'
 #' list_porder_2 <- list(relation_1, relation_2)
 #'
-#' test_ufg_porder(list_porder_2)
+#' test_ufg_poset(list_porder_2)
 #'
 #' @export
-test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
+test_ufg_poset <- function(ufg_candidate, input_check = TRUE) {
   # Input check
   if (!is.logical(input_check)) {
     stop("input_check must be logical.")
@@ -457,7 +459,7 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
   fc_sub <- compute_conceptual_scaling(input_porder = ufg_candidate)
 
   # check if generator (means minimal premise)
-  if (!test_generic_porder(
+  if (!test_generic_poset(
     fc_sub = fc_sub,
     cardinality_ufg = cardinality_ufg
   )) {
@@ -465,7 +467,7 @@ test_ufg_porder <- function(ufg_candidate, input_check = TRUE) {
   }
 
   # check if union-free
-  return(test_ufree_porder(fc_sub = fc_sub, ufg_candidate = ufg_candidate))
+  return(test_ufree_poset(fc_sub = fc_sub, ufg_candidate = ufg_candidate))
 }
 
 

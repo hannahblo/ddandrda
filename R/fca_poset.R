@@ -1,10 +1,10 @@
-# @Georg:
 
-# zu ueberarbeiten:
-# exportieren?
-compute_ranking_scaling <- function(x,
-                                    remove_full_columns = FALSE,
-                                    complemented = FALSE) {
+
+# @Georg? Hier bin ihc mir unsicher was das genau ist, koenntest du hierfür eine
+#' testfunktion schreiben und einen kurzen text?
+compute_poset_scaling <- function(x,
+                                  remove_full_columns = FALSE,
+                                  complemented = FALSE) {
 
   # given a matrix x where every row is one data point, computes for every data
   # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
@@ -57,7 +57,7 @@ compute_ranking_scaling <- function(x,
 
 #' Convert a context into a list
 #'
-#' @description 'convert_context_to_list' converts a context that represents
+#' @description 'convert_fc_to_list_poset' converts a context that represents
 #' a partial order (or an arbitrary homogeneous relation, possibly complemented)
 #' into a list
 #'
@@ -66,8 +66,9 @@ compute_ranking_scaling <- function(x,
 #' a list of complemented incidence matrices is returned)
 #' @param col_names Names of the columns of the context
 #' @param row_names Names of the rows of the context
-#' @export
-convert_context_to_list <- function(context, complemented = FALSE,
+#'
+#' @return list of posets corresponding to the objects of the context
+convert_fc_to_list_poset <- function(context, complemented = FALSE,
                                     col_names = NULL, row_names = NULL) {
   n_rows <- nrow(context)
   if (complemented) {
@@ -92,10 +93,10 @@ convert_context_to_list <- function(context, complemented = FALSE,
 }
 
 
-#' Context with all partial orders as intents
+#' Context with all partial orders as objsexts
 #'
-#' @description 'compute_context_all_p_orders' computes a formal context whose
-#' intents are all partial orders on a set of n_items elements
+#' @description 'compute_context_all_poset' computes a formal context whose
+#' objects are all partial orders on a set of n_items elements
 #' (PLUS the ALL-relation!): Since every partial order is an intersection
 #' of a set of linear orders (more concretely the set of all linear
 #' extensions), one can can compute the set of all partial orders as the
@@ -111,38 +112,20 @@ convert_context_to_list <- function(context, complemented = FALSE,
 #' @examples
 #' n_items <- 5
 #' steps <- 10000
-#' context_for_n_items_p_orders <- compute_context_all_p_orders(
+#' context_for_n_items_p_orders <- compute_context_all_poset(
 #'   n_items =
 #'     n_items
 #' )
-#' c_orders <- compute_all_partial_orders(
+#' c_orders <- compute_all_poset(
 #'   n_items = n_items, complemented = TRUE,
 #'   list = TRUE
 #' )
-#' context <- convert_list_to_context(c_orders, complemented = TRUE)
-#' index <- sample((1:nrow(context)), size = 3)
-#' sampled_context <- context[index, ]
-#' g <- function(intent, context) {
-#'   0.00001 + compute_tukeys_depth(
-#'     c(intent, 1 - intent),
-#'     sampled_context
-#'   )
-#' }
-#' tukeys_true_median <- compute_tukeys_median_order(c_orders[index])
-#' tukeys_median_based_on_mc_heuristic <- sample_concept(
-#'   context_for_n_items_p_orders,
-#'   steps = steps, g
-#' )
-#' par(mfrow = c(2, 1))
-#' plot_relation(tukeys_true_median$median)
-#' dim(tukeys_median_based_on_mc_heuristic) <- c(n_items, n_items)
-#' plot_relation(tukeys_median_based_on_mc_heuristic)
 #'
 #' @export
-compute_context_all_p_orders <- function(n_items, names = (1:n_items)) {
+compute_context_all_poset <- function(n_items, names = (1:n_items)) {
   perms <- gtools::permutations(n_items, n_items)
   colnames(perms) <- names
-  context <- compute_ranking_scaling(perms,
+  context <- compute_poset_scaling(perms,
                                      remove_full_columns = FALSE,
                                      complemented = FALSE
   )
@@ -168,7 +151,7 @@ compute_context_all_p_orders <- function(n_items, names = (1:n_items)) {
 #' FALSE is returened
 #'
 #' @export
-test_porder_in_concl <- function(subset, obj_porder_obs,
+test_poset_in_concl <- function(subset, obj_porder_obs,
                                  info_list = NULL) {
   number_item <- dim(subset[[1]])[[1]]
   subset_intersect <- 1 * Reduce("&", subset,

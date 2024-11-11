@@ -1,6 +1,6 @@
 #' All partial orders on a set of q elements
 #'
-#' @description 'compute_all_partial_orders' returns the set of all partial
+#' @description 'compute_all_poset' returns the set of all partial
 #'  orders on a set of n_items elements
 #'
 #'
@@ -14,11 +14,11 @@
 #' @return returns the set of all partial orders on a space of q elements
 #'
 #' @export
-compute_all_partial_orders <- function(n_items, names = (1:n_items),
+compute_all_poset <- function(n_items, names = (1:n_items),
                                        complemented, list) {
   perms <- gtools::permutations(n_items, n_items)
   colnames(perms) <- names
-  context <- compute_ranking_scaling(perms,
+  context <- compute_poset_scaling(perms,
                                      remove_full_columns = FALSE,
                                      complemented = FALSE
   )
@@ -29,7 +29,7 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
   index <- which(rowSums(ans) == ncol(ans))
   ans <- ans[-index, ]
   colnames(ans) <- colnames(context)
-  ans_list <- convert_context_to_list(ans, complemented = FALSE)
+  ans_list <- convert_fc_to_list_poset(ans, complemented = FALSE)
   if (list) {
     if (complemented) {
       for (k in seq_len(nrow(ans))) {
@@ -66,11 +66,11 @@ compute_all_partial_orders <- function(n_items, names = (1:n_items),
 #' mat_1[2, 1] <- 1
 #' mat_1[4, 3] <- 1
 #' mat_1[2, 3] <- 1
-#' test_if_porder(mat_1)
-#' test_if_porder(mat_1, omit_reflexivity = TRUE)
+#' test_if_poset(mat_1)
+#' test_if_poset(mat_1, omit_reflexivity = TRUE)
 #'
 #' @export
-test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
+test_if_poset <- function(po_candidate, omit_reflexivity = FALSE) {
   # Input check
   check_input_tipo(po_candidate, omit_reflexivity)
 
@@ -100,7 +100,7 @@ test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
   # not a transitive
   # We use the function in fca_ufg_partial_order.r
 
-  return(all(compute_transitive_hull(po_candidate) == po_candidate))
+  return(all(compute_transitive_hull_poset(po_candidate) == po_candidate))
   # this tolerance is sufficient since only 0 or 1 exists
 }
 
@@ -109,7 +109,7 @@ test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
 #' Compute the transitive hull of a partial order
 #'
 #' @description
-#' 'compute_transitive_hull' returns a 0-1-matrix which represents the
+#' 'compute_transitive_hull_poset' returns a 0-1-matrix which represents the
 #' order-pairs given by the transitivity property of a partial order
 #'
 #' @param relation_mat Rrepresents a relation matrix. Note that
@@ -122,10 +122,10 @@ test_if_porder <- function(po_candidate, omit_reflexivity = FALSE) {
 #' relation_mat_input[1, 3] <- 1
 #' relation_mat_input[2, 1] <- 1
 #' relation_mat_input[4, 3] <- 1
-#' compute_transitive_hull(relation_mat_input)
+#' compute_transitive_hull_poset(relation_mat_input)
 #'
 #' @export
-compute_transitive_hull <- function(relation_mat) {
+compute_transitive_hull_poset <- function(relation_mat) {
   # Input check
   if (!is.matrix(relation_mat)) {
     stop("relation_mat must be matrix.")
@@ -154,7 +154,7 @@ compute_transitive_hull <- function(relation_mat) {
     # this computes the next step. In other words in the first loop it computes
     # all edges which can be obtained by the combination of twp edges in
     # relation_mat
-    next_matrix <- compute_relation_product(old_matrix, relation_mat)
+    next_matrix <- compute_relation_product_poset(old_matrix, relation_mat)
 
     # contains all paths which can be done in maximal number of loop iteration
     # of steps
@@ -181,7 +181,7 @@ compute_transitive_hull <- function(relation_mat) {
 #'
 #' @return 0-1-Matrix: Represents a graph after two steps which are defined by
 #'         x and y
-compute_relation_product <- function(x, y) {
+compute_relation_product_poset <- function(x, y) {
   # Input check
   if (!is.matrix(x) || !is.matrix(y)) {
     stop("Input must be matrix")
