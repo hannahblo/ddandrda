@@ -1,6 +1,13 @@
-# Function to compute the weights of the fc
+
 # @Georg hier meintest du ist ein fehler, koenntest du hier die test function
-# noch schreiben?
+# noch schreiben und die Beschreibung hinzufügen
+#' Function to compute the weights of the formal context
+#'
+#' @param x at Georg
+#' @param y at Georg
+#'
+#' @return list
+#' @export
 get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
   ## computes weighted representation of a data matrix x with duplicated rows,
   ##  returns unique(x) together with counts: how often appears the column,
@@ -9,10 +16,16 @@ get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
   names(xd)[1] <- "v1"
   v1 <- "v1"
   p <- dim(x)[2]
-  result <- as.matrix(plyr::ddply(xd, names(xd[(1:p)]), dplyr::summarise, count = length(v1), mean.y = mean(y), sum.y = sum(y)))
+  result <- as.matrix(plyr::ddply(xd, names(xd[(1:p)]),
+                                  dplyr::summarise,
+                                  count = length(v1),
+                                  mean.y = mean(y), sum.y = sum(y)))
   x_weighted <- result[, (1:p)]
   colnames(x_weighted) <- colnames(x)
-  return(list(x_weighted = x_weighted, y_weighted = result[, p + 3], mean_y = result[, p + 2], counts = result[, p + 1]))
+  return(list(x_weighted = x_weighted,
+              y_weighted = result[, p + 3],
+              mean_y = result[, p + 2],
+              counts = result[, p + 1]))
 }
 
 
