@@ -31,6 +31,8 @@ check_mingenerator_hierarchical <- function(objset, context){
 #'
 #' @description This function computes the contributing values for the ufg
 #' depth given by one element ufg premises
+#' It is assuemd that for every category there are at least two different 
+#' objects with exactly this category 
 #'
 #' @param context (matrix of 1 and 0) representing a formal context
 #' @param weights (vector) weights of objects
@@ -68,6 +70,9 @@ ufg_1_depth_hierarchical <- function(context, weights = rep(1,nrow(context))) {
 #' This is based on ufg depth introduced in:
 #' Hannah Blocher, Georg Schollmeyer  (2024+): The union-free generic depth
 #' using formal concept analysis.
+#' It is assuemd that for every category there are at least two different 
+#' objects with exactly this category. Additionally it is assumed that on 
+#' every level there are at least 3 different categories
 #'
 #' @description This function computes the contributing values for the ufg
 #' depth given by two element ufg premises
@@ -95,14 +100,14 @@ ufg_2_depth_hierarchical <- function(context, weights = rep(1,nrow(context))) {
       }
       if (check_result) {
         extent <- operator_closure_obj_input(extent,context)
-        result[which(extent == 1)] = result[which(extent == 1)]
-        + 2 * weights[k] * weights[l]
+        result[which(extent == 1)] <- result[which(extent == 1)] + 
+        2 * weights[k] * weights[l]
         S <- S + 2 * weights[k] * weights[l]
         t <- t + 1
       }
     }
   }
-  return(list(depths = result/S, number_of_ufgs = S) )
+  return(list(depths = result/S, number_of_ufgs = S/2) )
 }
 
 
