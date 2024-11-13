@@ -19,7 +19,8 @@ compute_tukeys_outlyingness <- function(intent,
   if (is.matrix(intent)) {
     return(sapply(as.list(as.data.frame(t(intent))),
                   compute_tukeys_outlyingness,
-                  context = context, simplify = TRUE
+                  context = context, row_weights=row_weights,
+                  col_weights=col_weights, simplify = TRUE
     ))
   }
 }
