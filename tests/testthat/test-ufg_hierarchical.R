@@ -17,6 +17,6 @@ testthat::test_that("ufg_1_depth_hierarchical works", {
 
 testthat::test_that("ufg_2_depth_hierarchical works", {
   expect_equal(ufg_2_depth_hierarchical(fc_1),
-               list(depths = rep(0, 8),
-                    number_of_ufgs = 48))
+               list(depths = rep(20/24, 8),
+                    number_of_ufgs = 24))
 })
