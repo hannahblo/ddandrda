@@ -12,7 +12,7 @@ test_that("compute_tukeys_depth works", {
   expect_equal(argmax, 9)
 
   depth_values <- compute_tukeys_depth(context, context,row_weights=c(1,50,rep(1,7)))
-  max <- which.max(depth_values) *58
-  names(argmax) <- NULL
+  max <- (depth_values[1]) *58
+  names(max) <- NULL
   expect_equal(max, 51)
 })
