@@ -1,17 +1,22 @@
 
 
-# @Georg? Hier bin ihc mir unsicher was das genau ist, koenntest du hierfür eine
-#' testfunktion schreiben und einen kurzen text?
+#  computes a formal context that rpresents a data matrix as a matrix of total orders
 #'
-#' @param x (matrix)
-#' @param remove_full_columns (logical)
-#' @param complemented (logical)
+#' given a matrix x with n columns where every row is one data point,
+#' computes for every data point x_i the incidence_matrix
+#' x_i^k <= x_i^l , k,l in {1, .. n}
+#' @param x A matrix. Every row represents one total order
+#' @param remove_full_columns (logical): If True, then resuting columns that consist only
+#' of ones, are removed
+#' @param complemented (logical)  If True, then also the attributes 
+#' NOT (x_i^k <= x_i^l , k,l in {1, .. n}) are included
+#' @return matrix where row i represents the incidence matrixthat corresponds to the i-th 
+#' row of the data matrix X
 compute_poset_scaling <- function(x,
                                   remove_full_columns = FALSE,
                                   complemented = FALSE) {
 
-  # given a matrix x where every row is one data point, computes for every data
-  # point x_i the incidence_matrix x_i^k <= x_i^l , k,l in {1, .. n}
+  
 
   m <- dim(x)[1]
   n <- dim(x)[2]
