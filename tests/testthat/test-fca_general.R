@@ -40,3 +40,8 @@ test_that("operator_closure_obj_input works", {
   expect_equal(operator_closure_obj_input(c(0, 1, 0, 0), context_pp),
                c(0, 1, 0, 0))
 })
+
+test_that("get_weighted_representation works", {
+  context <- diag((1:10))
+  expect_equal(get_weighted_representation(context[c(1,2,3,4,4,4),])$counts, c(3,1,1,1))
+})
