@@ -81,3 +81,8 @@ testthat::test_that("convert_fc_to_list_poset works", {
     compute_context_all_poset(5))[[30]]),
     unname(compute_context_all_poset(5)[30, ]))
 })
+
+test_that("compute_poset_scaling works",{
+X <- rbind(seq_len(8),c(8,7,6,5,4,3,2,1))
+ expect_equal(compute_poset_scaling(X)[1,2],1) 
+})
