@@ -1,12 +1,18 @@
 
-# @Georg hier meintest du ist ein fehler, koenntest du hier die test function
-# noch schreiben und die Beschreibung hinzufügen
-#' Function to compute the weights of the formal context
+#' compute weighted representation of a data matrix
 #'
-#' @param x at Georg
-#' @param y at Georg
+#' @description computes weighthed representation of a data matrix x with
+#' duplicated rows, returns unique(x) together with counts: how often appears
+#' the column, mean_y: mean of y in the set of the duplicated columns
+#' WARNING: the order of the rows generally differs from the order one would get
+#' by applying the function 'unique()'.
+#' @param x data matrix
+#' @param y a further variable. The mean of y in every set of duplicated
+#' x-rows is computed
 #'
-#' @return list
+#' @return list with mean_y: mean of y in the set of the duplicated columns
+#' counts: how often appears the row in the original data matrix X
+  
 #' @export
 get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
   ## computes weighted representation of a data matrix x with duplicated rows,
