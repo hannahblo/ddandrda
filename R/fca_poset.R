@@ -10,8 +10,9 @@
 #' of ones, are removed
 #' @param complemented (logical)  If True, then also the attributes 
 #' NOT (x_i^k <= x_i^l , k,l in {1, .. n}) are included
-#' @return matrix where row i represents the incidence matrixthat corresponds to the i-th 
-#' row of the data matrix X
+#' @return matrix where row i represents the incidence matrix that corresponds to the i-th 
+#' row of the data matrix X (Note that e.g. the entry [1,2] of the i-th row corresponds to the
+#' attribute x_i^2 <= x_i^1
 compute_poset_scaling <- function(x,
                                   remove_full_columns = FALSE,
                                   complemented = FALSE) {
