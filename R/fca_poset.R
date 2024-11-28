@@ -1,23 +1,26 @@
 
 
-#  computes a formal context that rpresents a data matrix as a matrix of total orders
+#' Computes a formal context that presents a data matrix as a matrix
+#' of total orders
 #'
-#' given a matrix x with n columns where every row is one data point,
+#' Given a matrix x with n columns where every row is one data point,
 #' computes for every data point x_i the incidence_matrix
 #' x_i^k <= x_i^l , k,l in {1, .. n}
+#'
 #' @param x A matrix. Every row represents one total order
-#' @param remove_full_columns (logical): If True, then resuting columns that consist only
-#' of ones, are removed
-#' @param complemented (logical)  If True, then also the attributes 
+#' @param remove_full_columns (logical): If True, then resulting columns that
+#' consist only of ones, are removed
+#' @param complemented (logical)  If True, then also the attributes
 #' NOT (x_i^k <= x_i^l , k,l in {1, .. n}) are included
-#' @return matrix where row i represents the incidence matrix that corresponds to the i-th 
-#' row of the data matrix X (Note that e.g. the entry [1,2] of the i-th row corresponds to the
-#' attribute x_i^2 <= x_i^1
+#'
+#' @return matrix where row i represents the incidence matrix that corresponds
+#' to the i-th row of the data matrix X (Note that e.g. the entry 1,2 of the
+#' i-th row corresponds to the attribute x_i^2 <= x_i^1
 compute_poset_scaling <- function(x,
                                   remove_full_columns = FALSE,
                                   complemented = FALSE) {
 
-  
+
 
   m <- dim(x)[1]
   n <- dim(x)[2]
@@ -103,7 +106,7 @@ convert_fc_to_list_poset <- function(context, complemented = FALSE,
 }
 
 
-#' Context with all partial orders as objsexts
+#' Context with all partial orders as objects
 #'
 #' @description 'compute_context_all_poset' computes a formal context whose
 #' objects are all partial orders on a set of n_items elements
@@ -158,7 +161,7 @@ compute_context_all_poset <- function(n_items, names = (1:n_items)) {
 #' observation  (same length as premise)
 #'
 #' @return logical value. TRUE if obj_nominal_obs lies in the conclusion, else
-#' FALSE is returened
+#' FALSE is returned
 #'
 #' @export
 test_poset_in_concl <- function(subset, obj_porder_obs,

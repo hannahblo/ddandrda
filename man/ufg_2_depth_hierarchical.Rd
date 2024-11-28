@@ -22,4 +22,7 @@ depth given by two element ufg premises
 This is based on ufg depth introduced in:
 Hannah Blocher, Georg Schollmeyer  (2024+): The union-free generic depth
 using formal concept analysis.
+It is assuemd that for every category there are at least two different
+objects with exactly this category. Additionally it is assumed that on
+every level there are at least 3 different categories
 }

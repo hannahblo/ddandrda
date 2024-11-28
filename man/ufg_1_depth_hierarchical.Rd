@@ -17,6 +17,8 @@ list of depth value and number of ufg-premises with cardinality 1
 \description{
 This function computes the contributing values for the ufg
 depth given by one element ufg premises
+It is assuemd that for every category there are at least two different
+objects with exactly this category
 }
 \details{
 This is based on ufg depth introduced in:

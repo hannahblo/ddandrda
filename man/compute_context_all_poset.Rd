@@ -2,7 +2,7 @@
 % Please edit documentation in R/fca_poset.R
 \name{compute_context_all_poset}
 \alias{compute_context_all_poset}
-\title{Context with all partial orders as objsexts}
+\title{Context with all partial orders as objects}
 \usage{
 compute_context_all_poset(n_items, names = (1:n_items))
 }

@@ -14,6 +14,7 @@ calculate_phi(subset_attributes, context)
 }
 \value{
 subset (array): the smallest extent (set of objects) in the FCA
+based on subset_attributes and the formal context
 }
 \description{
 Calculates for a subset of attributes the minimal extent based on the

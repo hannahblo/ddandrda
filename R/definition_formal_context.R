@@ -96,7 +96,7 @@ compute_ordinal_scaling_vec <- function(data_values, add_column_name = NULL) {
 #'
 #' @return dataframe representing the crosstable/formal context
 compute_dualordinal_scal_vec <- function(data_values,
-                                             add_column_name = NULL) {
+                                         add_column_name = NULL) {
   data_values <- as.numeric(as.character(data_values))
 
   attr <- sort(unique(data_values))

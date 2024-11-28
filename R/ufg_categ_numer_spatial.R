@@ -10,6 +10,8 @@
 #' (L is the number of grids)
 #' @param grid_numeric (vector) the numeric component of the entire grid
 #' @param grid_nominal (vector) the nominal component of the entire grid
+#'
+#' @return list containing logical value if ufg-premise and the computed hull
 test_ufg_classic_cns <- function(observed,
                              observed_in_grid,
                              sf_spatial,

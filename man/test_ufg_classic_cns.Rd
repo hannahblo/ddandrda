@@ -29,6 +29,9 @@ test_ufg_classic_cns(
 
 \item{grid_nominal}{(vector) the nominal component of the entire grid}
 }
+\value{
+list containing logical value if ufg-premise and the computed hull
+}
 \description{
 needed in test_ufg_main_cns
 This function tests if the subset is a ufg-premise WITHOUT utilizing that the

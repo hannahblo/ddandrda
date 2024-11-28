@@ -14,6 +14,7 @@ calculate_psi(subset_objects, context)
 }
 \value{
 subset (array): the smallest intent (set of attributes) in the FCA
+based on subset_objects and the formal context
 }
 \description{
 Calculates for a subset of objects the minimal intent based on the given

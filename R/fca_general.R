@@ -1,5 +1,5 @@
 
-#' compute weighted representation of a data matrix
+#' Computes weighted representation of a data matrix
 #'
 #' @description computes weighthed representation of a data matrix x with
 #' duplicated rows, returns unique(x) together with counts: how often appears
@@ -12,11 +12,11 @@
 #'
 #' @return list with mean_y: mean of y in the set of the duplicated columns
 #' counts: how often appears the row in the original data matrix X
-  
+
 #' @export
 get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
-  ## computes weighted representation of a data matrix x with duplicated rows,
-  ##  returns unique(x) together with counts: how often appears the column,
+  # computes weighted representation of a data matrix x with duplicated rows,
+  # returns unique(x) together with counts: how often appears the column,
   # mean_y: mean of y in the set of the duplicated columns
   xd <- data.frame(cbind(x, y))
   names(xd)[1] <- "v1"
@@ -48,6 +48,8 @@ get_weighted_representation <- function(x, y = rep(1, dim(x)[1])) {
 #'
 #' @return subset (array): to smallest closure in the FCA based on
 #' subset_object and context
+#'
+#' @export
 operator_closure_obj_input <- function(subset_object, context) {
   calculate_phi(calculate_psi(subset_object, context), context)
 }
@@ -64,6 +66,8 @@ operator_closure_obj_input <- function(subset_object, context) {
 #'
 #' @return subset (array): to smallest closure in the FCA based on
 #' subset_object and context
+#'
+#' @export
 operator_closure_attr_input <- function(subset_attribute, context) {
   calculate_psi(calculate_phi(subset_attribute, context), context)
 }
@@ -76,7 +80,9 @@ operator_closure_attr_input <- function(subset_attribute, context) {
 #' @param context (matrix): formal context which is used to calculate the extent
 #'
 #' @return subset (array): the smallest extent (set of objects) in the FCA
-#                         based on subset_attributes and the formal context
+#'                         based on subset_attributes and the formal context
+#'
+#' @export
 calculate_phi <- function(subset_attributes, context) {
   index_attribute <- which(subset_attributes == 1)
   selected_attributes <- as.matrix(context[, index_attribute])
@@ -104,7 +110,9 @@ calculate_phi <- function(subset_attributes, context) {
 #' @param context (matrix): formal context which is used to calculate the intent
 #'
 #' @return subset (array): the smallest intent (set of attributes) in the FCA
-#                         based on subset_objects and the formal context
+#'                         based on subset_objects and the formal context
+#'
+#' @export
 calculate_psi <- function(subset_objects, context) {
   # Determines and sub-setting the objects which are selected
   index_object <- which(subset_objects == 1)

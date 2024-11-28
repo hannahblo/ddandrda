@@ -26,7 +26,7 @@ compute_hull_inner_cns <- function(observed,
 
   # spatial hull
   # https://gis.stackexchange.com/questions/360699/most-efficient-way-to-find-points-in-a-polygon-polygon-always-rectangular
-  sf_set <- sf::st_multipoint(observed) # matrix(unlist(grid_spatial[set, ]), ncol = 2)
+  sf_set <- sf::st_multipoint(observed)
   hull_obs <- sf::st_convex_hull(sf_set)
 
   # simple bounding box --> less to test here
@@ -42,7 +42,9 @@ compute_hull_inner_cns <- function(observed,
   # in_ch[bbox[index_ch_bbox]] <- TRUE
   # inbbox[inbbox][ index_ch[[1]]] <- TRUE
 
-  in_ch[observed_in_grid] <- TRUE # note, when one point in grid observed, the entire grid is observed, even when the center of the grid does not lie in the hull
+  in_ch[observed_in_grid] <- TRUE
+  # note, when one point in grid observed, the entire grid is observed,
+  # even when the center of the grid does not lie in the hull
   # in_ch[inbbox] <- TRUE
   in_ch[is.na(in_ch)] <- FALSE
 

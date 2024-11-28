@@ -17,7 +17,7 @@ observation  (same length as premise)}
 }
 \value{
 logical value. TRUE if obj_nominal_obs lies in the conclusion, else
-FALSE is returened
+FALSE is returned
 }
 \description{
 Based on nominal scaling this function tests if a further
