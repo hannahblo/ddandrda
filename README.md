@@ -13,7 +13,7 @@ This package implements depth functions for mixed spatial-ordinal-numeric data, 
 
 ## Corresponding Literatur
 - Hannah Blocher and Georg Schollmeyer (2025): Data depth functions for non-standard data by use of formal concept analysis. Journal of Multivariate Analysis, 205, 105372.
-- Julian Rodemann*, Hannah Blocher* (2024): Partial Rankings of Optimizers. International Conference on Learning Representations ICLR 2024, Tiny Papers Track, Vienna, Austria.
+- Julian Rodemann, Hannah Blocher (2024): Partial Rankings of Optimizers. International Conference on Learning Representations ICLR 2024, Tiny Papers Track, Vienna, Austria.
 - Hannah Blocher, Georg Schollmeyer, Malte Nalenz and Christoph Jansen (2024): Comparing Machine Learning Algorithms by Union-Free Generic Depth. International Journal of Approximate Reasoning, 169: 1-23.
 
 ## Installation
