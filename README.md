@@ -6,9 +6,15 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of ddandrda is to …
+ddandrda stands for "Data Depth and Relational Data Analysis." (This version of the main branch applies to all projects coded after November 2024.)
 
-Readme only initialized and not updated
+Depth functions measure centrality and outlyingness with respect to a probability distribution or data cloud. To extend the concept of centrality to non-standard data, i.e. data that cannot be represented in normed vector spaces, this package utilizes formal concept analysis to define depth functions for such cases.
+This package implements depth functions for mixed spatial-ordinal-numeric data, partial order-valued data, and hierarchical nominal data. For more details on these depth functions, please refer to the relevant literature below.
+
+## Corresponding Literatur
+- Hannah Blocher and Georg Schollmeyer (2025): Data depth functions for non-standard data by use of formal concept analysis. Journal of Multivariate Analysis, 205, 105372.
+- Julian Rodemann*, Hannah Blocher* (2024): Partial Rankings of Optimizers. International Conference on Learning Representations ICLR 2024, Tiny Papers Track, Vienna, Austria.
+- Hannah Blocher, Georg Schollmeyer, Malte Nalenz and Christoph Jansen (2024): Comparing Machine Learning Algorithms by Union-Free Generic Depth. International Journal of Approximate Reasoning, 169: 1-23.
 
 ## Installation
 
@@ -19,15 +25,9 @@ You can install the development version of ddandrda from
 # install.packages("devtools")
 devtools::install_github("hannahblo/ddandrda")
 ```
+Please note that this package requires the RcppZiggurat package, which depends on RcppGSL. The RcppZiggurat package will only load successfully if the installed GSL on the Linux or Windows setup matches.
 
-## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-# library(ddandrda)
-## basic example code
-```
 
 <!-- What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so: -->
 <!-- ```{r cars} -->
