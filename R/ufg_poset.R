@@ -1,6 +1,5 @@
 
 # Preparation of computing the ufg premises
-# @Hannah todo
 prepare_ufgpremises_poset <- function(list_mat_poset_ml,
                                       number_items) {
 
@@ -12,7 +11,7 @@ prepare_ufgpremises_poset <- function(list_mat_poset_ml,
   n_row_context <- nrow(data_context$x_weighted)
   count_dup <- data_context$counts
   number_obs <- sum(data_context$counts)
-  list_poset_premises <- convert_fc_to_list_poset(data_context$x_weighted[ ,(1:25)],  complemented = FALSE)
+  list_poset_premises <- convert_fc_to_list_poset(data_context$x_weighted[ ,(1:(number_obs * number_obs))],  complemented = FALSE)
 
   whole_context <- rbind(data_context$x_weighted, porder_all) # context of all posets
   index <- which(!duplicated(whole_context))
@@ -27,7 +26,6 @@ prepare_ufgpremises_poset <- function(list_mat_poset_ml,
 
 
 # Computing the ufg depth based on already computed premises
-# @Hannah todo
 compute_ufg_existprem_poset <- function(poset_interest, ufg_premises,
                                         prep_ufg_premises) {
 

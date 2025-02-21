@@ -95,13 +95,14 @@ test_that("prepare_ufgpremises_poset works",  {
 
 
 test_that("compute_ufg_existprem_poset works", {
-  # TODO
-  # prep_ufgpremises <- prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
-  #                                               number_items = 4)
-  # expect_equal(compute_ufg_existprem_poset(relation_2,
-  #                                          list(list(1,2)),
-  #                                          prep_ufgpremises),
-  #              )
+  prep_ufgpremises <- prepare_ufgpremises_poset(list_mat_poset_ml =  list_porder_10,
+                                                number_items = 4)
+  expect_equal(compute_ufg_existprem_poset(list(relation_2), list(c(1,2)),
+                                           prep_ufgpremises),
+               0)
+  expect_equal(compute_ufg_existprem_poset(list_porder_10, list(c(1,2)),
+                                           prep_ufgpremises),
+               c(1, 0, 0, 1))
 })
 
 
