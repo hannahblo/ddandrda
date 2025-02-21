@@ -16,6 +16,8 @@
 #' @param grid_nominal (vector) the nominal component of the entire grid
 #'
 #' @return logical value
+#'
+#' @importFrom stats na.omit
 compute_hull_inner_cns <- function(observed,
                                observed_in_grid,
                                sf_spatial,
