@@ -14,7 +14,7 @@ compute_poset_scaling(x, remove_full_columns = FALSE, complemented = FALSE)
 consist only of ones, are removed}
 
 \item{complemented}{(logical)  If True, then also the attributes
-NOT (x_i^k <= x_i^l , k,l in {1, .. n}) are included}
+NOT (x_i^k <= x_i^l , k,l in 1, .. n) are included}
 }
 \value{
 matrix where row i represents the incidence matrix that corresponds
@@ -24,5 +24,5 @@ i-th row corresponds to the attribute x_i^2 <= x_i^1
 \description{
 Given a matrix x with n columns where every row is one data point,
 computes for every data point x_i the incidence_matrix
-x_i^k <= x_i^l , k,l in {1, .. n}
+x_i^k <= x_i^l , k,l in 1, .. n
 }
