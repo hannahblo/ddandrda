@@ -15,10 +15,9 @@ Suggests:
 Config/testthat/edition: 3
 Imports: 
     dplyr,
+    fastmatch,
     fcaR,
     gtools,
-    PearsonDS,
-    relations,
+    plyr,
     Rfast,
-    stats,
-    withr
+    sf
